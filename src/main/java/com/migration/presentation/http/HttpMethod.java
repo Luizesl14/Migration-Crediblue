@@ -24,7 +24,7 @@ public class HttpMethod {
 
         HttpRequest request = HttpRequest.newBuilder()
                 .GET()
-                .header("Authorization", "Bearer "+"token")
+                .header("Authorization", "Bearer "+this.getToken())
                 .uri(URI.create(url))
                 .build();
         java.net.http.HttpClient httpClient = java.net.http.HttpClient.newBuilder().build();
