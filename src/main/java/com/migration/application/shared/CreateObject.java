@@ -1,6 +1,8 @@
 package com.migration.application.shared;
 
+import com.migration.domain.ProposalProponent;
 import com.migration.domain.enums.*;
+import com.migration.domain.persona.Persona;
 import com.migration.domain.persona.aggregation.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -60,5 +62,15 @@ public class CreateObject {
         personaPhone.setPrincipal(Boolean.TRUE);
         personaPhone.setType(CategoryType.PERSONAL);
         return personaPhone;
+    }
+
+
+    public ProposalProponent createProponent(Persona persona, LocalDateTime createdAt, ProponentType type){
+        ProposalProponent proposalProponent = new ProposalProponent();
+        proposalProponent.setPersona(persona);
+        proposalProponent.setCreatedAt(
+                createdAt == null ? new Date() : this.convert.covertLocalDataTimeToDate(createdAt));
+        proposalProponent.setType(type);
+        return  proposalProponent;
     }
 }

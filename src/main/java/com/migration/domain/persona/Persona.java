@@ -1,5 +1,6 @@
 package com.migration.domain.persona;
 
+import com.migration.domain.enums.ProponentType;
 import com.migration.domain.persona.aggregation.*;
 import com.migration.domain.enums.GenderType;
 import com.migration.domain.enums.MaritalStatus;
@@ -34,6 +35,7 @@ public class Persona {
     private PersonaCompanion companion;
     private List<PersonaComposeIncome> composeIncomes;
     private List<ContactEmail> contacts;
+    private ProponentType proponentType;
     private String occupation;
     private Boolean pep;
     private Date createdAt;
