@@ -1,6 +1,7 @@
 package com.migration.domain;
 
 import com.migration.domain.enums.BankAccount;
+import com.migration.domain.persona.Persona;
 import com.migration.domain.persona.aggregation.Address;
 import lombok.Getter;
 import lombok.Setter;
@@ -18,6 +19,7 @@ public class Finder {
     private String email;
     private Address address;
     private BankAccount accountInfo;
+    private Persona persona;
     private Partner partner;
     private boolean active = true;
     private LocalDateTime createdAt;

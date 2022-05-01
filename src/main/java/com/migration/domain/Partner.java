@@ -1,6 +1,7 @@
 package com.migration.domain;
 
 import com.migration.domain.enums.*;
+import com.migration.domain.persona.Persona;
 import com.migration.domain.persona.aggregation.Address;
 import lombok.Getter;
 import lombok.Setter;
@@ -16,6 +17,7 @@ import java.util.Set;
 public class Partner {
 
     private Integer id;
+    private Persona persona;
     private String cpfCnpj;
     private String name;
     private String telephone;

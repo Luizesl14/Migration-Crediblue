@@ -1,5 +1,6 @@
 package com.migration.domain;
 
+import com.migration.domain.persona.Persona;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -12,5 +13,6 @@ public class Investor {
     private String name;
     private String telephone;
     private String email;
+    private Persona persona;
     private Boolean active = true;
 }

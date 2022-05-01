@@ -5,5 +5,5 @@ import jakarta.annotation.Resource;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 @Resource
-public interface IInvestorRepository extends JpaRepository<Investor, Integer> {
+public interface Address extends JpaRepository<Address, Integer> {
 }

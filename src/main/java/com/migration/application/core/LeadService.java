@@ -1,16 +1,14 @@
 package com.migration.application.core;
 
 import com.migration.application.shared.ConvertLocalDataTime;
+import com.migration.application.shared.CreateObject;
 import com.migration.domain.Lead;
 import com.migration.domain.enums.AddressType;
 import com.migration.domain.enums.CategoryType;
 import com.migration.domain.enums.EmailType;
 import com.migration.domain.enums.PersonaType;
 import com.migration.domain.persona.Persona;
-import com.migration.domain.persona.aggregation.ContactEmail;
-import com.migration.domain.persona.aggregation.PersonaAddress;
-import com.migration.domain.persona.aggregation.PersonaComposeIncome;
-import com.migration.domain.persona.aggregation.PersonaPhone;
+import com.migration.domain.persona.aggregation.*;
 import com.migration.infrastructure.ILeadRepository;
 import com.migration.infrastructure.IPersonaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +30,9 @@ public class LeadService {
     @Autowired
     private ConvertLocalDataTime convert;
 
+    @Autowired
+    private CreateObject create;
+
 
     public Boolean findAll() {
         List<Lead> leads = this.leadRepository.findAll();
@@ -45,14 +46,8 @@ public class LeadService {
      List<Lead> normalizationStepOne = leadDatabase
          .stream()
          .filter(lead ->
-                     lead.getCpfCnpj().equals(lead.getCpfCnpj())
-                     && lead.getEmail().equals(lead.getEmail())
-                     && lead.getTelephone().equals(lead.getTelephone())
-                     && lead.getName().equals(lead.getName())
-                     && lead.getBirthDate().equals(lead.getBirthDate())
-                     && lead.getMaritalStatus().equals(lead.getMaritalStatus())
-                     && lead.getSpouseName().equals(lead.getSpouseName())
-         ).toList();
+                     lead.getCpfCnpj().equals(lead.getCpfCnpj()))
+             .toList();
 
      System.out.println("Leads Normalisados Step One: " + normalizationStepOne.size());
      normalizationStepOne.forEach(System.out::println);
@@ -64,7 +59,6 @@ public class LeadService {
 
 
     public Boolean normalizationStepTwo (List<Lead> leads){
-
         List<Lead> normalizationTwo = null;
 
         if(leads.size() > 1){
@@ -100,36 +94,25 @@ public class LeadService {
             persona.setMaritalStatus(lead.getMaritalStatus());
             persona.setBirthDate(this.convert.convertToLocalDate(lead.getBirthDate()));
 
-            PersonaAddress address = new PersonaAddress();
-            address.setId(lead.getAddress().getId());
-            address.setData(lead.getAddress());
-            address.setPrincipal(Boolean.TRUE);
-            address.setCreatedAt(this.convert.covertLocalDataTimeToDate(lead.getCreatedAt()));
-            address.setType(AddressType.OTHERS);
-
-            persona.getAddresses().add(address);
-
             PersonaComposeIncome composeIncome = new PersonaComposeIncome();
             composeIncome.getComposeIncome().setAmount(lead.getFamilyIncome());
             composeIncome.getComposeIncome().setDescription("Renda Familiar");
-
             persona.getComposeIncomes().add(composeIncome);
 
-            ContactEmail email = new ContactEmail();
-            email.setEmail(lead.getEmail());
-            email.setCreatedAt(this.convert.covertLocalDataTimeToDate(lead.getCreatedAt()));
-            email.setPrincipal(Boolean.TRUE);
-            email.setType(EmailType.PERSONAL);
+            if(lead.getAddress() != null){
+                persona.getAddresses().add(this.create.createAddress(lead.getAddress(),
+                        lead.getAddress().getCreatedAt()));
+            }
+            if(lead.getEmail() != null){
+                persona.getContacts().add(this.create.createEmail(lead.getEmail(), null));
+            }
 
-            persona.getContacts().add(email);
-
-            PersonaPhone phone = new PersonaPhone();
-            phone.getPhone().setNumber(lead.getTelephone());
-            phone.setCreatedAt(this.convert.covertLocalDataTimeToDate(lead.getCreatedAt()));
-            phone.setPrincipal(Boolean.TRUE);
-            phone.setType(CategoryType.PERSONAL);
-
-            persona.getPhones().add(phone);
+            if(lead.getTelephone() != null){
+                Phone phone = new Phone();
+                phone.setNumber(lead.getTelephone());
+                phone.setIsWhatsApp(Boolean.FALSE);
+                persona.getPhones().add(this.create.createPhone(phone, null));
+            }
         }
 
         leadNormalized.forEach(leads->{
