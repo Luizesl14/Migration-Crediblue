@@ -2,6 +2,7 @@ package com.migration.domain;
 
 
 import com.migration.domain.persona.Persona;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -12,17 +13,42 @@ import java.util.List;
 @Getter
 @Setter
 @ToString
+@Entity
 public class Proposal {
-
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "id", nullable = false)
     private Integer id;
+
+    @OneToOne
+    @JoinColumn(name = "simulation_id")
     private Simulation simulation;
+
+    @OneToOne
+    @JoinColumn(name = "partner_id")
     private Partner partner;
+
+    @OneToMany
+    @JoinColumn(name = "investor_id")
     private List<Persona> investors;
-    private List<User> users = new ArrayList<>();
+
+    @OneToMany
+    @JoinColumn(name = "user_id")
+    private List<User> users;
+
+
+    @OneToOne
+    @JoinColumn(name = "lead_proposal_id")
     private LeadProposal leadProposal;
-    private List<ProposalProponent> proponents = new ArrayList<>();
-    private List<Persona> personas = new ArrayList<>();
+
+    @OneToMany
+    @JoinColumn(name = "proposal_id")
+    private List<ProposalProponent> proponents;
+
+    @OneToMany
+    @JoinColumn(name = "persona_id")
+    private List<Persona> personas;
+
     private Boolean sameAddressWarrantyHome;
     private Integer installmentsAmount;
-    private Proposal proposalMain;
 }

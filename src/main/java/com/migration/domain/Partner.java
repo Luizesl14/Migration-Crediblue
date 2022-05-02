@@ -3,8 +3,10 @@ package com.migration.domain;
 import com.migration.domain.enums.*;
 import com.migration.domain.persona.Persona;
 import com.migration.domain.persona.aggregation.Address;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -14,9 +16,16 @@ import java.util.Set;
 
 @Getter
 @Setter
+@ToString
+@Entity
 public class Partner {
-
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "id", nullable = false)
     private Integer id;
+
+    @OneToOne
+    @JoinColumn(name = "persona_id")
     private Persona persona;
     private String cpfCnpj;
     private String name;
@@ -25,24 +34,30 @@ public class Partner {
     private PartnerSize partnerSize;
     private String summary;
     private SeguimentType segment;
+
+    @OneToOne
+    @JoinColumn(name = "address_id")
     private Address address;
-    private List<Parameter> parameters;
-    private Set<OperationType> operationTypes = new HashSet<>();
+
+    @OneToOne
+    @JoinColumn(name = "account_id")
     private BankAccount accountInfo;
     private String instagram;
     private String site;
     private Boolean active = true;
     private boolean opportunity;
     private Boolean alreadyHasCreditSolution = false;
+
+    @OneToMany
+    @JoinColumn(name = "contact_id")
     private List<Contact> contacts;
-    private LandingPage landingPage;
+
     private String corporateName;
     private String facebook;
     private String linkedin;
     private LocalDate partnerSince;
     private OpportunityStatus opportunityStatus;
     private WorkPlace workPlace;
-    private Set<CommunicationChannels> communicationChannels = new HashSet<>();
     private String accountManager;
     private LeadOrigin leadOrigin;
     private FirstValue firstValue;
@@ -54,6 +69,5 @@ public class Partner {
     private Boolean apparentIgnoranceOfTheMarket;
     private Boolean haveNetworking;
     private Boolean vagueInformation;
-    private Set<String> playersAlreadyWork = new HashSet<>();
-    private Set<Prospecting> prospecting = new HashSet<>();
+
 }

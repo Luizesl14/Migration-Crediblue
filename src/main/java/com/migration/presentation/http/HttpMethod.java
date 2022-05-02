@@ -34,7 +34,7 @@ public class HttpMethod {
     }
 
 
-    @Scheduled(fixedDelay = MINUTO)
+//    @Scheduled(fixedDelay = MINUTO)
     public String getToken() throws IOException, InterruptedException {
 
         Map<String, String> parameters = new HashMap<>();

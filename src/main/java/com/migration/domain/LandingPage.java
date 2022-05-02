@@ -1,5 +1,10 @@
 package com.migration.domain;
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
 public class LandingPage {
 
     private Integer id;

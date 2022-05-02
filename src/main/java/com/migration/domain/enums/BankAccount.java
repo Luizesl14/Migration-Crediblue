@@ -1,11 +1,19 @@
 package com.migration.domain.enums;
 
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 @Getter
 @Setter
+@ToString
+@Entity
 public class BankAccount {
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "id", nullable = false)
+    private Integer id;
 
     private String financialInstitutionCode;
     private String accountBranch;
