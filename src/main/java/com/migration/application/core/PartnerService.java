@@ -3,6 +3,7 @@ package com.migration.application.core;
 import com.migration.application.shared.ConvertLocalDataTime;
 import com.migration.application.shared.CreateObject;
 import com.migration.domain.Finder;
+import com.migration.domain.Lead;
 import com.migration.domain.Partner;
 import com.migration.domain.enums.*;
 import com.migration.domain.persona.Persona;
@@ -15,6 +16,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 public class PartnerService {
@@ -42,83 +45,73 @@ public class PartnerService {
 
         List<Partner> normalizationStepOne = partnerDatabase
                 .stream()
+                .filter(p-> p.getCpfCnpj() != null)
                 .filter(partner ->
-                        partner.getCpfCnpj().equals(partner.getCpfCnpj())
-                                && partner.getEmail().equals(partner.getEmail())
-                                && partner.getTelephone().equals(partner.getTelephone())
-                                && partner.getName().equals(partner.getName())
+                        Objects.equals(partner.getCpfCnpj(), partner.getCpfCnpj())
                 ).toList();
-
-        System.out.println("Partner Normalisados Step One: " + normalizationStepOne.size());
-        normalizationStepOne.forEach(System.out::println);
-
-        this.updatePersona(normalizationStepOne);
+        System.out.println("Partner Normalised Step One: " + normalizationStepOne.size());
+        this.createPersona(normalizationStepOne);
         return Boolean.TRUE;
 
     }
 
 
     @Transactional
-    public Boolean updatePersona(List<Partner> partnersNormalized){
+    public Boolean createPersona (List<Partner> partnerNormalized){
 
-        Partner partner = partnersNormalized.stream().findFirst().get();
-        Persona personaDatabase = this.personaRepository.findByTaxId(partner.getCpfCnpj());
-        Persona createPartner = this.createPersona(partner);
+        for (Partner partner: partnerNormalized) {
+            Persona persona = new Persona();
+            if(partner != null){
+                persona.setPersonaType(
+                        partner.getCpfCnpj()
+                                .length() == 11 ? PersonaType.NATURAL_PERSON: PersonaType.LEGAL_PERSON);
+                persona.setTaxId(partner.getCpfCnpj());
 
-        if(personaDatabase != null){
-            createPartner.setId(personaDatabase.getId());
-            this.personaRepository.save(createPartner);
-        }else {
-            partnersNormalized.forEach(findersAdd -> {
-                findersAdd.setPersona(createPartner);
-            });
+                if(persona.getPersonaType().equals(PersonaType.NATURAL_PERSON)){
+                    persona.setName(partner.getName());
+                }else{
+                    Company company = new Company();
+                    company.setCorporateName(partner.getName());
+                    persona.setCompanyData(company);
+                }
+
+                if(partner.getAddress() != null ){
+                    persona.getAddresses().add(this.create.createAddress(partner.getAddress(),
+                            partner.getAddress().getCreatedAt()));
+                }
+                if(partner.getEmail() != null){
+                    persona.getContacts().add(this.create.createEmail(partner.getEmail(), null));
+                }
+
+                if(partner.getTelephone() != null){
+                    Phone phone = new Phone();
+                    phone.setNumber(partner.getTelephone());
+                    phone.setIsWhatsApp(Boolean.FALSE);
+                    persona.getPhones().add(this.create.createPhone(phone, null));
+                }
+                partner.setPersona(persona);
+                if(persona.getPersonaType().equals(PersonaType.NATURAL_PERSON)){
+                    System.out.println("New Person ** PF ** : " + persona.getName());
+                }else{
+                    System.out.println("New Person ** PJ ** : " + persona.getCompanyData().getCorporateName());
+                }
+            }
         }
-        System.out.println("Findes Finais: " + partnersNormalized.size());
-        partnersNormalized.forEach(System.out::println);
-
-        this.save(partnersNormalized);
+        System.out.println("Total de Personas criadas:  " + partnerNormalized.size());
+        this.save(partnerNormalized);
         return Boolean.TRUE;
     }
 
 
-    @Transactional
-    public Persona createPersona ( Partner partner) {
 
-        Persona persona = new Persona();
-        persona.setName(partner.getName());
-        persona.setTaxId(partner.getCpfCnpj());
-        persona.setPersonaType(
-                partner.getCpfCnpj()
-                        .length() == 11 ? PersonaType.NATURAL_PERSON: PersonaType.LEGAL_PERSON);
-
-        if(partner.getFinancialInstitutionCode() != null){
-            persona.getBankAccounts().add(this.create.createAccount(
-                    partner.getFinancialInstitutionCode(), partner.getAccountBranch(),
-                    partner.getAccountNumber(), partner.getAccountDigit(), null));
-        }
-        if(partner.getAddress() != null){
-            persona.getAddresses().add(this.create.createAddress(partner.getAddress(),
-                    partner.getAddress().getCreatedAt()));
-        }
-        if(partner.getEmail() != null){
-            persona.getContacts().add(this.create.createEmail(partner.getEmail(), null));
-        }
-
-        if(partner.getTelephone() != null){
-            Phone phone = new Phone();
-            phone.setNumber(partner.getTelephone());
-            phone.setIsWhatsApp(Boolean.FALSE);
-            persona.getPhones().add(this.create.createPhone(phone, null));
-        }
-        return  persona;
-    }
 
     @Transactional
-    public Boolean save (List<Partner> findersNormalized) {
-        this.partnerRepository.saveAll(findersNormalized);
-
-        findersNormalized.forEach(
-                finder -> System.out.println("Finders salvo " + findersNormalized));
-        return Boolean.TRUE;
+    public void save (List<Partner> partnerNormalized) {
+        for (Partner partner: partnerNormalized){
+            Persona persona = this.personaRepository.save(partner.getPersona());
+            partner.setPersona(persona);
+            this.partnerRepository.save(partner);
+            System.out.println("Persona save: " + persona.getName() + " ** Partner **");
+        }
     }
 }
