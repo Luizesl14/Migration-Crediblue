@@ -58,9 +58,10 @@ public class FinderService {
 
     @Transactional
     public Boolean createPersona (List<Finder> finderNormalized){
-        Persona persona = new Persona();
+
         Integer count = 0;
         for (Finder finder: finderNormalized) {
+            Persona persona = new Persona();
             if(finder != null){
                 persona.setPersonaType(PersonaType.NATURAL_PERSON);
                 persona.setTaxId(finder.getCpf());

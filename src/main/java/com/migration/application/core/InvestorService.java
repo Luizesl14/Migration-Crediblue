@@ -1,9 +1,11 @@
 package com.migration.application.core;
 
 import com.migration.application.shared.CreateObject;
+import com.migration.domain.Finder;
 import com.migration.domain.Investor;
 import com.migration.domain.enums.PersonaType;
 import com.migration.domain.persona.Persona;
+import com.migration.domain.persona.aggregation.Company;
 import com.migration.domain.persona.aggregation.Phone;
 import com.migration.infrastructure.IInvestorRepository;
 import com.migration.infrastructure.IPersonaRepository;
@@ -40,63 +42,53 @@ public class InvestorService {
                 ).toList();
 
         System.out.println("Investors Normalisados Step One: " + normalizationStepOne.size());
-        normalizationStepOne.forEach(System.out::println);
 
-        this.updatePersona(normalizationStepOne);
+        this.createPersona(normalizationStepOne);
         return Boolean.TRUE;
 
     }
 
     @Transactional
-    public Boolean updatePersona(List<Investor> partnersNormalized){
+    public Boolean createPersona (List<Investor> investorNormalized){
 
-        Investor investor = partnersNormalized.stream().findFirst().get();
-        Persona personaDatabase = this.personaRepository.findByTaxId(investor.getCnpj());
-        Persona createPartner = this.createPersona(investor);
+        for (Investor investor: investorNormalized) {
+            Persona persona = new Persona();
+            if(investor != null){
+                persona.setPersonaType(PersonaType.LEGAL_PERSON);
+                persona.setTaxId(investor.getCnpj());
+                Company company = new Company();
+                company.setCorporateName(investor.getName());
+                persona.setCompanyData(company);
+                persona.setName(investor.getName());
 
-        if(personaDatabase != null){
-            createPartner.setId(personaDatabase.getId());
-            this.personaRepository.save(createPartner);
-        }else {
-            partnersNormalized.forEach(findersAdd -> {
-                findersAdd.setPersona(createPartner);
-            });
+                if(investor.getEmail() != null){
+                    persona.getContacts().add(this.create.createEmail(investor.getEmail(), null));
+                }
+                if(investor.getTelephone() != null){
+                    Phone phone = new Phone();
+                    phone.setNumber(investor.getTelephone());
+                    phone.setIsWhatsApp(Boolean.FALSE);
+                    persona.getPhones().add(this.create.createPhone(phone, null));
+                }
+                 investor.setPersona(persona);
+                if(persona.getPersonaType().equals(PersonaType.NATURAL_PERSON))
+                System.out.println(" New Person ** PJ ** : " + persona.getName());
+            }
         }
-        System.out.println("Findes Finais: " + partnersNormalized.size());
-        partnersNormalized.forEach(System.out::println);
-
-        this.save(partnersNormalized);
+        System.out.println("Total de Personas criadas:  " + investorNormalized.size());
+        this.save(investorNormalized);
         return Boolean.TRUE;
     }
 
 
     @Transactional
-    public Persona createPersona ( Investor investor) {
-
-        Persona persona = new Persona();
-        persona.setName(investor.getName());
-        persona.setTaxId(investor.getCnpj());
-        persona.setPersonaType(PersonaType.LEGAL_PERSON);
-
-        if(investor.getEmail() != null){
-            persona.getContacts().add(this.create.createEmail(investor.getEmail(), null));
+    public void save (List<Investor> investorNormalized) {
+        for (Investor investor: investorNormalized){
+            Persona persona = this.personaRepository.save(investor.getPersona());
+            investor.setPersona(persona);
+            this.investorRepository.save(investor);
+            System.out.println("Persona save: " + persona.getName() + " ** Invesor **");
         }
-
-        if(investor.getTelephone() != null){
-            Phone phone = new Phone();
-            phone.setNumber(investor.getTelephone());
-            phone.setIsWhatsApp(Boolean.FALSE);
-            persona.getPhones().add(this.create.createPhone(phone, null));
-        }
-        return  persona;
-    }
-
-
-    @Transactional
-    public Boolean save(List<Investor> investorslized){
-        this.investorRepository.saveAll(investorslized);
-        investorslized.forEach(investor -> System.out.println("Investidor salvo " + investorslized));
-        return Boolean.TRUE;
     }
 
 }

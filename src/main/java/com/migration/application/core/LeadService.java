@@ -56,9 +56,10 @@ public class LeadService {
 
     @Transactional
     public Boolean createPersona (List<Lead> leadNormalized){
-        Persona persona = new Persona();
+
 
         for (Lead lead: leadNormalized) {
+            Persona persona = new Persona();
             if(lead != null){
 
                 persona.setPersonaType(

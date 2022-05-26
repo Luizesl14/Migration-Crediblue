@@ -10,6 +10,7 @@ import lombok.ToString;
 @Setter
 @ToString
 @Entity
+@Table(name = "credi_investor")
 public class Investor {
     @Id
     @Column(name = "id", nullable = false)
@@ -22,7 +23,6 @@ public class Investor {
 
     @OneToOne
     @JoinColumn(name = "persona_id")
-
     private Persona persona;
     private Boolean active = true;
 }

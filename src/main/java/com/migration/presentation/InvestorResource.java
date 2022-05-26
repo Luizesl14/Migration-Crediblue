@@ -1,19 +1,26 @@
 package com.migration.presentation;
 
+import com.migration.application.core.InvestorService;
 import com.migration.presentation.http.HttpMethod;
 import jakarta.annotation.Resource;
+import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
 
-@Resource
+@RestController
+@RequestMapping(value = "/investors")
 public class InvestorResource {
 
     @Autowired
-    private HttpMethod httpMethod;
+    private InvestorService investorService;
 
-    public Object getAll() throws IOException, InterruptedException {
-        return this.httpMethod.get("http://localhost:8080/investors");
+   @GetMapping
+    public void start() {
+        this.investorService.findAll();
     }
 
 }
