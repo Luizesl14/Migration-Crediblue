@@ -103,9 +103,10 @@ public class FinderService {
             persona.setTaxId(finder.getCpf());
             persona.setPersonaType(PersonaType.NATURAL_PERSON);
 
-            if(finder.getAccountInfo() != null){
+            if(finder.getFinancialInstitutionCode() != null){
                 persona.getBankAccounts().add(
-                        this.create.createAccount(finder.getAccountInfo(), null));
+                        this.create.createAccount(finder.getFinancialInstitutionCode(), finder.getAccountBranch(),
+                                finder.getAccountNumber(), finder.getAccountDigit(), null));
             }
             if(finder.getAddress() != null){
                 persona.getAddresses().add(

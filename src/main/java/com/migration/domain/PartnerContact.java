@@ -14,6 +14,7 @@ import lombok.ToString;
 @Setter
 @ToString
 @Entity
+@Table(name = "credi_partner_contact")
 public class PartnerContact {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

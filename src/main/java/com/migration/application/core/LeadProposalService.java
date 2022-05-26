@@ -79,7 +79,7 @@ public class LeadProposalService {
                 leadProposal.getCpfCnpj()
                         .length() == 11 ? PersonaType.NATURAL_PERSON: PersonaType.LEGAL_PERSON);
         persona.setMaritalStatus(leadProposal.getMaritalStatus());
-        persona.setBirthDate(this.convert.convertToLocalDate(leadProposal.getBirthDate()));
+        persona.setBirthDate(leadProposal.getBirthDate());
         persona.setMaritalStatus(leadProposal.getMaritalStatus());
         persona.setRg(leadProposal.getRg());
         persona.setOrgaoEmissor(leadProposal.getOrgaoEmissor());
@@ -98,7 +98,7 @@ public class LeadProposalService {
 
         if(leadProposal.getSpouseName() != null){
             PersonaCompanion personaCompanion = new PersonaCompanion();
-            personaCompanion.getPersona().setName(leadProposal.getSpouseName());
+            personaCompanion.getData().setName(leadProposal.getSpouseName());
             personaCompanion.setRegime(leadProposal.getTypeRegimeCompanion());
         }
 
@@ -112,9 +112,11 @@ public class LeadProposalService {
             persona.getComposeIncomes().add(composeIncome);
         }
 
-        if(leadProposal.getAccountInfo() != null){
+        if(leadProposal.getFinancialInstitutionCode() != null){
             persona.getBankAccounts().add(
-                    this.create.createAccount(leadProposal.getAccountInfo(), null));
+                    this.create.createAccount(
+                            leadProposal.getFinancialInstitutionCode(), leadProposal.getAccountBranch(),
+                            leadProposal.getAccountNumber(), leadProposal.getAccountDigit(), null));
         }
         if(leadProposal.getAddress() != null){
             persona.getAddresses().add(

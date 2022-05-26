@@ -14,6 +14,7 @@ import java.util.Date;
 @Setter
 @ToString
 @Entity
+@Table(name = "credi_persona_account")
 public class PersonaAccounts {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

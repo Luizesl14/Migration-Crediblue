@@ -13,6 +13,7 @@ import java.util.Date;
 @Setter
 @ToString
 @Entity
+@Table(name = "credi_contact_email")
 public class ContactEmail {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

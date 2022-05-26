@@ -13,6 +13,7 @@ import java.util.List;
 @Getter
 @Setter
 @Entity
+@Table(name = "credi_company")
 public class Company {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -27,10 +28,6 @@ public class Company {
     @OneToMany
     @JoinColumn(name = "company_id")
     private List<CompanyRepresentatives> representatives;
-
-    @OneToOne
-    @JoinColumn(name = "persona_id", insertable = false, updatable = false)
-    private Persona persona;
 
     private String cnae;
     private CompanyType type;

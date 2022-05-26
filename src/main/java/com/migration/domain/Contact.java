@@ -13,6 +13,7 @@ import java.time.LocalDate;
 @Setter
 @ToString
 @Entity
+@Table(name = "credi_contact")
 public class Contact {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

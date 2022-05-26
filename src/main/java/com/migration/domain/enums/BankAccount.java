@@ -9,6 +9,7 @@ import lombok.ToString;
 @Setter
 @ToString
 @Entity
+@Table(name = "credi_account")
 public class BankAccount {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

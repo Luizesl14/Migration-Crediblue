@@ -29,9 +29,17 @@ public class Finder {
     @JoinColumn(name = "address_id")
     private Address address;
 
-    @OneToOne
-    @JoinColumn(name = "id")
-    private BankAccount accountInfo;
+    @Column(name = "financial_institution_code")
+    private String financialInstitutionCode;
+
+    @Column(name = "account_branch")
+    private String accountBranch;
+
+    @Column(name = "account_number")
+    private String accountNumber;
+
+    @Column(name = "account_digit")
+    private String accountDigit;
 
     @OneToOne
     @JoinColumn(name = "persona_id")

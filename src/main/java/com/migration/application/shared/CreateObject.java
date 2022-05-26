@@ -4,6 +4,7 @@ import com.migration.domain.ProposalProponent;
 import com.migration.domain.enums.*;
 import com.migration.domain.persona.Persona;
 import com.migration.domain.persona.aggregation.*;
+import jakarta.persistence.Column;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -19,12 +20,13 @@ public class CreateObject {
     private ConvertLocalDataTime convert;
 
 
-    public PersonaAccounts createAccount(BankAccount account, LocalDateTime createdAt){
+    public PersonaAccounts createAccount(String financialInstitutionCode, String accountBranch,
+                                         String accountNumber, String accountDigit, LocalDateTime createdAt){
         PersonaAccounts personaAccounts = new PersonaAccounts();
-        personaAccounts.getAccount().setFinancialInstitutionCode(account.getFinancialInstitutionCode());
-        personaAccounts.getAccount().setAccountBranch(account.getAccountBranch());
-        personaAccounts.getAccount().setAccountNumber(account.getAccountNumber());
-        personaAccounts.getAccount().setAccountDigit(account.getAccountDigit());
+        personaAccounts.getAccount().setFinancialInstitutionCode(financialInstitutionCode);
+        personaAccounts.getAccount().setAccountBranch(accountBranch);
+        personaAccounts.getAccount().setAccountNumber(accountNumber);
+        personaAccounts.getAccount().setAccountDigit(accountDigit);
         personaAccounts.setCreatedAt(
                 createdAt == null ? new Date() : this.convert.covertLocalDataTimeToDate(createdAt));
         personaAccounts.setPrincipal(Boolean.TRUE);

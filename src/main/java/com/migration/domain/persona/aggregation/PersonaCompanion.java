@@ -12,6 +12,7 @@ import lombok.ToString;
 @Setter
 @ToString
 @Entity
+@Table(name = "credi_persona_companion")
 public class PersonaCompanion {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -19,13 +20,10 @@ public class PersonaCompanion {
     private Integer id;
 
     @OneToOne
-    @JoinColumn(name = "persona_id", insertable = false, updatable = false)
-    private Persona persona;
-
-    @OneToOne
-    @JoinColumn(name = "persona_id")
+    @JoinColumn(name = "companion_id")
     private Persona data;
 
-    private MaritalStatus type;
+    @Enumerated(EnumType.STRING)
     private TypeRegimeCompanion regime;
+
 }

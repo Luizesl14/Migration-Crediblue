@@ -13,6 +13,7 @@ import java.util.Date;
 @Setter
 @ToString
 @Entity
+@Table(name = "credi_persona_address")
 public class PersonaAddress {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -26,7 +27,10 @@ public class PersonaAddress {
     @OneToOne
     @JoinColumn(name = "address_id")
     private Address data;
+
+    @Enumerated(EnumType.STRING)
     private AddressType type;
+
     private Boolean principal;
     private Date createdAt;
 }

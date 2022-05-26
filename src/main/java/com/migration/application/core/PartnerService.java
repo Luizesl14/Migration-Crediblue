@@ -9,6 +9,7 @@ import com.migration.domain.persona.Persona;
 import com.migration.domain.persona.aggregation.*;
 import com.migration.infrastructure.IPartnerRepository;
 import com.migration.infrastructure.IPersonaRepository;
+import jakarta.persistence.Column;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -90,8 +91,10 @@ public class PartnerService {
                 partner.getCpfCnpj()
                         .length() == 11 ? PersonaType.NATURAL_PERSON: PersonaType.LEGAL_PERSON);
 
-        if(partner.getAccountInfo() != null){
-            persona.getBankAccounts().add(this.create.createAccount(partner.getAccountInfo(), null));
+        if(partner.getFinancialInstitutionCode() != null){
+            persona.getBankAccounts().add(this.create.createAccount(
+                    partner.getFinancialInstitutionCode(), partner.getAccountBranch(),
+                    partner.getAccountNumber(), partner.getAccountDigit(), null));
         }
         if(partner.getAddress() != null){
             persona.getAddresses().add(this.create.createAddress(partner.getAddress(),

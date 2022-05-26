@@ -44,9 +44,18 @@ public class LeadProposal {
     private BigDecimal totalExpenses;
     private LocalDateTime createdAt;
 
-    @OneToOne
-    @JoinColumn(name = "account_id")
-    private BankAccount accountInfo;
+    @Column(name = "financial_institution_code")
+    private String financialInstitutionCode;
+
+    @Column(name = "account_branch")
+    private String accountBranch;
+
+    @Column(name = "account_number")
+    private String accountNumber;
+
+    @Column(name = "account_digit")
+    private String accountDigit;
+
 
     private String rg;
     private String orgaoEmissor;
