@@ -1,6 +1,5 @@
 package com.migration.domain;
 
-import com.migration.domain.enums.BankAccount;
 import com.migration.domain.persona.Persona;
 import com.migration.domain.persona.aggregation.Address;
 import jakarta.persistence.*;
@@ -14,6 +13,7 @@ import java.time.LocalDateTime;
 @Setter
 @ToString
 @Entity
+@Table(name = "credi_finder")
 public class Finder {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

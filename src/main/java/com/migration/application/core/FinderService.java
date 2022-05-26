@@ -3,8 +3,13 @@ package com.migration.application.core;
 import com.migration.application.shared.ConvertLocalDataTime;
 import com.migration.application.shared.CreateObject;
 import com.migration.domain.Finder;
+import com.migration.domain.Lead;
+import com.migration.domain.enums.IncomeType;
 import com.migration.domain.enums.PersonaType;
 import com.migration.domain.persona.Persona;
+import com.migration.domain.persona.aggregation.Company;
+import com.migration.domain.persona.aggregation.ComposeIncome;
+import com.migration.domain.persona.aggregation.PersonaComposeIncome;
 import com.migration.domain.persona.aggregation.Phone;
 import com.migration.infrastructure.IFinderRespository;
 import com.migration.infrastructure.IPersonaRepository;
@@ -41,95 +46,58 @@ public class FinderService {
         List<Finder> normalizationStepOne = findersDatabase
                 .stream()
                 .filter(finder -> finder.getCpf().equals(finder.getCpf())
+                        && finder.getPartner().getId().equals(finder.getPartner().getId())
                 ).toList();
 
         System.out.println("Finders Normalisados Step One: " + normalizationStepOne.size());
-        normalizationStepOne.forEach(System.out::println);
-
-        this.normalizationStepTwo(normalizationStepOne);
+        this.createPersona(normalizationStepOne);
         return Boolean.TRUE;
 
     }
 
-    public Boolean normalizationStepTwo (List<Finder> finders){
 
-        List<Finder> normalizationTwo = null;
+    @Transactional
+    public Boolean createPersona (List<Finder> finderNormalized){
+        Persona persona = new Persona();
+        Integer count = 0;
+        for (Finder finder: finderNormalized) {
+            if(finder != null){
+                persona.setPersonaType(PersonaType.NATURAL_PERSON);
+                persona.setTaxId(finder.getCpf());
+                persona.setName(finder.getName());
 
-        if(finders.size() > 1){
-            normalizationTwo = finders.stream()
-                    .filter(lead ->
-                            lead.getPartner().getId().equals(lead.getPartner().getId())
-                    ).toList();
-
-            System.out.println("Finders Normalisados Step Two: " + normalizationTwo.size());
-            normalizationTwo.forEach(System.out::println);
-
-            this.updatePersona(normalizationTwo);
-        }else {
-            this.updatePersona(finders);
+                if(finder.getAddress() != null ){
+                    persona.getAddresses().add(this.create.createAddress(finder.getAddress(),
+                            finder.getAddress().getCreatedAt()));
+                }
+                if(finder.getEmail() != null){
+                    persona.getContacts().add(this.create.createEmail(finder.getEmail(), null));
+                }
+                if(finder.getTelephone() != null){
+                    Phone phone = new Phone();
+                    phone.setNumber(finder.getTelephone());
+                    phone.setIsWhatsApp(Boolean.FALSE);
+                    persona.getPhones().add(this.create.createPhone(phone, null));
+                }
+                finder.setPersona(persona);
+                if(persona.getPersonaType().equals(PersonaType.NATURAL_PERSON))
+                    count++;
+                    System.out.println( count + " - New Person ** PF ** : " + persona.getName());
+            }
         }
-        return  Boolean.TRUE;
+        System.out.println("Total de Personas criadas:  " + finderNormalized.size());
+        this.save(finderNormalized);
+        return Boolean.TRUE;
     }
 
 
     @Transactional
-    public Boolean updatePersona(List<Finder> findersNormalized){
-
-        Finder finder = findersNormalized.stream().findFirst().get();
-        Persona personaDatabase = this.personaRepository.findByTaxId(finder.getCpf());
-        Persona persona = this.createPersona(finder);
-
-        if(personaDatabase != null){
-            persona.setId(personaDatabase.getId());
-            this.personaRepository.save(persona);
-        }else {
-            findersNormalized.forEach(findersAdd -> {
-                findersAdd.setPersona(persona);
-            });
+    public void save (List<Finder> findersNormalized) {
+        for (Finder finder: findersNormalized){
+            Persona persona = this.personaRepository.save(finder.getPersona());
+            finder.setPersona(persona);
+            this.finderRespository.save(finder);
+            System.out.println("Persona save: " + persona.getName() + " ** Finder **");
         }
-        System.out.println("Findes Finais: " + findersNormalized.size());
-        findersNormalized.forEach(System.out::println);
-
-        this.save(findersNormalized);
-        return Boolean.TRUE;
-    }
-
-
-    @Transactional
-    public Persona createPersona ( Finder finder) {
-
-            Persona persona = new Persona();
-            persona.setName(finder.getName());
-            persona.setTaxId(finder.getCpf());
-            persona.setPersonaType(PersonaType.NATURAL_PERSON);
-
-            if(finder.getFinancialInstitutionCode() != null){
-                persona.getBankAccounts().add(
-                        this.create.createAccount(finder.getFinancialInstitutionCode(), finder.getAccountBranch(),
-                                finder.getAccountNumber(), finder.getAccountDigit(), null));
-            }
-            if(finder.getAddress() != null){
-                persona.getAddresses().add(
-                        this.create.createAddress(finder.getAddress(), finder.getAddress().getCreatedAt()));
-            }
-            if(finder.getEmail() != null){
-                persona.getContacts().add(
-                        this.create.createEmail(finder.getEmail(), null));
-            }
-            if(finder.getTelephone() != null){
-                Phone phone = new Phone();
-                phone.setNumber(finder.getTelephone());
-                phone.setIsWhatsApp(Boolean.FALSE);
-                persona.getPhones().add(this.create.createPhone(phone, null));
-            }
-            return  persona;
-    }
-
-    @Transactional
-    public Boolean save (List<Finder> findersNormalized) {
-
-        this.finderRespository.saveAll(findersNormalized);
-        findersNormalized.forEach(finder -> System.out.println("Finders salvo " + findersNormalized));
-        return Boolean.TRUE;
     }
 }
