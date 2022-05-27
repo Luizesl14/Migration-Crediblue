@@ -11,6 +11,7 @@ import com.migration.domain.persona.aggregation.*;
 import com.migration.infrastructure.IPartnerRepository;
 import com.migration.infrastructure.IPersonaRepository;
 import jakarta.persistence.Column;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -100,13 +101,14 @@ public class PartnerService {
                     persona.getPhones().add(this.create.createPhone(phone, null));
                 }
                 if(personaDatabase != null){
-                    partner.setPersona(personaDatabase);
-                    //BeanUtils.copyProperties(persona, personaDatabase , "createdAt");
-                    //this.personaRepository.save(personaDatabase);
+                    //Persona personaSave = this.personaRepository.save(personaDatabase);
+                    //partner.setPersona(personaSave);
+                    //this.save(partner);
 
                 }else{
-                    partner.setPersona(persona);
-                    //this.personaRepository.save(persona);
+                    //Persona personaSave = this.personaRepository.save(persona);
+                    //partner.setPersona(personaSave);
+                    //this.save(partner);
                 }
 
                 if(persona.getPersonaType().equals(PersonaType.NATURAL_PERSON)){
@@ -117,17 +119,12 @@ public class PartnerService {
             }
         }
         System.out.println("Total de Personas criadas:  " + partnerNormalized.size());
-        this.save(partnerNormalized);
         return Boolean.TRUE;
     }
 
     @Transactional
-    public void save (List<Partner> partnerNormalized) {
-        for (Partner partner: partnerNormalized){
-            Persona persona = this.personaRepository.save(partner.getPersona());
-            partner.setPersona(persona);
+    public void save (Partner partner) {
             this.partnerRepository.save(partner);
-            System.out.println("Persona save: " + persona.getName() + " ** Partner **");
+            System.out.println("Persona save: " + partner.getPersona().getName() + " ** Partner **");
         }
-    }
 }

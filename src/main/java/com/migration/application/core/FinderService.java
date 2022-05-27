@@ -101,10 +101,9 @@ public class FinderService {
 
                 }else{
                     finder.setPersona(persona);
-                    //this.personaRepository.save(persona);
+                    //this.save(finder);
                 }
 
-                finder.setPersona(persona);
                 if(persona.getPersonaType().equals(PersonaType.NATURAL_PERSON))
                     count++;
                     System.out.println( count + " - New Person ** PF ** : " + persona.getName());
@@ -117,12 +116,8 @@ public class FinderService {
 
 
     @Transactional
-    public void save (List<Finder> findersNormalized) {
-        for (Finder finder: findersNormalized){
-            Persona persona = this.personaRepository.save(finder.getPersona());
-            finder.setPersona(persona);
+    public void save (Finder finder) {
             this.finderRespository.save(finder);
-            System.out.println("Persona save: " + persona.getName() + " ** Finder **");
-        }
+            System.out.println("Persona save: " + finder.getPersona().getName() + " ** Finder **");
     }
 }

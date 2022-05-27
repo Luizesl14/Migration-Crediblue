@@ -5,5 +5,5 @@ import jakarta.annotation.Resource;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 @Resource
-public interface SimulatonRepository extends JpaRepository<Simulation, Integer> {
+public interface ISimulatonRepository extends JpaRepository<Simulation, Integer> {
 }

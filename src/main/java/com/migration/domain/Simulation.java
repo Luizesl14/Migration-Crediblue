@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.math.BigDecimal;
+
 @Getter
 @Setter
 @ToString
@@ -27,9 +29,12 @@ public class Simulation {
 
     @OneToOne
     @JoinColumn(name = "partner_id")
-
     private Partner partner;
+
     private Integer installmentsAmount;
+
+    @Column(name = "family_income")
+    private BigDecimal familyIncome;
 
     @OneToOne
     @JoinColumn(name = "finder_id")
