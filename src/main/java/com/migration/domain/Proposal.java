@@ -7,13 +7,13 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Getter
 @Setter
 @ToString
 @Entity
+@Table(name = "credi_proposal")
 public class Proposal {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

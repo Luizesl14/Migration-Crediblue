@@ -10,6 +10,7 @@ import lombok.ToString;
 @Setter
 @ToString
 @Entity
+@Table(name = "credi_simulation")
 public class Simulation {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -33,6 +34,6 @@ public class Simulation {
     @OneToOne
     @JoinColumn(name = "finder_id")
     private Finder finder;
-    private String auditOriginClientIpAddress;
+
 
 }

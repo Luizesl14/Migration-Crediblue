@@ -23,10 +23,12 @@ public class CreateObject {
     public PersonaAccounts createAccount(String financialInstitutionCode, String accountBranch,
                                          String accountNumber, String accountDigit, LocalDateTime createdAt){
         PersonaAccounts personaAccounts = new PersonaAccounts();
-        personaAccounts.getAccount().setFinancialInstitutionCode(financialInstitutionCode);
-        personaAccounts.getAccount().setAccountBranch(accountBranch);
-        personaAccounts.getAccount().setAccountNumber(accountNumber);
-        personaAccounts.getAccount().setAccountDigit(accountDigit);
+        BankAccount account = new BankAccount();
+        account.setFinancialInstitutionCode(financialInstitutionCode);
+        account.setAccountBranch(accountBranch);
+        account.setAccountNumber(accountNumber);
+        account.setAccountDigit(accountDigit);
+        personaAccounts.setAccount(account);
         personaAccounts.setCreatedAt(
                 createdAt == null ? new Date() : this.convert.covertLocalDataTimeToDate(createdAt));
         personaAccounts.setPrincipal(Boolean.TRUE);
