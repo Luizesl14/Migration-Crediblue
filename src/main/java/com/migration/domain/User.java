@@ -14,6 +14,7 @@ import java.util.List;
 @Setter
 @ToString
 @Entity
+@Table(name = "credi_user")
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -23,6 +24,9 @@ public class User {
     @OneToOne
     @JoinColumn(name = "persona_id")
     private Persona persona;
+    private String name;
+    private String cpf;
+    private String telephone;
     private String login;
     private String email;
     private String password;
