@@ -70,6 +70,12 @@ public class FinderService {
         for (Finder finder: finderNormalized) {
             Persona persona = new Persona();
             if(finder != null){
+
+                Persona personaDatabase = null;
+                if(finder.getCpf() != null){
+                    personaDatabase  = this.personaRepository.findByTaxId(finder.getCpf());
+                }
+
                 persona.setPersonaType(PersonaType.NATURAL_PERSON);
                 persona.setTaxId(finder.getCpf());
                 persona.setName(finder.getName());
@@ -87,6 +93,17 @@ public class FinderService {
                     phone.setIsWhatsApp(Boolean.FALSE);
                     persona.getPhones().add(this.create.createPhone(phone, null));
                 }
+
+                if(personaDatabase != null){
+                    finder.setPersona(personaDatabase);
+                    //BeanUtils.copyProperties(persona, personaDatabase , "createdAt");
+                    //this.personaRepository.save(personaDatabase);
+
+                }else{
+                    finder.setPersona(persona);
+                    //this.personaRepository.save(persona);
+                }
+
                 finder.setPersona(persona);
                 if(persona.getPersonaType().equals(PersonaType.NATURAL_PERSON))
                     count++;
@@ -94,7 +111,7 @@ public class FinderService {
             }
         }
         System.out.println("Total de Personas criadas:  " + finderNormalized.size());
-        this.save(finderNormalized);
+        //this.save(finderNormalized);
         return Boolean.TRUE;
     }
 

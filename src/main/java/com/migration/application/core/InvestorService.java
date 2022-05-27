@@ -62,7 +62,7 @@ public class InvestorService {
             }
         }
         System.out.println("Total de Personas criadas:  " + allInvestor.size());
-        this.save(allInvestor);
+        //this.save(allInvestor);
         return Boolean.TRUE;
     }
 

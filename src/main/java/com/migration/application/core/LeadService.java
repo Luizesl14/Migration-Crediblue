@@ -108,7 +108,6 @@ public class LeadService {
                     phone.setIsWhatsApp(Boolean.FALSE);
                     persona.getPhones().add(this.create.createPhone(phone, null));
                 }
-                lead.setPersona(persona);
                 if(persona.getPersonaType().equals(PersonaType.NATURAL_PERSON)){
                     System.out.println("New Person ** PF ** : " + persona.getName());
                 }else{
@@ -118,7 +117,7 @@ public class LeadService {
         }
 
         System.out.println("Total de Personas criadas:  " + leadNormalized.size());
-        this.save(leadNormalized);
+        //this.save(leadNormalized);
         return Boolean.TRUE;
     }
 

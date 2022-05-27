@@ -65,6 +65,12 @@ public class PartnerService {
 
         for (Partner partner: partnerNormalized) {
             Persona persona = new Persona();
+
+            Persona personaDatabase = null;
+            if(partner.getCpfCnpj()!= null){
+                personaDatabase  = this.personaRepository.findByTaxId(partner.getCpfCnpj());
+            }
+
             if(partner != null){
                 persona.setPersonaType(
                         partner.getCpfCnpj()
@@ -93,7 +99,16 @@ public class PartnerService {
                     phone.setIsWhatsApp(Boolean.FALSE);
                     persona.getPhones().add(this.create.createPhone(phone, null));
                 }
-                partner.setPersona(persona);
+                if(personaDatabase != null){
+                    partner.setPersona(personaDatabase);
+                    //BeanUtils.copyProperties(persona, personaDatabase , "createdAt");
+                    //this.personaRepository.save(personaDatabase);
+
+                }else{
+                    partner.setPersona(persona);
+                    //this.personaRepository.save(persona);
+                }
+
                 if(persona.getPersonaType().equals(PersonaType.NATURAL_PERSON)){
                     System.out.println("New Person ** PF ** : " + persona.getName());
                 }else{

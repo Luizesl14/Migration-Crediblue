@@ -1,17 +1,13 @@
 package com.migration.application.core;
 
 import com.migration.application.shared.CreateObject;
-import com.migration.domain.Partner;
 import com.migration.domain.User;
 import com.migration.domain.enums.PersonaType;
 import com.migration.domain.persona.Persona;
-import com.migration.domain.persona.aggregation.Company;
-import com.migration.domain.persona.aggregation.ContactEmail;
 import com.migration.domain.persona.aggregation.Phone;
 import com.migration.infrastructure.IContactEmailRepository;
 import com.migration.infrastructure.IPersonaRepository;
 import com.migration.infrastructure.IUserRepository;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,7 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 @Service
 public class UserService {
