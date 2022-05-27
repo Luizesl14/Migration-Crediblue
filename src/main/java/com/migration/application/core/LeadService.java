@@ -3,6 +3,7 @@ package com.migration.application.core;
 import com.migration.application.shared.ConvertLocalDataTime;
 import com.migration.application.shared.CreateObject;
 import com.migration.domain.Lead;
+import com.migration.domain.Partner;
 import com.migration.domain.enums.*;
 import com.migration.domain.persona.Persona;
 import com.migration.domain.persona.aggregation.*;
@@ -12,7 +13,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class LeadService {
@@ -40,16 +43,20 @@ public class LeadService {
     }
 
     public Boolean normalizationStepOne (List<Lead> leadDatabase){
+        List<Lead> leadsNormalized = new ArrayList<>();
+        List<Lead> leadsRemaining = new ArrayList<>();
 
-     List<Lead> normalizationStepOne = leadDatabase
-         .stream().filter(lead -> lead.getCpfCnpj().equals(lead.getCpfCnpj())
-                     && lead.getPartner().getId().equals(lead.getPartner().getId())).toList();
-
-     System.out.println("Leads Normalizados Step One: " + normalizationStepOne.size());
-
-     this.createPersona(normalizationStepOne);
-     return Boolean.TRUE;
-
+        for (Lead lead: leadDatabase) {
+            if(!Objects.equals(lead.getCpfCnpj(), lead.getCpfCnpj())){
+                leadsRemaining.add(lead);
+            }else {
+                leadsNormalized.add(lead);
+            }
+        }
+        System.out.println("Lead Normalised: " + leadsNormalized.size());
+        System.out.println("lead Remaining: " + leadsRemaining.size());
+        this.createPersona(leadsNormalized);
+        return Boolean.TRUE;
     }
 
 

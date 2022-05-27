@@ -17,7 +17,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class FinderService {
@@ -43,14 +45,19 @@ public class FinderService {
 
     public Boolean normalizationStepOne (List<Finder> findersDatabase){
 
-        List<Finder> normalizationStepOne = findersDatabase
-                .stream()
-                .filter(finder -> finder.getCpf().equals(finder.getCpf())
-                        && finder.getPartner().getId().equals(finder.getPartner().getId())
-                ).toList();
+        List<Finder> finderNormalized = new ArrayList<>();
+        List<Finder> finderRemaining = new ArrayList<>();
 
-        System.out.println("Finders Normalisados Step One: " + normalizationStepOne.size());
-        this.createPersona(normalizationStepOne);
+        for (Finder finder: findersDatabase) {
+            if(!Objects.equals(finder.getCpf(), finder.getCpf())){
+                finderRemaining.add(finder);
+            }else {
+                finderNormalized.add(finder);
+            }
+        }
+        System.out.println("Finder Normalised: " + finderNormalized.size());
+        System.out.println("Finder Remaining: " + finderRemaining.size());
+        this.createPersona(finderNormalized);
         return Boolean.TRUE;
 
     }

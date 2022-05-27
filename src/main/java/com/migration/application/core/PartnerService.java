@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -43,18 +44,21 @@ public class PartnerService {
 
     public Boolean normalizationStepOne (List<Partner> partnerDatabase){
 
-        List<Partner> normalizationStepOne = partnerDatabase
-                .stream()
-                .filter(p-> p.getCpfCnpj() != null)
-                .filter(partner ->
-                        Objects.equals(partner.getCpfCnpj(), partner.getCpfCnpj())
-                ).toList();
-        System.out.println("Partner Normalised Step One: " + normalizationStepOne.size());
-        this.createPersona(normalizationStepOne);
+        List<Partner> partnersNormalized = new ArrayList<>();
+        List<Partner> partnerRemaining = new ArrayList<>();
+
+        for (Partner partner: partnerDatabase) {
+              if(!Objects.equals(partner.getCpfCnpj(), partner.getCpfCnpj())){
+                  partnerRemaining.add(partner);
+              }else {
+                  partnersNormalized.add(partner);
+              }
+        }
+        System.out.println("Partner Normalised: " + partnersNormalized.size());
+        System.out.println("Partner Remaining: " + partnerRemaining.size());
+        this.createPersona(partnersNormalized);
         return Boolean.TRUE;
-
     }
-
 
     @Transactional
     public Boolean createPersona (List<Partner> partnerNormalized){
@@ -101,9 +105,6 @@ public class PartnerService {
         this.save(partnerNormalized);
         return Boolean.TRUE;
     }
-
-
-
 
     @Transactional
     public void save (List<Partner> partnerNormalized) {

@@ -30,28 +30,14 @@ public class InvestorService {
     public Boolean findAll() {
         List<Investor> investors = this.investorRepository.findAll();
         System.out.println("Quantidade de investors do banco: " + investors.size());
-        this.normalizationStepOne(investors);
+        this.createPersona(investors);
         return Boolean.TRUE ;
     }
 
-    public Boolean normalizationStepOne (List<Investor> investorsDatabase){
-
-        List<Investor> normalizationStepOne = investorsDatabase
-                .stream()
-                .filter(investor -> investor.getCnpj().equals(investor.getCnpj())
-                ).toList();
-
-        System.out.println("Investors Normalisados Step One: " + normalizationStepOne.size());
-
-        this.createPersona(normalizationStepOne);
-        return Boolean.TRUE;
-
-    }
-
     @Transactional
-    public Boolean createPersona (List<Investor> investorNormalized){
+    public Boolean createPersona (List<Investor> allInvestor){
 
-        for (Investor investor: investorNormalized) {
+        for (Investor investor: allInvestor) {
             Persona persona = new Persona();
             if(investor != null){
                 persona.setPersonaType(PersonaType.LEGAL_PERSON);
@@ -75,8 +61,8 @@ public class InvestorService {
                 System.out.println(" New Person ** PJ ** : " + persona.getName());
             }
         }
-        System.out.println("Total de Personas criadas:  " + investorNormalized.size());
-        this.save(investorNormalized);
+        System.out.println("Total de Personas criadas:  " + allInvestor.size());
+        this.save(allInvestor);
         return Boolean.TRUE;
     }
 
