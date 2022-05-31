@@ -26,9 +26,9 @@ public class PersonaCompanion{
             targetEntity = Persona.class)
     private Persona persona;
 
-    @JsonInclude(JsonInclude.Include.NON_EMPTY)
-    @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH})
-    @JoinColumn(name = "companion_id")
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "persona_id")
     private Persona data;
 
     @Enumerated(EnumType.STRING)

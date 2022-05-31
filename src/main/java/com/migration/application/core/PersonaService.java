@@ -25,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class PersonaService {
@@ -73,11 +74,14 @@ public class PersonaService {
             persona.setTaxId(oldPersona.getCpfCnpj());
             persona.setId(oldPersona.getId());
 
-            persona.setPersonaType(
-                    oldPersona.getCpfCnpj()
-                            .length() == 11 ? PersonaType.NATURAL_PERSON: PersonaType.LEGAL_PERSON);
+            if(oldPersona.getCpfCnpj() != null){
+                persona.setPersonaType(
+                        oldPersona.getCpfCnpj()
+                                .length() == 11 ? PersonaType.NATURAL_PERSON: PersonaType.LEGAL_PERSON);
+            }
 
-            if(persona.getPersonaType().equals(PersonaType.NATURAL_PERSON)){
+
+            if(oldPersona.getPersonaType().equals(PersonaType.NATURAL_PERSON)){
                 persona.setName(oldPersona.getName());
             }
 
@@ -91,6 +95,8 @@ public class PersonaService {
             persona.setCitizenship(oldPersona.getCitizenship());
             persona.setOccupation(oldPersona.getOccupation());
             persona.setSourceIncome(oldPersona.getSourceIncome());
+
+
 
 
             if(oldPersona.getFinancialInstitutionCode() != null){
@@ -135,26 +141,44 @@ public class PersonaService {
                 }
             }
 
-            if(oldPersona.getCompanion() != null){
-              Persona companion = this.createCompanion(oldPersona.getCompanion());
+            if(oldPersona.getCompanion() != null && oldPersona.getCompanion().getName() != null){
+
+                List<Persona> personaSave = this.personaRepository.findByTaxIdOld(oldPersona.getCompanion().getCpf());
+
+                Persona companion = this.createCompanion(oldPersona.getCompanion());
                 PersonaCompanion personaCompanion = new PersonaCompanion();
                 personaCompanion.setData(companion);
 
-                if(oldPersona.getPropertySystem().name().equals(TypeRegimeCompanion.PARTIAL_COMMUNION.name())){
-                    personaCompanion.setType(TypeRegimeCompanion.PARTIAL_COMMUNION);
+              if(personaSave == null){
 
-                }else if(oldPersona.getPropertySystem().name().equals(TypeRegimeCompanion.TOTAL_SEPARATION.name())){
-                    personaCompanion.setType(TypeRegimeCompanion.TOTAL_SEPARATION);
 
-                }else if(oldPersona.getPropertySystem().name().equals(TypeRegimeCompanion.UNIVERSIAL_COMMUNION.name())){
-                    personaCompanion.setType(TypeRegimeCompanion.UNIVERSIAL_COMMUNION);
+                  if(oldPersona.getPropertySystem().name().equals(TypeRegimeCompanion.PARTIAL_COMMUNION.name())){
+                      personaCompanion.setType(TypeRegimeCompanion.PARTIAL_COMMUNION);
 
-                }else if(oldPersona.getPropertySystem().name().equals(TypeRegimeCompanion.FINAL_PARTICIPATION_IN_AQUESTOS.name())){
-                    personaCompanion.setType(TypeRegimeCompanion.FINAL_PARTICIPATION_IN_AQUESTOS);
-                }
+                  }else if(oldPersona.getPropertySystem().name().equals(TypeRegimeCompanion.TOTAL_SEPARATION.name())){
+                      personaCompanion.setType(TypeRegimeCompanion.TOTAL_SEPARATION);
 
-                persona.setCompanion(personaCompanion);
-                System.out.println(" <<<<<< Companion criado >>>>> : " + companion.getName());
+                  }else if(oldPersona.getPropertySystem().name().equals(TypeRegimeCompanion.UNIVERSIAL_COMMUNION.name())){
+                      personaCompanion.setType(TypeRegimeCompanion.UNIVERSIAL_COMMUNION);
+
+                  }else if(oldPersona.getPropertySystem().name().equals(TypeRegimeCompanion.FINAL_PARTICIPATION_IN_AQUESTOS.name())){
+                      personaCompanion.setType(TypeRegimeCompanion.FINAL_PARTICIPATION_IN_AQUESTOS);
+                  }
+                  persona.setCompanion(personaCompanion);
+                  System.out.println(" <<<<<< Companion criado >>>>> : " + companion.getName());
+              }else{
+
+                  List<Persona> personaNormalized = personaSave
+                          .stream()
+                          .filter(p -> !p.getProponentType().equals(ProponentType.SPOUSE)).toList();
+
+                  if(personaNormalized != null  && !personaNormalized.isEmpty()){
+                      personaCompanion.setData(personaNormalized.get(0));
+                  }else{
+                      personaCompanion.setData(personaSave.get(0));
+                  }
+                  persona.setCompanion(personaCompanion);
+              }
             }
 
             if(personaDatabase != null){
@@ -186,26 +210,26 @@ public class PersonaService {
 
 
     public Persona createCompanion (Companion companion) {
-
         Persona persona = new Persona();
-        persona.setName(companion.getName() != null ? companion.getName() : null);
-        persona.setNationality(companion.getNationality() != null ? companion.getNationality() : null);
-        persona.setOccupation(companion.getOccupation() != null ? companion.getOccupation() : null);
-        persona.setRg(companion.getRg() != null ? companion.getRg() : null);
-        persona.setOrgaoEmissor(companion.getOrgaoEmissor() != null ? companion.getOrgaoEmissor() : null);
-        persona.setTaxId(companion.getCpf() != null ? companion.getCpf() : null);
-        if(persona.getPersonaType() != null){
-            persona.setPersonaType(PersonaType.NATURAL_PERSON);
-        }
+            persona.setName(companion.getName() != null ? companion.getName() : null);
+            persona.setNationality(companion.getNationality() != null ? companion.getNationality() : null);
+            persona.setOccupation(companion.getOccupation() != null ? companion.getOccupation() : null);
+            persona.setRg(companion.getRg() != null ? companion.getRg() : null);
+            persona.setOrgaoEmissor(companion.getOrgaoEmissor() != null ? companion.getOrgaoEmissor() : null);
+            persona.setTaxId(companion.getCpf() != null ? companion.getCpf() : null);
+            if(persona.getPersonaType() != null){
+                persona.setPersonaType(PersonaType.NATURAL_PERSON);
+            }
 
-        if(companion.getEmail() != null){
-            persona.getContacts().add(
-                    this.create.createEmail(companion.getEmail(), null));
-        }
-        persona.setMotherName(companion.getMotherName() != null ? companion.getMotherName() : null);
-        persona.setBirthDate(companion.getBirthDate() != null ? companion.getBirthDate() : null);
-        persona.setPep(companion.getPep());
-        return  persona;
+            if(companion.getEmail() != null){
+                persona.getContacts().add(
+                        this.create.createEmail(companion.getEmail(), null));
+            }
+            persona.setMotherName(companion.getMotherName() != null ? companion.getMotherName() : null);
+            persona.setBirthDate(companion.getBirthDate() != null ? companion.getBirthDate() : null);
+            persona.setPep(companion.getPep());
+            return  persona;
+
     }
 
 

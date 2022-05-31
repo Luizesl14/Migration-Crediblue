@@ -77,7 +77,6 @@ public class OldPersona {
     private Address address;
 
     @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "companion_id")
     private Companion companion;
 
     @JsonIgnore

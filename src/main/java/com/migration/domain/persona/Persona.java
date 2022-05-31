@@ -27,12 +27,19 @@ public class Persona {
 
     private String name;
 
+    @Column(name = "cpf_cnpj")
+    private String cpfCnpj;
+
     @Column(name = "tax_id")
     private String taxId;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "persona_type")
     private PersonaType personaType;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "proponent_type")
+    private ProponentType proponentType;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "gender_type")
@@ -86,7 +93,7 @@ public class Persona {
 
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "companion_id")
+    @JoinColumn(name = "persona_companion_id")
     private PersonaCompanion companion;
 
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
