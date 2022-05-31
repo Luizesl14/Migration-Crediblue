@@ -13,7 +13,7 @@ import lombok.ToString;
 @Table(name = "credi_investor")
 public class Investor {
     @Id
-    @Column(name = "id", nullable = false)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     private String cnpj;

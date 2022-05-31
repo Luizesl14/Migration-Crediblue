@@ -2,6 +2,7 @@ package com.migration.application.shared;
 
 import com.migration.domain.ProposalProponent;
 import com.migration.domain.enums.*;
+import com.migration.domain.persona.OldPersona;
 import com.migration.domain.persona.Persona;
 import com.migration.domain.persona.aggregation.*;
 import jakarta.persistence.Column;
@@ -69,9 +70,8 @@ public class CreateObject {
     }
 
 
-    public ProposalProponent createProponent(Persona persona, LocalDateTime createdAt, ProponentType type){
+    public ProposalProponent createProponent(OldPersona oldPersona, Persona persona, LocalDateTime createdAt, ProponentType type){
         ProposalProponent proposalProponent = new ProposalProponent();
-        proposalProponent.setPersona(persona);
         proposalProponent.setCreatedAt(
                 createdAt == null ? new Date() : this.convert.covertLocalDataTimeToDate(createdAt));
         proposalProponent.setType(type);

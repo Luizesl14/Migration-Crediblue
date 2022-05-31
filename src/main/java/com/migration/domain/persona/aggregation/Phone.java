@@ -7,14 +7,18 @@ import lombok.ToString;
 
 @Getter
 @Setter
-@ToString
 @Entity
+@Table(name = "credi_phone")
 public class Phone {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
     private Integer id;
 
+    @Column(name = "number")
     private String number;
+
+    @Column(name = "is_whatsapp")
     private Boolean isWhatsApp;
+
 }

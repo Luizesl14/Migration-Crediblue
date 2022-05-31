@@ -1,5 +1,6 @@
 package com.migration.domain.persona.aggregation;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.migration.domain.persona.Persona;
 import com.migration.domain.enums.EmailType;
 import jakarta.persistence.*;
@@ -11,22 +12,34 @@ import java.util.Date;
 
 @Getter
 @Setter
-@ToString
 @Entity
 @Table(name = "credi_contact_email")
 public class ContactEmail {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
     private Integer id;
 
+    @Column(name = "email")
     private String email;
 
-    @OneToOne
-    @JoinColumn(name = "persona_id", insertable = false, updatable = false)
+    @JsonIgnore
+    @ManyToOne
+    @JoinColumn(name = "persona_id", updatable = false, insertable = false)
     private Persona persona;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "type")
     private EmailType type;
+
+    @Column(name = "principal")
     private Boolean principal;
+
+    @Column(name = "created_at")
     private Date createdAt;
+
+    @PrePersist
+    public void persist() {
+        this.createdAt = new Date();
+    }
 }

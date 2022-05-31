@@ -17,7 +17,7 @@ import lombok.ToString;
 @Table(name = "credi_partner_contact")
 public class PartnerContact {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
     private Integer id;
 

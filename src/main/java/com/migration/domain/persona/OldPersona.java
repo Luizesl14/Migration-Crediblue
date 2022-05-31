@@ -26,7 +26,7 @@ import java.util.List;
 public class OldPersona {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
     private Integer id;
 
@@ -76,6 +76,9 @@ public class OldPersona {
     @JoinColumn(name = "address_id")
     private Address address;
 
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "companion_id")
+    private Companion companion;
 
     @JsonIgnore
     @CreationTimestamp
@@ -95,6 +98,7 @@ public class OldPersona {
     private String accountDigit;
 
     private double participationPercentage;
+
     private boolean legalRepresentative;
 
     @Column(name = "mother_name")

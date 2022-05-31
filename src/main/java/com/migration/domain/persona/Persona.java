@@ -20,9 +20,8 @@ import java.util.List;
 @Entity
 @Table(name = "credi_persona")
 public class Persona {
-
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
     private Integer id;
 
@@ -30,10 +29,6 @@ public class Persona {
 
     @Column(name = "tax_id")
     private String taxId;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "source_income")
-    private LeadSourceIncome sourceIncome;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "persona_type")
@@ -64,6 +59,10 @@ public class Persona {
 
     @Column(name = "mother_name")
     private String motherName;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "source_income")
+    private LeadSourceIncome sourceIncome;
 
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     @OneToOne(cascade = CascadeType.ALL)
@@ -100,6 +99,7 @@ public class Persona {
     @JoinColumn(name = "persona_id")
     private List<ContactEmail> contacts = new ArrayList<>();
 
+
     @Column(name = "occupation")
     private String occupation;
 
@@ -108,5 +108,16 @@ public class Persona {
 
     @Column(name = "created_at")
     private Date createdAt = new Date();
+
+    @Column(name = "updated_at")
+    private Date updatedAt;
+
+    @Column(name = "deleted_at")
+    private Date deletedAt;
+
+    @PrePersist
+    public void persist() {
+        this.createdAt =  new Date();
+    }
 
 }

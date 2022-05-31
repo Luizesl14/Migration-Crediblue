@@ -15,7 +15,7 @@ import java.math.BigDecimal;
 @Table(name = "credi_simulation")
 public class Simulation {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
     private Integer id;
 

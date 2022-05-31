@@ -1,14 +1,12 @@
 package com.migration.domain;
 
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.migration.domain.persona.Persona;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -18,7 +16,7 @@ import java.util.List;
 @Table(name = "credi_proposal")
 public class Proposal {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
     private Integer id;
 

@@ -4,22 +4,26 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.DynamicUpdate;
 
 import java.math.BigDecimal;
 
+@DynamicInsert
+@DynamicUpdate
 @Getter
 @Setter
-@ToString
 @Entity
-public class ComposeIncome {
+@Table(name = "credi_compose_income")
+public class ComposeIncome{
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
     private Integer id;
 
+    @Column(name = "description")
     private String description;
-    private BigDecimal monthlyRevenue;
-    private BigDecimal totalRevenue;
-    private BigDecimal monthlyExpenses;
+
+    @Column(name = "amount")
     private BigDecimal amount;
 }

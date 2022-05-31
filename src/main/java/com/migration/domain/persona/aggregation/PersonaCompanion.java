@@ -1,5 +1,7 @@
 package com.migration.domain.persona.aggregation;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.migration.domain.enums.TypeRegimeCompanion;
 import com.migration.domain.persona.Persona;
 import com.migration.domain.enums.MaritalStatus;
@@ -10,20 +12,26 @@ import lombok.ToString;
 
 @Getter
 @Setter
-@ToString
 @Entity
 @Table(name = "credi_persona_companion")
-public class PersonaCompanion {
+public class PersonaCompanion{
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
     private Integer id;
 
-    @OneToOne
+    @JsonIgnore
+    @OneToOne(mappedBy = "companion",
+            cascade = CascadeType.ALL,
+            targetEntity = Persona.class)
+    private Persona persona;
+
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+    @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH})
     @JoinColumn(name = "companion_id")
     private Persona data;
 
     @Enumerated(EnumType.STRING)
-    private TypeRegimeCompanion regime;
-
+    @Column(name = "regime")
+    private TypeRegimeCompanion type;
 }

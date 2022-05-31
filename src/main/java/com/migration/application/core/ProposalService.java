@@ -6,6 +6,7 @@ import com.migration.domain.Proposal;
 import com.migration.domain.ProposalProponent;
 import com.migration.domain.enums.PersonaType;
 import com.migration.domain.enums.ProponentType;
+import com.migration.domain.persona.OldPersona;
 import com.migration.domain.persona.Persona;
 import com.migration.domain.persona.aggregation.Company;
 import com.migration.domain.persona.aggregation.PersonaCompanion;
@@ -94,19 +95,10 @@ public class ProposalService {
                 PersonaCompanion personaCompanion = new PersonaCompanion();
                 Persona companion = new Persona();
                 companion.setName(proposal.getLeadProposal().getSpouseName());
-                personaCompanion.setRegime(proposal.getLeadProposal().getTypeRegimeCompanion());
+                personaCompanion.setType(proposal.getLeadProposal().getTypeRegimeCompanion());
                 personaCompanion.setData(companion);
             }
 
-            if(proposal.getLeadProposal().getMonthlyRevenue() != null
-                    && proposal.getLeadProposal().getMonthlyExpenses() != null
-                    && proposal.getLeadProposal().getTotalRevenue() != null){
-                PersonaComposeIncome composeIncome = new PersonaComposeIncome();
-                composeIncome.getComposeIncome().setMonthlyRevenue(proposal.getLeadProposal().getMonthlyRevenue());
-                composeIncome.getComposeIncome().setMonthlyRevenue(proposal.getLeadProposal().getMonthlyExpenses());
-                composeIncome.getComposeIncome().setTotalRevenue(proposal.getLeadProposal().getTotalRevenue());
-                persona.getComposeIncomes().add(composeIncome);
-            }
 
             if(proposal.getLeadProposal().getFinancialInstitutionCode() != null){
                 persona.getBankAccounts().add(
@@ -156,8 +148,8 @@ public class ProposalService {
     }
 
     @Transactional
-    public  Boolean saveProponent(Persona persona, LocalDateTime createdAt, ProponentType proponentType, Proposal proposal){
-        ProposalProponent proponent = this.create.createProponent(persona,createdAt, proponentType);
+    public  Boolean saveProponent(OldPersona oldPersona, Persona persona, LocalDateTime createdAt, ProponentType proponentType, Proposal proposal){
+        ProposalProponent proponent = this.create.createProponent(oldPersona, persona,createdAt, proponentType);
         ProposalProponent proposalProponentSaved = this.proposalProponentRepository.save(proponent);
         proposalProponentSaved.setProposal(proposal);
         this.proposalProponentRepository.save(proposalProponentSaved);

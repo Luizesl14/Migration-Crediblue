@@ -17,7 +17,7 @@ import java.util.List;
 @Table(name = "credi_partner")
 public class Partner {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
     private Integer id;
 

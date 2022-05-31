@@ -16,7 +16,7 @@ import java.util.Date;
 @Table(name = "credi_persona_address")
 public class PersonaAddress {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
     private Integer id;
 
