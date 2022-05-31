@@ -1,11 +1,8 @@
 package com.migration.domain.persona;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.migration.domain.enums.ProponentType;
+import com.migration.domain.enums.*;
 import com.migration.domain.persona.aggregation.*;
-import com.migration.domain.enums.GenderType;
-import com.migration.domain.enums.MaritalStatus;
-import com.migration.domain.enums.PersonaType;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -33,6 +30,10 @@ public class Persona {
 
     @Column(name = "tax_id")
     private String taxId;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "source_income")
+    private LeadSourceIncome sourceIncome;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "persona_type")
@@ -107,4 +108,5 @@ public class Persona {
 
     @Column(name = "created_at")
     private Date createdAt = new Date();
+
 }

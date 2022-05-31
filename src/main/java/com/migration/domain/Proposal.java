@@ -1,12 +1,14 @@
 package com.migration.domain;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.migration.domain.persona.Persona;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
