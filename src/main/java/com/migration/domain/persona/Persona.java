@@ -1,14 +1,19 @@
 package com.migration.domain.persona;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.migration.domain.Proposal;
 import com.migration.domain.enums.*;
 import com.migration.domain.persona.aggregation.*;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.annotations.CreationTimestamp;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -47,6 +52,9 @@ public class Persona {
 
     @Column(name = "rg")
     private String rg;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    private Companion companion;
 
     @Column(name = "orgao_emissor")
     private String orgaoEmissor;
@@ -94,7 +102,7 @@ public class Persona {
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "persona_companion_id")
-    private PersonaCompanion companion;
+    private PersonaCompanion personaCompanionId;
 
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     @OneToMany(cascade = CascadeType.ALL)
@@ -126,5 +134,64 @@ public class Persona {
     public void persist() {
         this.createdAt =  new Date();
     }
+
+    @Column(name = "monthly_income")
+    private BigDecimal monthlyIncome;
+    private String telephone;
+    private String email;
+
+    @Column(name = "opening_date")
+    private LocalDate openingDate;
+
+    @Column(name = "persona_partners")
+    private String personaPartners;
+
+    @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE})
+    @JoinColumn(name = "address_id")
+    private Address address;
+
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "property_system")
+    private PropertySystem propertySystem;
+
+
+    @Column(name = "financial_institution_code")
+    private String financialInstitutionCode;
+
+    @Column(name = "account_branch")
+    private String accountBranch;
+
+    @Column(name = "account_number")
+    private String accountNumber;
+
+    @Column(name = "account_digit")
+    private String accountDigit;
+
+    private double participationPercentage;
+
+    private boolean legalRepresentative;
+
+    @ManyToOne(cascade = CascadeType.MERGE)
+    @JoinColumn(name = "proposal_id")
+    private Proposal proposal;
+
+    @Column(name = "external_analysis")
+    private String externalAnalysis;
+
+    @Column(name = "income_tax_analysis")
+    private String incomeTaxAnalysis;
+
+    @Column(name = "digital_media_analysis")
+    private String digitalMediaAnalysis;
+
+    @Column(name = "protest_analysis")
+    private String protestAnalysis;
+
+    @Column(name = "process_analysis")
+    private String processAnalysis;
+
+    @Column(name = "scr_analysis")
+    private String scrAnalysis;
 
 }

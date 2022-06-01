@@ -149,7 +149,7 @@ public class ProposalService {
 
     @Transactional
     public  Boolean saveProponent(OldPersona oldPersona, Persona persona, LocalDateTime createdAt, ProponentType proponentType, Proposal proposal){
-        ProposalProponent proponent = this.create.createProponent(oldPersona, persona,createdAt, proponentType);
+        ProposalProponent proponent = this.create.createProponentPrincipal(oldPersona, persona,createdAt, proponentType);
         ProposalProponent proposalProponentSaved = this.proposalProponentRepository.save(proponent);
         proposalProponentSaved.setProposal(proposal);
         this.proposalProponentRepository.save(proposalProponentSaved);
