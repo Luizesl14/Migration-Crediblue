@@ -1,6 +1,5 @@
 package com.migration.domain.persona;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.migration.domain.Proposal;
 import com.migration.domain.enums.*;
@@ -9,7 +8,6 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import org.hibernate.annotations.CreationTimestamp;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -121,8 +119,9 @@ public class Persona {
     @Column(name = "pep")
     private Boolean pep;
 
+    @Transient
     @Column(name = "created_at")
-    private Date createdAt = new Date();
+    private LocalDateTime createdAt;
 
     @Column(name = "updated_at")
     private Date updatedAt;
@@ -130,10 +129,6 @@ public class Persona {
     @Column(name = "deleted_at")
     private Date deletedAt;
 
-    @PrePersist
-    public void persist() {
-        this.createdAt =  new Date();
-    }
 
     @Column(name = "monthly_income")
     private BigDecimal monthlyIncome;
@@ -168,9 +163,9 @@ public class Persona {
     @Column(name = "account_digit")
     private String accountDigit;
 
-    private double participationPercentage;
+    private Double participationPercentage;
 
-    private boolean legalRepresentative;
+    private Boolean legalRepresentative;
 
     @ManyToOne(cascade = CascadeType.MERGE)
     @JoinColumn(name = "proposal_id")

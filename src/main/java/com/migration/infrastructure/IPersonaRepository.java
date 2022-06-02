@@ -14,6 +14,9 @@ public interface IPersonaRepository extends JpaRepository<Persona, Integer> {
     @Query(value = "FROM Persona p WHERE p.taxId = :taxId ")
     Persona findByTaxId(String taxId);
 
+    @Query(value = "FROM Persona p WHERE p.cpfCnpj = :taxId ")
+    List<Persona> findAllByTaxId(String taxId);
+
     @Query(value = "FROM Persona p WHERE p.cpfCnpj = :cpfCnpj")
     List<Persona> findByTaxIdOld(@Param("cpfCnpj") String cpfCnpj);
 

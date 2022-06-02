@@ -1,7 +1,6 @@
 package com.migration.domain.persona;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.migration.domain.Proposal;
 import com.migration.domain.enums.*;
 import com.migration.domain.persona.aggregation.*;
@@ -15,6 +14,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 
@@ -22,8 +22,8 @@ import java.util.List;
 @Setter
 @ToString
 @Entity
-@Table(name = "credi_persona")
-public class OldPersona {
+@Table(name = "credi_persona_migration")
+public class PersonaMigration {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -77,6 +77,7 @@ public class OldPersona {
     private Address address;
 
     @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "companion_id")
     private Companion companion;
 
     @JsonIgnore
@@ -124,37 +125,4 @@ public class OldPersona {
 
     @Column(name = "scr_analysis")
     private String scrAnalysis;
-
-    @Column(name = "tax_id")
-    private String taxId;
-
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "persona_type")
-    private PersonaType personaType;
-
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "company_data_id")
-    private Company companyData;
-
-    @OneToMany(cascade = CascadeType.ALL)
-    @JoinColumn(name = "persona_id")
-    private List<PersonaAddress> addresses = new ArrayList<>();
-
-    @OneToMany(cascade = CascadeType.ALL)
-    @JoinColumn(name = "persona_id")
-    private List<PersonaPhone> phones = new ArrayList<>();
-
-    @OneToMany(cascade = CascadeType.ALL)
-    @JoinColumn(name = "persona_id")
-    private List<PersonaAccounts> bankAccounts = new ArrayList<>();
-
-    @OneToMany(cascade = CascadeType.ALL)
-    @JoinColumn(name = "persona_id")
-    private List<PersonaComposeIncome> composeIncomes = new ArrayList<>();
-
-    @OneToMany(cascade = CascadeType.ALL)
-    @JoinColumn(name = "persona_id")
-    private List<ContactEmail> contacts = new ArrayList<>();
-
 }

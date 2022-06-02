@@ -6,13 +6,11 @@ import com.migration.domain.Proposal;
 import com.migration.domain.ProposalProponent;
 import com.migration.domain.enums.PersonaType;
 import com.migration.domain.enums.ProponentType;
-import com.migration.domain.persona.OldPersona;
+import com.migration.domain.persona.PersonaMigration;
 import com.migration.domain.persona.Persona;
 import com.migration.domain.persona.aggregation.Company;
 import com.migration.domain.persona.aggregation.PersonaCompanion;
-import com.migration.domain.persona.aggregation.PersonaComposeIncome;
 import com.migration.domain.persona.aggregation.Phone;
-import com.migration.infrastructure.ILeadProposalRespository;
 import com.migration.infrastructure.IPersonaRepository;
 import com.migration.infrastructure.IProposalProponentRepository;
 import com.migration.infrastructure.IProposalRepository;
@@ -22,7 +20,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class ProposalService {
@@ -148,8 +145,8 @@ public class ProposalService {
     }
 
     @Transactional
-    public  Boolean saveProponent(OldPersona oldPersona, Persona persona, LocalDateTime createdAt, ProponentType proponentType, Proposal proposal){
-        ProposalProponent proponent = this.create.createProponentPrincipal(oldPersona, persona,createdAt, proponentType);
+    public  Boolean saveProponent(PersonaMigration personaMigration, Persona persona, LocalDateTime createdAt, ProponentType proponentType, Proposal proposal){
+        ProposalProponent proponent = this.create.createProponentPrincipal(personaMigration, persona,createdAt, proponentType);
         ProposalProponent proposalProponentSaved = this.proposalProponentRepository.save(proponent);
         proposalProponentSaved.setProposal(proposal);
         this.proposalProponentRepository.save(proposalProponentSaved);
