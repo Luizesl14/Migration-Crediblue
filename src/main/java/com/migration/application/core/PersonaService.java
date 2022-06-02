@@ -203,7 +203,7 @@ public class PersonaService {
                         personaCompanion.setType(this.createType(personaSave.get(0)));
                         oldPersona.setPersonaCompanionId(personaCompanion);
                         this.personaRepository.save(oldPersona);
-                        System.out.println("################## Companio salvo " + oldPersona.getCompanion().getName());
+                        System.out.println("################## Companion salvo " + oldPersona.getCompanion().getName());
                     }
                 }
             }
