@@ -77,37 +77,37 @@ public class Persona {
     @Column(name = "source_income")
     private LeadSourceIncome sourceIncome;
 
-    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "company_data_id")
     private Company companyData;
 
-    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "persona_id")
     private List<PersonaAddress> addresses = new ArrayList<>();
 
-    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "persona_id")
     private List<PersonaPhone> phones = new ArrayList<>();
 
-    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "persona_id")
     private List<PersonaAccounts> bankAccounts = new ArrayList<>();
 
-    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "persona_companion_id")
     private PersonaCompanion personaCompanionId;
 
-    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "persona_id")
     private List<PersonaComposeIncome> composeIncomes = new ArrayList<>();
 
-    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "persona_id")
     private List<ContactEmail> contacts = new ArrayList<>();

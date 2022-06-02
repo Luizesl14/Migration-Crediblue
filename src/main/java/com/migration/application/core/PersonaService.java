@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 
+@Transactional
 @Service
 public class PersonaService {
 
@@ -59,10 +60,10 @@ public class PersonaService {
 
 //        this.saveProponent(oldPersonas);
 //        this.updatePersonas(oldPersonas);
-        this.createCompanion(oldPersonas);
+//        this.createCompanion(oldPersonas);
     }
 
-    @Transactional
+
     public  Boolean saveProponent(List<Persona> oldPersonas){
         for ( Persona persona: oldPersonas) {
             ProposalProponent proponent = this.create.createProponent(persona, persona.getProponentType());
@@ -89,7 +90,7 @@ public class PersonaService {
     }
 
 
-    @Transactional
+
     public Boolean updatePersonas (List<Persona> oldPersonas) {
         for (Persona oldPersona: oldPersonas) {
             if(oldPersona.getCpfCnpj() != null){
@@ -159,7 +160,8 @@ public class PersonaService {
     }
 
 
-    @Transactional
+
+
     public Boolean createCompanion (List<Persona> oldPersonas) {
 
         for (Persona oldPersona: oldPersonas) {
@@ -188,8 +190,9 @@ public class PersonaService {
 
                     personaCompanion.setType(this.createType(oldPersona));
                     personaCompanion.setData(newPerson);
+                    this.personaRepository.save(oldPersona);
                     oldPersona.setPersonaCompanionId(personaCompanion);
-                    this.personaRepository.save(newPerson);
+                    System.out.println("################## Companio salvo " + oldPersona.getCompanion().getName());
                     System.out.println(" <<<<<< Companion criado >>>>> : " + oldPersona.getCompanion().getName());
                 } else if (personaSave != null && !personaSave.isEmpty()) {
                     List<Persona> personaNormalized = personaSave
@@ -197,30 +200,32 @@ public class PersonaService {
 
                     if(personaNormalized != null  && !personaNormalized.isEmpty()){
                         personaCompanion.setData(personaNormalized.get(0));
-                    }else if(personaNormalized == null && personaNormalized.isEmpty()){
-                        personaCompanion.setData(personaSave.get(0));
+                        personaCompanion.setType(this.createType(personaSave.get(0)));
+                        oldPersona.setPersonaCompanionId(personaCompanion);
+                        this.personaRepository.save(oldPersona);
+                        System.out.println("################## Companio salvo " + oldPersona.getCompanion().getName());
                     }
-                    personaCompanion.setType(this.createType(personaSave.get(0)));
-                    oldPersona.setPersonaCompanionId(personaCompanion);
-                    this.personaRepository.save(oldPersona);
                 }
             }
         }
         return Boolean.TRUE;
     }
 
+
     public TypeRegimeCompanion createType(Persona persona){
-        if (persona.getPropertySystem().name().equals(TypeRegimeCompanion.PARTIAL_COMMUNION.name())) {
-          return TypeRegimeCompanion.PARTIAL_COMMUNION;
+        if(persona.getPropertySystem() != null){
+            if (persona.getPropertySystem().name().equals(TypeRegimeCompanion.PARTIAL_COMMUNION.name())) {
+                return TypeRegimeCompanion.PARTIAL_COMMUNION;
 
-        } else if (persona.getPropertySystem().name().equals(TypeRegimeCompanion.TOTAL_SEPARATION.name())) {
-            return  TypeRegimeCompanion.TOTAL_SEPARATION;
+            } else if (persona.getPropertySystem().name().equals(TypeRegimeCompanion.TOTAL_SEPARATION.name())) {
+                return  TypeRegimeCompanion.TOTAL_SEPARATION;
 
-        } else if (persona.getPropertySystem().name().equals(TypeRegimeCompanion.UNIVERSIAL_COMMUNION.name())) {
-            return TypeRegimeCompanion.UNIVERSIAL_COMMUNION;
+            } else if (persona.getPropertySystem().name().equals(TypeRegimeCompanion.UNIVERSIAL_COMMUNION.name())) {
+                return TypeRegimeCompanion.UNIVERSIAL_COMMUNION;
 
-        } else if (persona.getPropertySystem().name().equals(TypeRegimeCompanion.FINAL_PARTICIPATION_IN_AQUESTOS.name())) {
-            return TypeRegimeCompanion.FINAL_PARTICIPATION_IN_AQUESTOS;
+            } else if (persona.getPropertySystem().name().equals(TypeRegimeCompanion.FINAL_PARTICIPATION_IN_AQUESTOS.name())) {
+                return TypeRegimeCompanion.FINAL_PARTICIPATION_IN_AQUESTOS;
+            }
         }
         return null;
     }

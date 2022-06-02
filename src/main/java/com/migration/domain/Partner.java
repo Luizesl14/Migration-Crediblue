@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -44,7 +45,7 @@ public class Partner {
 
     @OneToMany
     @JoinColumn(name = "contact_id")
-    private List<Contact> contacts;
+    private List<Contact> contacts = new ArrayList<>();
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "persona_id")
@@ -52,7 +53,7 @@ public class Partner {
 
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "partner_id")
-    private List<PartnerContact> partnerContacts;
+    private List<PartnerContact> partnerContacts = new ArrayList<>();
 
     @Column(name = "summary")
     private String summary;
