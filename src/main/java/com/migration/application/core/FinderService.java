@@ -6,6 +6,7 @@ import com.migration.domain.Finder;
 import com.migration.domain.Lead;
 import com.migration.domain.enums.IncomeType;
 import com.migration.domain.enums.PersonaType;
+import com.migration.domain.enums.ProponentType;
 import com.migration.domain.persona.Persona;
 import com.migration.domain.persona.aggregation.Company;
 import com.migration.domain.persona.aggregation.ComposeIncome;
@@ -39,41 +40,20 @@ public class FinderService {
     public Boolean findAll() {
         List<Finder> finders = this.finderRespository.findAll();
         System.out.println("Quantidade de finders do banco: " + finders.size());
-        this.normalizationStepOne(finders);
+        this.createPersona(finders);
         return Boolean.TRUE ;
     }
 
-    public Boolean normalizationStepOne (List<Finder> findersDatabase){
-
-        List<Finder> finderNormalized = new ArrayList<>();
-        List<Finder> finderRemaining = new ArrayList<>();
-
-        for (Finder finder: findersDatabase) {
-            if(!Objects.equals(finder.getCpf(), finder.getCpf())){
-                finderRemaining.add(finder);
-            }else {
-                finderNormalized.add(finder);
-            }
-        }
-        System.out.println("Finder Normalised: " + finderNormalized.size());
-        System.out.println("Finder Remaining: " + finderRemaining.size());
-        this.createPersona(finderNormalized);
-        return Boolean.TRUE;
-
-    }
-
-
     @Transactional
     public Boolean createPersona (List<Finder> finderNormalized){
-
         Integer count = 0;
         for (Finder finder: finderNormalized) {
             Persona persona = new Persona();
             if(finder != null){
 
-                Persona personaDatabase = null;
+                List<Persona> personaDatabase = null;
                 if(finder.getCpf() != null){
-                    personaDatabase  = this.personaRepository.findByTaxId(finder.getCpf());
+                    personaDatabase  = this.personaRepository.findByTaxIdOld(finder.getCpf());
                 }
 
                 persona.setPersonaType(PersonaType.NATURAL_PERSON);
@@ -95,22 +75,31 @@ public class FinderService {
                 }
 
                 if(personaDatabase != null){
-                    finder.setPersona(personaDatabase);
-                    //BeanUtils.copyProperties(persona, personaDatabase , "createdAt");
-                    //this.personaRepository.save(personaDatabase);
-
+                    List<Persona> personaNormalized = personaDatabase
+                            .stream().filter(p -> p.getCpfCnpj() != null).toList();
+                    if(personaNormalized != null){
+                        persona.setId(personaNormalized.get(0).getId());
+                        this.personaRepository.save(persona);
+                        finder.setPersona(persona);
+                        this.save(finder);
+                    }
+                    if(persona.getPersonaType().equals(PersonaType.NATURAL_PERSON)){
+                        System.out.println("New Person ** PF ** : " + persona.getName());
+                    }else{
+                        System.out.println("New Person ** PJ ** : " + persona.getCompanyData().getCorporateName());
+                    }
                 }else{
                     finder.setPersona(persona);
-                    //this.save(finder);
+                    this.save(finder);
+                    if(persona.getPersonaType().equals(PersonaType.NATURAL_PERSON)){
+                        System.out.println("New Person ** PF ** : " + persona.getName());
+                    }else{
+                        System.out.println("New Person ** PJ ** : " + persona.getCompanyData().getCorporateName());
+                    }
                 }
-
-                if(persona.getPersonaType().equals(PersonaType.NATURAL_PERSON))
-                    count++;
-                    System.out.println( count + " - New Person ** PF ** : " + persona.getName());
             }
         }
-        System.out.println("Total de Personas criadas:  " + finderNormalized.size());
-        //this.save(finderNormalized);
+
         return Boolean.TRUE;
     }
 

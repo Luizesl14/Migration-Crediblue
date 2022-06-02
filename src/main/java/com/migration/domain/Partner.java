@@ -43,9 +43,9 @@ public class Partner {
     @Column(name = "account_digit")
     private String accountDigit;
 
-    @OneToMany
-    @JoinColumn(name = "contact_id")
-    private List<Contact> contacts = new ArrayList<>();
+//    @OneToMany
+//    @JoinColumn(name = "contact_id")
+//    private List<Contact> contacts = new ArrayList<>();
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "persona_id")

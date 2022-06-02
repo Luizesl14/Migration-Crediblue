@@ -1,27 +1,21 @@
 package com.migration.application.core;
 
-import com.migration.application.shared.ConvertLocalDataTime;
 import com.migration.application.shared.CreateObject;
-import com.migration.domain.Finder;
-import com.migration.domain.Lead;
 import com.migration.domain.Partner;
-import com.migration.domain.enums.*;
+import com.migration.domain.enums.PersonaType;
 import com.migration.domain.persona.Persona;
-import com.migration.domain.persona.aggregation.*;
+import com.migration.domain.persona.aggregation.Company;
+import com.migration.domain.persona.aggregation.Phone;
 import com.migration.infrastructure.IPartnerRepository;
 import com.migration.infrastructure.IPersonaRepository;
-import jakarta.persistence.Column;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
 
 @Service
+@Transactional
 public class PartnerService {
 
     @Autowired
@@ -31,48 +25,34 @@ public class PartnerService {
     private IPersonaRepository personaRepository;
 
     @Autowired
-    private ConvertLocalDataTime convert;
-
-    @Autowired
     private CreateObject create;
 
     public Boolean findAll() {
         List<Partner> partners = this.partnerRepository.findAll();
         System.out.println("Quantidade de partner do banco: " + partners.size());
-        this.normalizationStepOne(partners);
+        this.createPersona(partners);
         return Boolean.TRUE ;
     }
 
-    public Boolean normalizationStepOne (List<Partner> partnerDatabase){
-
-        List<Partner> partnersNormalized = new ArrayList<>();
-        List<Partner> partnerRemaining = new ArrayList<>();
-
-        for (Partner partner: partnerDatabase) {
-              if(!Objects.equals(partner.getCpfCnpj(), partner.getCpfCnpj())){
-                  partnerRemaining.add(partner);
-              }else {
-                  partnersNormalized.add(partner);
-              }
-        }
-        System.out.println("Partner Normalised: " + partnersNormalized.size());
-        System.out.println("Partner Remaining: " + partnerRemaining.size());
-        this.createPersona(partnersNormalized);
-        return Boolean.TRUE;
-    }
-
-    @Transactional
     public Boolean createPersona (List<Partner> partnerNormalized){
 
         for (Partner partner: partnerNormalized) {
             Persona persona = new Persona();
 
-            Persona personaDatabase = null;
+            List<Persona> personaDatabase = null;
             if(partner.getCpfCnpj()!= null){
-                personaDatabase  = this.personaRepository.findByTaxId(partner.getCpfCnpj());
+                personaDatabase  = this.personaRepository.findAllByTaxId(partner.getCpfCnpj());
+                if(personaDatabase.size() > 0){
+                    personaDatabase.forEach(p-> {
+                        System.out.println("*********** Existe Persona: " + p.getName());
+                    });
+                }
+                if(personaDatabase.size() == 0){
+                    personaDatabase = null;
+                }
             }
 
-            if(partner != null){
+            if(partner != null && partner.getCpfCnpj() != null){
                 persona.setPersonaType(
                         partner.getCpfCnpj()
                                 .length() == 11 ? PersonaType.NATURAL_PERSON: PersonaType.LEGAL_PERSON);
@@ -101,30 +81,30 @@ public class PartnerService {
                     persona.getPhones().add(this.create.createPhone(phone, null));
                 }
                 if(personaDatabase != null){
-                    //Persona personaSave = this.personaRepository.save(personaDatabase);
-                    //partner.setPersona(personaSave);
-                    //this.save(partner);
-
+                    List<Persona> personaNormalized = personaDatabase
+                            .stream().filter(p -> p.getCpfCnpj() != null).toList();
+                    if(personaNormalized != null){
+                        persona.setId(personaNormalized.get(0).getId());
+                        Persona personaSave = this.personaRepository.save(persona);
+                        partner.setPersona(personaSave);
+                        this.save(partner);
+                    }
                 }else{
-                    //Persona personaSave = this.personaRepository.save(persona);
-                    //partner.setPersona(personaSave);
-                    //this.save(partner);
-                }
-
-                if(persona.getPersonaType().equals(PersonaType.NATURAL_PERSON)){
-                    System.out.println("New Person ** PF ** : " + persona.getName());
-                }else{
-                    System.out.println("New Person ** PJ ** : " + persona.getCompanyData().getCorporateName());
+                   Persona personaSave = this.personaRepository.save(persona);
+                   partner.setPersona(personaSave);
+                   this.save(partner);
                 }
             }
         }
-        System.out.println("Total de Personas criadas:  " + partnerNormalized.size());
         return Boolean.TRUE;
     }
 
-    @Transactional
     public void save (Partner partner) {
             this.partnerRepository.save(partner);
-            System.out.println("Persona save: " + partner.getPersona().getName() + " ** Partner **");
+        if(partner.getPersona().getPersonaType().equals(PersonaType.NATURAL_PERSON)){
+            System.out.println("New Person ** PF ** : " + partner.getPersona().getName());
+        }else{
+            System.out.println("New Person ** PJ ** : " + partner.getPersona().getCompanyData().getCorporateName());
+        }
         }
 }

@@ -69,7 +69,7 @@ public class CreateObject {
     }
 
 
-    public ProposalProponent createProponentPrincipal(PersonaMigration personaMigration, Persona persona, LocalDateTime createdAt, ProponentType type){
+    public ProposalProponent createProponentPrincipal(LocalDateTime createdAt, ProponentType type){
         ProposalProponent proposalProponent = new ProposalProponent();
         proposalProponent.setCreatedAt(
                 createdAt == null ? new Date() : this.convert.covertLocalDataTimeToDate(createdAt));

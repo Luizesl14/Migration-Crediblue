@@ -25,12 +25,6 @@ public class LeadService {
     private ILeadRepository leadRepository;
 
     @Autowired
-    private IPersonaRepository personaRepository;
-
-    @Autowired
-    private ConvertLocalDataTime convert;
-
-    @Autowired
     private CreateObject create;
 
 

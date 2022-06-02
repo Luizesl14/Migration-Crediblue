@@ -6,7 +6,6 @@ import com.migration.domain.Proposal;
 import com.migration.domain.ProposalProponent;
 import com.migration.domain.enums.PersonaType;
 import com.migration.domain.enums.ProponentType;
-import com.migration.domain.persona.PersonaMigration;
 import com.migration.domain.persona.Persona;
 import com.migration.domain.persona.aggregation.Company;
 import com.migration.domain.persona.aggregation.PersonaCompanion;
@@ -21,7 +20,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 
+
 @Service
+@Transactional
 public class ProposalService {
 
     @Autowired
@@ -46,13 +47,18 @@ public class ProposalService {
         this.createPersona(proposals);
     }
 
-    @Transactional
+
     public Boolean createPersona (List<Proposal> proposals) {
 
         for (Proposal proposal: proposals) {
-            Persona personaDatabase = null;
+            List<Persona> personaDatabase = null;
             if(proposal.getLeadProposal().getCpfCnpj()!= null){
-                personaDatabase  = this.personaRepository.findByTaxId(proposal.getLeadProposal().getCpfCnpj());
+                String taxId = proposal.getLeadProposal().getCpfCnpj();
+               personaDatabase = this.personaRepository.findByTaxIdOld(taxId);
+               if(personaDatabase.size() == 0){
+                   personaDatabase = null;
+               }
+
             }
 
             Persona persona = new Persona();
@@ -119,38 +125,38 @@ public class ProposalService {
             }
 
             if(personaDatabase != null){
-                //BeanUtils.copyProperties(persona, personaDatabase , "createdAt");
-                //this.personaRepository.save(personaDatabase);
+                List<Persona> personaNormalized = personaDatabase
+                        .stream().filter(p -> p.getCpfCnpj() != null).toList();
+                if(personaNormalized != null){
+                    persona.setId(personaNormalized.get(0).getId());
+                    Persona personaSaved =  this.personaRepository.save(persona);
+                    this.saveProponent(personaSaved, proposal.getLeadProposal().getCreatedAt(), ProponentType.PRINCIPAL, proposal);
+                }
+                if(persona.getPersonaType().equals(PersonaType.NATURAL_PERSON)){
+                    System.out.println("New Person ** PF ** : " + persona.getName());
+                }else{
+                    System.out.println("New Person ** PJ ** : " + persona.getCompanyData().getCorporateName());
+                }
 
             }else{
-                //this.save(persona);
-                //this.saveProponent(
-                       // persona, proposal.getLeadProposal().getCreatedAt(), ProponentType.PRINCIPAL, proposal);
+                Persona personaSaved =  this.personaRepository.save(persona);
+                this.saveProponent(personaSaved, proposal.getLeadProposal().getCreatedAt(), ProponentType.PRINCIPAL, proposal);
+                if(persona.getPersonaType().equals(PersonaType.NATURAL_PERSON)){
+                    System.out.println("New Person ** PF ** : " + persona.getName());
+                }else{
+                    System.out.println("New Person ** PJ ** : " + persona.getCompanyData().getCorporateName());
+                }
             }
-
-            if(persona.getPersonaType().equals(PersonaType.NATURAL_PERSON)){
-                System.out.println("New Person ** PF ** : " + persona.getName());
-            }else{
-                System.out.println("New Person ** PJ ** : " + persona.getCompanyData().getCorporateName());
-            }
-
         }
         return  Boolean.TRUE;
     }
 
-    @Transactional
-    public void save (Persona persona) {
-        this.personaRepository.save(persona);
-        System.out.println("lead proposal salvo como persona " + persona);
-    }
-
-    @Transactional
-    public  Boolean saveProponent(PersonaMigration personaMigration, Persona persona, LocalDateTime createdAt, ProponentType proponentType, Proposal proposal){
-        ProposalProponent proponent = this.create.createProponentPrincipal(personaMigration, persona,createdAt, proponentType);
+    public  Boolean saveProponent( Persona persona, LocalDateTime createdAt, ProponentType proponentType, Proposal proposal){
+        ProposalProponent proponent = this.create.createProponentPrincipal(createdAt, proponentType);
         ProposalProponent proposalProponentSaved = this.proposalProponentRepository.save(proponent);
         proposalProponentSaved.setProposal(proposal);
+        proposalProponentSaved.setPersona(persona);
         this.proposalProponentRepository.save(proposalProponentSaved);
-
         return Boolean.TRUE;
     }
 

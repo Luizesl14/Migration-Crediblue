@@ -3,14 +3,13 @@ package com.migration.application.core;
 import com.migration.application.shared.ConvertLocalDataTime;
 import com.migration.application.shared.CreateObject;
 import com.migration.domain.ProposalProponent;
-import com.migration.domain.enums.BankAccount;
 import com.migration.domain.enums.PersonaType;
 import com.migration.domain.enums.ProponentType;
 import com.migration.domain.enums.TypeRegimeCompanion;
-import com.migration.domain.persona.Companion;
 import com.migration.domain.persona.Persona;
 import com.migration.domain.persona.aggregation.*;
-import com.migration.infrastructure.*;
+import com.migration.infrastructure.IPersonaRepository;
+import com.migration.infrastructure.IProposalProponentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,25 +23,6 @@ public class PersonaService {
 
     @Autowired
     private IPersonaRepository personaRepository;
-
-    @Autowired
-    private IPersonaMigrationRepository personaMigrationRepository;
-
-    @Autowired
-    private GenericObjectMapper mapper;
-
-    @Autowired
-    private IPersonaAccountRepository iPersonaAccountRepository;
-
-    @Autowired
-    private IPersonaAddressRepository iPersonaAddressRepository;
-
-    @Autowired
-    private IPersonaPhoneRepository iPersonaPhoneRepository;
-
-    @Autowired
-    private IContactEmailRepository iContactEmailRepository;
-
 
     @Autowired
     private ConvertLocalDataTime convert;
@@ -166,7 +146,7 @@ public class PersonaService {
 
         for (Persona oldPersona: oldPersonas) {
             if (oldPersona.getCompanion() != null) {
-                List<Persona> personaSave = this.personaRepository.findAllByTaxId(oldPersona.getCompanion().getCpf());
+                List<Persona> personaSave = this.personaRepository.findByTaxIdOld(oldPersona.getCompanion().getCpf());
                 PersonaCompanion personaCompanion = new PersonaCompanion();
                 Persona newPerson = new Persona();
 

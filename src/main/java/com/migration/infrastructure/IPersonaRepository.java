@@ -14,6 +14,8 @@ public interface IPersonaRepository extends JpaRepository<Persona, Integer> {
     @Query(value = "FROM Persona p WHERE p.taxId = :taxId ")
     Persona findByTaxId(String taxId);
 
+    Persona findByCpfCnpj(String taxId);
+
     @Query(value = "FROM Persona p WHERE p.cpfCnpj = :taxId ")
     List<Persona> findAllByTaxId(String taxId);
 
@@ -22,4 +24,5 @@ public interface IPersonaRepository extends JpaRepository<Persona, Integer> {
 
     @Query(value = "FROM Persona p WHERE p.id = :id ")
     Persona findByPersonaId(@Param("id") Integer id);
+
 }

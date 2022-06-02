@@ -36,7 +36,6 @@ public class InvestorService {
 
     @Transactional
     public Boolean createPersona (List<Investor> allInvestor){
-
         for (Investor investor: allInvestor) {
             Persona persona = new Persona();
             if(investor != null){
