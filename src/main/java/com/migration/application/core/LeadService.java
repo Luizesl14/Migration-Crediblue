@@ -1,14 +1,15 @@
 package com.migration.application.core;
 
-import com.migration.application.shared.ConvertLocalDataTime;
 import com.migration.application.shared.CreateObject;
 import com.migration.domain.Lead;
-import com.migration.domain.Partner;
-import com.migration.domain.enums.*;
+import com.migration.domain.enums.IncomeType;
+import com.migration.domain.enums.PersonaType;
 import com.migration.domain.persona.Persona;
-import com.migration.domain.persona.aggregation.*;
+import com.migration.domain.persona.aggregation.Company;
+import com.migration.domain.persona.aggregation.ComposeIncome;
+import com.migration.domain.persona.aggregation.PersonaComposeIncome;
+import com.migration.domain.persona.aggregation.Phone;
 import com.migration.infrastructure.ILeadRepository;
-import com.migration.infrastructure.IPersonaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

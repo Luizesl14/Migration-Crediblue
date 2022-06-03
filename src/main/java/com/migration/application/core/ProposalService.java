@@ -20,9 +20,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 
-
+//@Transactional
 @Service
-@Transactional
 public class ProposalService {
 
     @Autowired
@@ -54,7 +53,12 @@ public class ProposalService {
             List<Persona> personaDatabase = null;
             if(proposal.getLeadProposal().getCpfCnpj()!= null){
                 String taxId = proposal.getLeadProposal().getCpfCnpj();
-               personaDatabase = this.personaRepository.findByTaxIdOld(taxId);
+               personaDatabase = this.personaRepository.findByTaxId(taxId);
+               if(personaDatabase.size() > 0){
+                   personaDatabase.forEach(s->{
+                       System.out.println("<<<<<< PROPONENT JÁ EXISTE NA BASE >>>>>> " + s.getName());
+                   });
+               }
                if(personaDatabase.size() == 0){
                    personaDatabase = null;
                }
@@ -129,34 +133,55 @@ public class ProposalService {
                         .stream().filter(p -> p.getCpfCnpj() != null).toList();
                 if(personaNormalized != null){
                     persona.setId(personaNormalized.get(0).getId());
-                    Persona personaSaved =  this.personaRepository.save(persona);
-                    this.saveProponent(personaSaved, proposal.getLeadProposal().getCreatedAt(), ProponentType.PRINCIPAL, proposal);
+//                    Persona personaSaved =  this.personaRepository.save(persona);
+                    this.saveProponent(personaNormalized.get(0), proposal.getLeadProposal().getCreatedAt(), ProponentType.PRINCIPAL);
                 }
                 if(persona.getPersonaType().equals(PersonaType.NATURAL_PERSON)){
-                    System.out.println("New Person ** PF ** : " + persona.getName());
+                    System.out.println("Person database ** PF ** : " + persona.getName());
                 }else{
-                    System.out.println("New Person ** PJ ** : " + persona.getCompanyData().getCorporateName());
+                    System.out.println("Person database ** PJ ** : " + persona.getCompanyData().getCorporateName());
                 }
+                System.out.println();
 
             }else{
-                Persona personaSaved =  this.personaRepository.save(persona);
-                this.saveProponent(personaSaved, proposal.getLeadProposal().getCreatedAt(), ProponentType.PRINCIPAL, proposal);
+//                Persona personaSaved =  this.personaRepository.save(persona);
+                this.saveProponent(persona, proposal.getLeadProposal().getCreatedAt(), ProponentType.PRINCIPAL);
                 if(persona.getPersonaType().equals(PersonaType.NATURAL_PERSON)){
                     System.out.println("New Person ** PF ** : " + persona.getName());
                 }else{
                     System.out.println("New Person ** PJ ** : " + persona.getCompanyData().getCorporateName());
                 }
+                System.out.println();
             }
         }
         return  Boolean.TRUE;
     }
 
-    public  Boolean saveProponent( Persona persona, LocalDateTime createdAt, ProponentType proponentType, Proposal proposal){
+    public  Boolean saveProponent( Persona persona, LocalDateTime createdAt, ProponentType proponentType){
         ProposalProponent proponent = this.create.createProponentPrincipal(createdAt, proponentType);
-        ProposalProponent proposalProponentSaved = this.proposalProponentRepository.save(proponent);
-        proposalProponentSaved.setProposal(proposal);
-        proposalProponentSaved.setPersona(persona);
-        this.proposalProponentRepository.save(proposalProponentSaved);
+
+        if(persona.getSourceIncome() != null){
+            proponent.setComposeIncome(Boolean.TRUE);
+            proponent.setMonthlyIncome(persona.getMonthlyIncome());
+        }
+        if(persona.getProponentType() != null){
+            if(persona.getProponentType().equals(ProponentType.PRINCIPAL)){
+                proponent.setScrConsulted(persona.getProposal().getLeadProposal().getScrConsulted());
+            }
+        }
+        if( persona.getParticipationPercentage() != null){
+            if(persona.getParticipationPercentage() != 0){
+                proponent.setPercentageOfCommitment(
+                        persona.getParticipationPercentage() == null ? 0 : persona.getParticipationPercentage());
+            }
+        }
+
+//        ProposalProponent proposalProponentSaved = this.proposalProponentRepository.save(proponent);
+//        proposalProponentSaved.setPersona(persona);
+//        proposalProponentSaved.setProposal(persona.getProposal());
+//        this.proposalProponentRepository.save(proposalProponentSaved);
+
+        System.out.println(" ## ID ##: " + persona.getId() + " Proponent Salvo ** PF ** : "+ persona.getName());
         return Boolean.TRUE;
     }
 

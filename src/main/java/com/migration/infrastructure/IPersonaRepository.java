@@ -12,7 +12,7 @@ import java.util.List;
 public interface IPersonaRepository extends JpaRepository<Persona, Integer> {
 
     @Query(value = "FROM Persona p WHERE p.taxId = :taxId ")
-    Persona findByTaxId(String taxId);
+    List<Persona> findByTaxId(String taxId);
 
     Persona findByCpfCnpj(String taxId);
 

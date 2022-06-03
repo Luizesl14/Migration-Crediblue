@@ -79,8 +79,10 @@ public class CreateObject {
 
 
 
-    public ProposalProponent createProponent(Persona persona, ProponentType type) {
+    public ProposalProponent createProponent(Persona persona,LocalDateTime createdAt, ProponentType type) {
         ProposalProponent proposalProponent = new ProposalProponent();
+        proposalProponent.setCreatedAt(
+                createdAt == null ? new Date() : this.convert.covertLocalDataTimeToDate(createdAt));
         proposalProponent.setType(type);
         return proposalProponent;
     }

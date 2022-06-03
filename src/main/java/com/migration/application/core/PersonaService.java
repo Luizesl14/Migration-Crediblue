@@ -3,6 +3,7 @@ package com.migration.application.core;
 import com.migration.application.shared.ConvertLocalDataTime;
 import com.migration.application.shared.CreateObject;
 import com.migration.domain.ProposalProponent;
+import com.migration.domain.enums.MaritalStatus;
 import com.migration.domain.enums.PersonaType;
 import com.migration.domain.enums.ProponentType;
 import com.migration.domain.enums.TypeRegimeCompanion;
@@ -37,42 +38,85 @@ public class PersonaService {
     public void findAll() {
         List<Persona> oldPersonas = this.personaRepository.findAll();
         System.out.println("Quantidade de Old - Personas do banco: " + oldPersonas.size());
-
-//        this.saveProponent(oldPersonas);
 //        this.updatePersonas(oldPersonas);
+         this.normalization(oldPersonas);
 //        this.createCompanion(oldPersonas);
     }
 
 
-    public  Boolean saveProponent(List<Persona> oldPersonas){
+    public  Boolean normalization(List<Persona> oldPersonas){
         for ( Persona persona: oldPersonas) {
-            ProposalProponent proponent = this.create.createProponent(persona, persona.getProponentType());
-            if(persona.getSourceIncome() != null){
-                proponent.setComposeIncome(Boolean.TRUE);
-                proponent.setMonthlyIncome(persona.getMonthlyIncome());
-            }
-            if(persona.getProponentType() != null){
-                if(persona.getProponentType().equals(ProponentType.PRINCIPAL)){
-                    proponent.setScrConsulted(persona.getProposal().getLeadProposal().getScrConsulted());
+            List<Persona> personaDatabase = null;
+            if(persona.getCpfCnpj()!= null){
+                personaDatabase = this.personaRepository.findByTaxId(persona.getTaxId());
+                if(personaDatabase.size() > 0){
+                    personaDatabase.forEach(s->{
+                        System.out.println("<<<<<< PROPONENT JÁ EXISTE NA BASE >>>>>> " + s.getName());
+                    });
+                }
+                if(personaDatabase.size() == 0){
+                    personaDatabase = null;
                 }
             }
-            if(persona.getParticipationPercentage() != 0){
-                proponent.setPercentageOfCommitment(persona.getParticipationPercentage());
+            if(personaDatabase != null){
+                List<Persona> personaNormalized = personaDatabase
+                        .stream().filter(p -> p.getCpfCnpj() != null).toList();
+                if(personaNormalized != null){
+                    this.createProponent(personaNormalized.get(0), ProponentType.PRINCIPAL);
+                }
+                if(persona.getPersonaType().equals(PersonaType.NATURAL_PERSON)){
+                    System.out.println("Person database ** PF ** : " + persona.getName());
+                }else{
+                    System.out.println("Person database ** PJ ** : " + persona.getCompanyData().getCorporateName());
+                }
+                System.out.println();
+            }else{
+                System.out.println("Error **** : " + persona.getName());
+                System.out.println();
             }
-            ProposalProponent proposalProponentSaved = this.proposalProponentRepository.save(proponent);
-            proposalProponentSaved.setPersona(persona);
-            proposalProponentSaved.setProposal(persona.getProposal());
-            this.proposalProponentRepository.save(proposalProponentSaved);
-
-            System.out.println(" ## ID ##: " + persona.getId() + " Proponent Salvo ** PF ** : "+ persona.getName());
         }
         return Boolean.TRUE;
     }
 
 
+    public void createProponent(Persona persona, ProponentType proponentType){
+        ProposalProponent proponent = this.create.createProponent(persona, persona.getCreatedAt(), proponentType);
+        if(persona.getSourceIncome() != null){
+            proponent.setComposeIncome(Boolean.TRUE);
+            proponent.setMonthlyIncome(persona.getMonthlyIncome());
+        }
+
+        if(persona.getProponentType() != null){
+            if(persona.getProponentType().equals(proponentType)){
+                proponent.setScrConsulted(persona.getProposal().getLeadProposal().getScrConsulted());
+            }
+        }
+        if( persona.getParticipationPercentage() != null){
+            if(persona.getParticipationPercentage() != 0){
+                proponent.setPercentageOfCommitment(
+                        persona.getParticipationPercentage() == null ? 0 : persona.getParticipationPercentage());
+            }
+        }
+
+
+        ProposalProponent proposalProponentSaved = this.proposalProponentRepository.save(proponent);
+        proposalProponentSaved.setPersona(persona);
+        proposalProponentSaved.setProposal(persona.getProposal());
+        this.proposalProponentRepository.save(proposalProponentSaved);
+
+        System.out.println(" ## ID ##: " + persona.getId() + " Proponent Salvo ** PF ** : "+ persona.getName());
+    }
+
 
     public Boolean updatePersonas (List<Persona> oldPersonas) {
         for (Persona oldPersona: oldPersonas) {
+
+            if(oldPersona.getProponentType() ==  null)
+                oldPersona.setProponentType(ProponentType.COMPANY_PARTNER);
+
+            if(oldPersona.getPersonaType() ==  null)
+                oldPersona.setPersonaType(PersonaType.LEGAL_PERSON);
+
             if(oldPersona.getCpfCnpj() != null){
                 oldPersona.setPersonaType(
                         oldPersona.getCpfCnpj()
@@ -127,6 +171,7 @@ public class PersonaService {
                 }
                 oldPersona.setCompanyData(company);
             }
+
             this.personaRepository.save(oldPersona);
             System.out.println(" ##### #### ###  ## # Persona Atualizado para novo padrão " + oldPersona.getId() + " " + oldPersona.getName());
 
@@ -157,6 +202,11 @@ public class PersonaService {
                     newPerson.setRg(oldPersona.getCompanion().getRg() != null ? oldPersona.getCompanion().getRg() : null);
                     newPerson.setOrgaoEmissor(oldPersona.getCompanion().getOrgaoEmissor() != null ? oldPersona.getCompanion().getOrgaoEmissor() : null);
                     newPerson.setTaxId(oldPersona.getCompanion().getCpf() != null ? oldPersona.getCompanion().getCpf() : null);
+
+                    if(oldPersona.getMaritalStatus().equals(MaritalStatus.CASADO)){
+                        newPerson.setMaritalStatus(MaritalStatus.CASADO);
+                    }
+
                     if (newPerson.getPersonaType() != null) {
                         newPerson.setPersonaType(PersonaType.NATURAL_PERSON);
                     }
