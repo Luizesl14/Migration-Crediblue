@@ -62,7 +62,7 @@ public class PersonaService {
                 List<Persona> personaNormalized = personaDatabase
                         .stream().filter(p -> p.getCpfCnpj() != null).toList();
                 if(personaNormalized != null){
-                    this.createProponent(personaNormalized.get(0), ProponentType.PRINCIPAL);
+                    this.createProponent(personaNormalized.get(0), personaNormalized.get(0).getProponentType());
                 }
                 if(persona.getPersonaType().equals(PersonaType.NATURAL_PERSON)){
                     System.out.println("Person database ** PF ** : " + persona.getName());

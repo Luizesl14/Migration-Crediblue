@@ -135,11 +135,11 @@ public class ProposalService {
                     persona.setId(personaNormalized.get(0).getId());
                     Persona personaSaved =  this.personaRepository.save(persona);
                     this.saveProponent(personaSaved, personaSaved.getCreatedAt(), ProponentType.PRINCIPAL);
-                }
-                if(persona.getPersonaType().equals(PersonaType.NATURAL_PERSON)){
-                    System.out.println("Person database ** PF ** : " + persona.getName());
-                }else{
-                    System.out.println("Person database ** PJ ** : " + persona.getCompanyData().getCorporateName());
+                    if(persona.getPersonaType().equals(PersonaType.NATURAL_PERSON)){
+                        System.out.println("Person database ** PF ** : " + personaSaved.getName());
+                    }else{
+                        System.out.println("Person database ** PJ ** : " + personaSaved.getCompanyData().getCorporateName());
+                    }
                 }
                 System.out.println();
 
