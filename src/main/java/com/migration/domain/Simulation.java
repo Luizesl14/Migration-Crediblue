@@ -23,7 +23,7 @@ public class Simulation {
     @JoinColumn(name = "lead_id")
     private Lead lead;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "persona_id")
     private Persona persona;
 

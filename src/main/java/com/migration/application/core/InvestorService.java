@@ -1,7 +1,6 @@
 package com.migration.application.core;
 
 import com.migration.application.shared.CreateObject;
-import com.migration.domain.Finder;
 import com.migration.domain.Investor;
 import com.migration.domain.enums.PersonaType;
 import com.migration.domain.persona.Persona;
@@ -15,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+@Transactional
 @Service
 public class InvestorService {
 
@@ -34,7 +34,7 @@ public class InvestorService {
         return Boolean.TRUE ;
     }
 
-    @Transactional
+
     public Boolean createPersona (List<Investor> allInvestor){
         for (Investor investor: allInvestor) {
             Persona persona = new Persona();
@@ -66,7 +66,6 @@ public class InvestorService {
     }
 
 
-    @Transactional
     public void save (List<Investor> investorNormalized) {
         for (Investor investor: investorNormalized){
             Persona persona = this.personaRepository.save(investor.getPersona());

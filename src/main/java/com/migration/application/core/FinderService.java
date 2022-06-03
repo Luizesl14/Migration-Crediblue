@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+@Transactional
 @Service
 public class FinderService {
 
@@ -54,6 +55,15 @@ public class FinderService {
                 List<Persona> personaDatabase = null;
                 if(finder.getCpf() != null){
                     personaDatabase  = this.personaRepository.findByTaxIdOld(finder.getCpf());
+                    if(personaDatabase.size() > 0){
+                        personaDatabase.forEach(p-> {
+                            System.out.println("*********** Existe Persona: " + p.getName());
+                        });
+                    }
+                    if(personaDatabase.size() == 0){
+                        personaDatabase = null;
+                    }
+                    System.out.println();
                 }
 
                 persona.setPersonaType(PersonaType.NATURAL_PERSON);
@@ -78,15 +88,14 @@ public class FinderService {
                     List<Persona> personaNormalized = personaDatabase
                             .stream().filter(p -> p.getCpfCnpj() != null).toList();
                     if(personaNormalized != null){
-                        persona.setId(personaNormalized.get(0).getId());
                         this.personaRepository.save(persona);
                         finder.setPersona(persona);
                         this.save(finder);
                     }
                     if(persona.getPersonaType().equals(PersonaType.NATURAL_PERSON)){
-                        System.out.println("New Person ** PF ** : " + persona.getName());
+                        System.out.println("Persona banco de dados ** PF ** : " + persona.getName());
                     }else{
-                        System.out.println("New Person ** PJ ** : " + persona.getCompanyData().getCorporateName());
+                        System.out.println("Persona banco de dados  ** PJ ** : " + persona.getCompanyData().getCorporateName());
                     }
                 }else{
                     finder.setPersona(persona);
@@ -108,5 +117,6 @@ public class FinderService {
     public void save (Finder finder) {
             this.finderRespository.save(finder);
             System.out.println("Persona save: " + finder.getPersona().getName() + " ** Finder **");
+        System.out.println();
     }
 }

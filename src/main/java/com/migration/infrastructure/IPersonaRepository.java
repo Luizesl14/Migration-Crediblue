@@ -11,12 +11,12 @@ import java.util.List;
 @Repository
 public interface IPersonaRepository extends JpaRepository<Persona, Integer> {
 
-    @Query(value = "FROM Persona p WHERE p.taxId = :taxId ")
+    @Query(value = "SELECT DISTINCT p FROM Persona p WHERE p.taxId = :taxId ")
     List<Persona> findByTaxId(String taxId);
 
     Persona findByCpfCnpj(String taxId);
 
-    @Query(value = "FROM Persona p WHERE p.cpfCnpj = :taxId ")
+    @Query(value = "SELECT DISTINCT p FROM Persona p WHERE p.cpfCnpj = :taxId ")
     List<Persona> findAllByTaxId(String taxId);
 
     @Query(value = "FROM Persona p WHERE p.cpfCnpj = :cpfCnpj")
