@@ -39,7 +39,7 @@ public class PersonaService {
         List<Persona> oldPersonas = this.personaRepository.findAll();
         System.out.println("Quantidade de Old - Personas do banco: " + oldPersonas.size());
 //        this.updatePersonas(oldPersonas);
-         this.normalization(oldPersonas);
+//         this.normalization(oldPersonas);
 //        this.createCompanion(oldPersonas);
     }
 

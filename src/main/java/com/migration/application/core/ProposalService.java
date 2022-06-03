@@ -20,7 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 
-//@Transactional
+@Transactional
 @Service
 public class ProposalService {
 
@@ -56,7 +56,7 @@ public class ProposalService {
                personaDatabase = this.personaRepository.findByTaxId(taxId);
                if(personaDatabase.size() > 0){
                    personaDatabase.forEach(s->{
-                       System.out.println("<<<<<< PROPONENT JÁ EXISTE NA BASE >>>>>> " + s.getName());
+                       System.out.println("<<<<<< PROPONENT JÁ EXISTE NA BASE >>>>>> " + s.getName() + "## ID ## " + s.getId());
                    });
                }
                if(personaDatabase.size() == 0){
@@ -130,11 +130,11 @@ public class ProposalService {
 
             if(personaDatabase != null){
                 List<Persona> personaNormalized = personaDatabase
-                        .stream().filter(p -> p.getCpfCnpj() != null).toList();
+                        .stream().filter(p -> p.getTaxId() != null).toList();
                 if(personaNormalized != null){
                     persona.setId(personaNormalized.get(0).getId());
-//                    Persona personaSaved =  this.personaRepository.save(persona);
-                    this.saveProponent(personaNormalized.get(0), proposal.getLeadProposal().getCreatedAt(), ProponentType.PRINCIPAL);
+                    Persona personaSaved =  this.personaRepository.save(persona);
+                    this.saveProponent(personaSaved, personaSaved.getCreatedAt(), ProponentType.PRINCIPAL);
                 }
                 if(persona.getPersonaType().equals(PersonaType.NATURAL_PERSON)){
                     System.out.println("Person database ** PF ** : " + persona.getName());
@@ -144,12 +144,12 @@ public class ProposalService {
                 System.out.println();
 
             }else{
-//                Persona personaSaved =  this.personaRepository.save(persona);
-                this.saveProponent(persona, proposal.getLeadProposal().getCreatedAt(), ProponentType.PRINCIPAL);
+                Persona personaSaved =  this.personaRepository.save(persona);
+                this.saveProponent(personaSaved, personaSaved.getCreatedAt(), ProponentType.PRINCIPAL);
                 if(persona.getPersonaType().equals(PersonaType.NATURAL_PERSON)){
-                    System.out.println("New Person ** PF ** : " + persona.getName());
+                    System.out.println("New Person ** PF ** : " + personaSaved.getName());
                 }else{
-                    System.out.println("New Person ** PJ ** : " + persona.getCompanyData().getCorporateName());
+                    System.out.println("New Person ** PJ ** : " + personaSaved.getCompanyData().getCorporateName());
                 }
                 System.out.println();
             }
@@ -176,10 +176,10 @@ public class ProposalService {
             }
         }
 
-//        ProposalProponent proposalProponentSaved = this.proposalProponentRepository.save(proponent);
-//        proposalProponentSaved.setPersona(persona);
-//        proposalProponentSaved.setProposal(persona.getProposal());
-//        this.proposalProponentRepository.save(proposalProponentSaved);
+        ProposalProponent proposalProponentSaved = this.proposalProponentRepository.save(proponent);
+        proposalProponentSaved.setPersona(persona);
+        proposalProponentSaved.setProposal(persona.getProposal());
+        this.proposalProponentRepository.save(proposalProponentSaved);
 
         System.out.println(" ## ID ##: " + persona.getId() + " Proponent Salvo ** PF ** : "+ persona.getName());
         return Boolean.TRUE;
