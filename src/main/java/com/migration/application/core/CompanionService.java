@@ -39,57 +39,63 @@ public class CompanionService {
         List<ProposalProponent> proponentsNomalized = this.proposalProponentRepository.findAll();
         System.out.println("################## TOTAL DE PROPONENTS NORMALIZADOS " + proponentsNomalized.size());
 
-
+        int index = 0;
         for (ProposalProponent proponent: proponentsNomalized) {
-            Companion companion = proponent.getPersona().getCompanion();
+            if(proponent.getPersona().getCompanion() != null){
+                Companion companion = proponent.getPersona().getCompanion();
 
-            if (companion != null) {
-                Persona personaDatabase = this.personaRepository.findByTaxId(companion.getCpf());
+                if (companion != null && companion.getCpf() != null) {
+                    Persona personaDatabase = this.personaRepository.findByTaxId(companion.getCpf());
 
-                PersonaCompanion personaCompanion = new PersonaCompanion();
-                Persona newPerson = new Persona();
 
-                if (personaDatabase == null) {
-                    newPerson.setName(companion.getName() != null ? companion.getName() : null);
-                    newPerson.setNationality(companion.getNationality() != null ? companion.getNationality() : null);
-                    newPerson.setOccupation(companion.getOccupation() != null ? companion.getOccupation() : null);
-                    newPerson.setRg(companion.getRg() != null ? companion.getRg() : null);
-                    newPerson.setOrgaoEmissor(companion.getOrgaoEmissor() != null ? companion.getOrgaoEmissor() : null);
-                    newPerson.setTaxId(companion.getCpf() != null ? companion.getCpf() : null);
+                    PersonaCompanion personaCompanion = new PersonaCompanion();
+                    Persona newPerson = new Persona();
 
-                    if(proponent.getPersona().getMaritalStatus().equals(MaritalStatus.CASADO)){
-                        newPerson.setMaritalStatus(MaritalStatus.CASADO);
-                    }
+                    if (personaDatabase == null) {
+                        newPerson.setName(companion.getName() != null ? companion.getName() : null);
+                        newPerson.setNationality(companion.getNationality() != null ? companion.getNationality() : null);
+                        newPerson.setOccupation(companion.getOccupation() != null ? companion.getOccupation() : null);
+                        newPerson.setRg(companion.getRg() != null ? companion.getRg() : null);
+                        newPerson.setOrgaoEmissor(companion.getOrgaoEmissor() != null ? companion.getOrgaoEmissor() : null);
+                        newPerson.setTaxId(companion.getCpf() != null ? companion.getCpf() : null);
 
-                    if (newPerson.getPersonaType() != null) {
-                        newPerson.setPersonaType(PersonaType.NATURAL_PERSON);
-                    }
-                    if (companion.getEmail() != null) {
-                        newPerson.getContacts().add(
-                                this.create.createEmail(companion.getEmail(), null));
-                    }
-                    newPerson.setMotherName(companion.getMotherName() != null ? companion.getMotherName() : null);
-                    newPerson.setBirthDate(companion.getBirthDate() != null ? companion.getBirthDate() : null);
-                    newPerson.setPep(companion.getPep());
+                        if(proponent.getPersona().getMaritalStatus().equals(MaritalStatus.CASADO)){
+                            newPerson.setMaritalStatus(MaritalStatus.CASADO);
+                        }
 
-                    personaCompanion.setType(this.createType(proponent.getPersona()));
-                    personaCompanion.setData(newPerson);
-//                    this.personaRepository.save(newPerson);
-                    proponent.getPersona().setPersonaCompanionId(personaCompanion);
+                        if (newPerson.getPersonaType() != null) {
+                            newPerson.setPersonaType(PersonaType.NATURAL_PERSON);
+                        }
+                        if (companion.getEmail() != null) {
+                            newPerson.getContacts().add(
+                                    this.create.createEmail(companion.getEmail(), null));
+                        }
+                        newPerson.setMotherName(companion.getMotherName() != null ? companion.getMotherName() : null);
+                        newPerson.setBirthDate(companion.getBirthDate() != null ? companion.getBirthDate() : null);
+                        newPerson.setPep(companion.getPep());
 
-                    System.out.println("################## Companio salvo " + companion.getName());
-                    System.out.println();
+                        personaCompanion.setType(this.createType(proponent.getPersona()));
+                        personaCompanion.setData(newPerson);
+                        this.personaRepository.save(newPerson);
+                        proponent.getPersona().setPersonaCompanionId(personaCompanion);
 
-                } else{
+                        System.out.println("################## Companio salvo " + companion.getName());
+                        System.out.println();
+                        System.out.println("<<< TOTAL DE COMPANION NORMALIZADOS: >>> " +  index++);
+
+                    } else{
+                        System.out.println("################## PERSONA JÁ EXISTE NO BANCO " + personaDatabase.getName());
                         personaCompanion.setData(personaDatabase);
                         personaCompanion.setType(this.createType(personaDatabase));
                         proponent.getPersona().setPersonaCompanionId(personaCompanion);
-//                        this.personaRepository.save(proponent.getPersona());
+                        this.personaRepository.save(proponent.getPersona());
                         System.out.println("################## Companion salvo " + companion.getName());
                         System.out.println();
+                        System.out.println("<<< TOTAL DE COMPANION NORMALIZADOS: >>> " +  index++);
                     }
                 }
             }
+        }
         return Boolean.TRUE;
     }
 
