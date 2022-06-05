@@ -17,5 +17,4 @@ public class CompanionResource {
     public void start(){
         this.companionService.createCompanion();
     }
-
 }

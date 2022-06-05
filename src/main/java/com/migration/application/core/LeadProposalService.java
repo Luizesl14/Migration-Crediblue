@@ -22,7 +22,7 @@ import java.util.List;
 
 @Transactional
 @Service
-public class ProposalService {
+public class LeadProposalService {
 
     @Autowired
     private IProposalRepository proposalRepository;
@@ -49,20 +49,13 @@ public class ProposalService {
 
     public Boolean createPersona (List<Proposal> proposals) {
 
-        for (Proposal proposal: proposals) {
-            List<Persona> personaDatabase = null;
-            if(proposal.getLeadProposal().getCpfCnpj()!= null){
-                String taxId = proposal.getLeadProposal().getCpfCnpj();
-               personaDatabase = this.personaRepository.findAllByTaxId(taxId);
-               if(personaDatabase.size() > 0){
-                   personaDatabase.forEach(s->{
-                       System.out.println("<<<<<< PROPONENT JÁ EXISTE NA BASE >>>>>> " + s.getName() + "## ID ## " + s.getId());
-                   });
-               }
-               if(personaDatabase.size() == 0){
-                   personaDatabase = null;
-               }
-
+        for (Proposal proposal : proposals) {
+            Persona personaDatabase = null;
+            if (proposal.getLeadProposal().getCpfCnpj() != null) {
+                personaDatabase = this.personaRepository.findByTaxId(proposal.getLeadProposal().getCpfCnpj());
+                if (personaDatabase != null)
+                    System.out.println("<<<<<< PROPONENT JÁ EXISTE NA BASE >>>>>> "
+                            + personaDatabase.getName() + "## ID ## " + personaDatabase.getId());
             }
 
             Persona persona = new Persona();
@@ -70,23 +63,22 @@ public class ProposalService {
 
             persona.setPersonaType(
                     proposal.getLeadProposal().getCpfCnpj()
-                            .length() == 11 ? PersonaType.NATURAL_PERSON: PersonaType.LEGAL_PERSON);
+                            .length() == 11 ? PersonaType.NATURAL_PERSON : PersonaType.LEGAL_PERSON);
 
-            if(persona.getPersonaType().equals(PersonaType.NATURAL_PERSON)){
+            if (persona.getPersonaType().equals(PersonaType.NATURAL_PERSON)) {
                 persona.setName(proposal.getLeadProposal().getName());
-            }else{
+            } else {
                 Company company = new Company();
                 company.setCorporateName(proposal.getLeadProposal().getName());
                 company.setType(proposal.getLeadProposal().getCompanyType());
                 company.setCnae(proposal.getLeadProposal().getCnaeCode());
 
-                if(proposal.getLeadProposal().getCompanyFoundingDate() != null){
+                if (proposal.getLeadProposal().getCompanyFoundingDate() != null) {
                     company.setFoundationDate(
                             this.convert.convertToLocalDate(proposal.getLeadProposal().getCompanyFoundingDate()));
                 }
                 persona.setCompanyData(company);
             }
-
             persona.setMaritalStatus(proposal.getLeadProposal().getMaritalStatus());
             persona.setBirthDate(proposal.getLeadProposal().getBirthDate());
             persona.setMaritalStatus(proposal.getLeadProposal().getMaritalStatus());
@@ -98,7 +90,7 @@ public class ProposalService {
             persona.setPep(proposal.getLeadProposal().getPep());
             persona.setOccupation(proposal.getLeadProposal().getOccupation());
 
-            if(proposal.getLeadProposal().getSpouseName() != null){
+            if (proposal.getLeadProposal().getSpouseName() != null) {
                 PersonaCompanion personaCompanion = new PersonaCompanion();
                 Persona companion = new Persona();
                 companion.setName(proposal.getLeadProposal().getSpouseName());
@@ -106,50 +98,41 @@ public class ProposalService {
                 personaCompanion.setData(companion);
             }
 
-
-            if(proposal.getLeadProposal().getFinancialInstitutionCode() != null){
+            if (proposal.getLeadProposal().getFinancialInstitutionCode() != null) {
                 persona.getBankAccounts().add(
                         this.create.createAccount(
                                 proposal.getLeadProposal().getFinancialInstitutionCode(), proposal.getLeadProposal().getAccountBranch(),
                                 proposal.getLeadProposal().getAccountNumber(), proposal.getLeadProposal().getAccountDigit(), null));
             }
-            if(proposal.getLeadProposal().getAddress() != null){
+            if (proposal.getLeadProposal().getAddress() != null) {
                 persona.getAddresses().add(
                         this.create.createAddress(proposal.getLeadProposal().getAddress(), proposal.getLeadProposal().getAddress().getCreatedAt()));
             }
-            if(proposal.getLeadProposal().getEmail() != null){
+            if (proposal.getLeadProposal().getEmail() != null) {
                 persona.getContacts().add(
                         this.create.createEmail(proposal.getLeadProposal().getEmail(), null));
             }
-            if(proposal.getLeadProposal().getTelephone() != null){
+            if (proposal.getLeadProposal().getTelephone() != null) {
                 Phone phone = new Phone();
                 phone.setNumber(proposal.getLeadProposal().getTelephone());
                 phone.setIsWhatsApp(Boolean.FALSE);
                 persona.getPhones().add(this.create.createPhone(phone, null));
             }
-
-            if(personaDatabase != null){
-                List<Persona> personaNormalized = personaDatabase
-                        .stream().filter(p -> p.getTaxId() != null).toList();
-                if(personaNormalized != null){
-                    persona.setId(personaNormalized.get(0).getId());
-                    Persona personaSaved =  this.personaRepository.save(persona);
-                    this.saveProponent(personaSaved, personaSaved.getCreatedAt(), ProponentType.PRINCIPAL);
-                    if(persona.getPersonaType().equals(PersonaType.NATURAL_PERSON)){
-                        System.out.println("Person database ** PF ** : " + personaSaved.getName());
-                    }else{
-                        System.out.println("Person database ** PJ ** : " + personaSaved.getCompanyData().getCorporateName());
-                    }
+            if (personaDatabase != null) {
+                this.saveProponent(personaDatabase, personaDatabase.getCreatedAt(), ProponentType.PRINCIPAL);
+                if (persona.getPersonaType().equals(PersonaType.NATURAL_PERSON)) {
+                    System.out.println("Person database ** PF ** : " + personaDatabase.getName());
+                } else {
+                    System.out.println("Person database ** PJ ** : " + personaDatabase.getCompanyData().getCorporateName());
                 }
                 System.out.println();
-
             }else{
-                Persona personaSaved =  this.personaRepository.save(persona);
+                Persona personaSaved = this.personaRepository.save(persona);
                 this.saveProponent(personaSaved, personaSaved.getCreatedAt(), ProponentType.PRINCIPAL);
-                if(persona.getPersonaType().equals(PersonaType.NATURAL_PERSON)){
-                    System.out.println("New Person ** PF ** : " + personaSaved.getName());
-                }else{
-                    System.out.println("New Person ** PJ ** : " + personaSaved.getCompanyData().getCorporateName());
+                if (persona.getPersonaType().equals(PersonaType.NATURAL_PERSON)) {
+                    System.out.println("New Person ** PF ** : " + persona.getName());
+                } else {
+                    System.out.println("New Person ** PJ ** : " + persona.getCompanyData().getCorporateName());
                 }
                 System.out.println();
             }

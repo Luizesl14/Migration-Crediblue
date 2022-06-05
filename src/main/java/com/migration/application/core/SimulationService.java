@@ -1,7 +1,6 @@
 package com.migration.application.core;
 
 
-import com.migration.application.shared.ConvertLocalDataTime;
 import com.migration.application.shared.CreateObject;
 import com.migration.domain.Simulation;
 import com.migration.domain.enums.PersonaType;
@@ -9,7 +8,6 @@ import com.migration.domain.persona.Persona;
 import com.migration.domain.persona.aggregation.Company;
 import com.migration.domain.persona.aggregation.PersonaCompanion;
 import com.migration.domain.persona.aggregation.Phone;
-import com.migration.infrastructure.ILeadRepository;
 import com.migration.infrastructure.IPersonaRepository;
 import com.migration.infrastructure.ISimulatonRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,16 +27,7 @@ public class SimulationService {
     private IPersonaRepository personaRepository;
 
     @Autowired
-    private ILeadRepository leadRepository;
-
-
-    @Autowired
-    private ConvertLocalDataTime convert;
-
-    @Autowired
     private CreateObject create;
-
-
 
     public Boolean findAll() {
         List<Simulation>  simulations = this.simulatonRepository.findAll();
@@ -47,27 +36,17 @@ public class SimulationService {
         return Boolean.TRUE ;
     }
 
-
     public Boolean createPersona (List<Simulation> simulationsNormalized){
         for (Simulation simulation: simulationsNormalized) {
             Persona persona = new Persona();
             if( simulation.getLead() != null){
-                List<Persona> personaDatabase = null;
+              Persona personaDatabase = null;
                 if(simulation.getLead().getCpfCnpj()!= null){
-                    personaDatabase  = this.personaRepository.findAllByTaxId(simulation.getLead().getCpfCnpj());
-                    if(personaDatabase.size() > 0){
-                        personaDatabase.forEach(p-> {
-                            if(p.getPersonaType().equals(PersonaType.NATURAL_PERSON)){
-                                System.out.println("*********** Existe Persona: PF ** : " + p.getName());
-                            }else{
-                                System.out.println("*********** Existe Persona: ** PJ ** : " + p.getCompanyData().getCorporateName());
-                            }
-                        });
+                    personaDatabase  = this.personaRepository.findByTaxId(simulation.getLead().getCpfCnpj());
+                    if(personaDatabase != null)
+                        this.print(personaDatabase);
                     }
-                    if(personaDatabase.size() == 0){
-                        personaDatabase = null;
-                    }
-                }
+
                 persona.setPersonaType(
                         simulation.getLead().getCpfCnpj()
                                 .length() == 11 ? PersonaType.NATURAL_PERSON: PersonaType.LEGAL_PERSON);
@@ -112,8 +91,11 @@ public class SimulationService {
                     phone.setIsWhatsApp(Boolean.FALSE);
                     persona.getPhones().add(this.create.createPhone(phone, null));
                 }
-                if(personaDatabase != null){    // sempre vai existir
-                        simulation.setPersona(personaDatabase.get(0));
+                if(personaDatabase != null){
+                        persona.setId(personaDatabase.getId());
+                        Persona personaUpdated = this.personaRepository.save(persona);
+                        this.printSavePersona(personaUpdated);
+                        simulation.setPersona(personaUpdated);
                         this.saveSimulation(simulation);
                     }else {
                     simulation.setPersona(persona);
@@ -128,12 +110,29 @@ public class SimulationService {
     public Boolean saveSimulation(Simulation simulation){
         Persona persona = this.simulatonRepository.save(simulation).getPersona();
         if(persona.getPersonaType().equals(PersonaType.NATURAL_PERSON)){
-            System.out.println("NOVA PERSONA SALVA NO BANCO ** PF ** : " + persona.getName());
+            System.out.println("SIMULAÇÃO ATUALIZADA ** PF ** : " + persona.getName());
             System.out.println();
         }else{
-            System.out.println("NOVA PERSONA SALVA NO BANCO ** PJ ** : " + persona.getCompanyData().getCorporateName());
+            System.out.println("SIMULAÇÃO ATUALIZADA ** PJ ** : " + persona.getCompanyData().getCorporateName());
             System.out.println();
         }
         return Boolean.TRUE;
+    }
+
+
+    public void print(Persona persona){
+        if(persona.getPersonaType().equals(PersonaType.NATURAL_PERSON)){
+            System.out.println("*********** Existe Persona: PF ** : " + persona.getName());
+        }else{
+            System.out.println("*********** Existe Persona: ** PJ ** : " + persona.getCompanyData().getCorporateName());
+        }
+    }
+
+    public void printSavePersona(Persona persona){
+        if(persona.getPersonaType().equals(PersonaType.NATURAL_PERSON)){
+            System.out.println("######### Persona Atualizada: PF ** : " + persona.getName());
+        }else{
+            System.out.println("######### Persona Atualizada: ** PJ ** : " + persona.getCompanyData().getCorporateName());
+        }
     }
 }

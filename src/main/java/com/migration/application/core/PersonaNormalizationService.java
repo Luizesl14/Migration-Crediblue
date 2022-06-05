@@ -38,26 +38,23 @@ public class PersonaNormalizationService {
     private IProposalProponentRepository proposalProponentRepository;
 
     @Autowired
-    private IProposalRepository proposalRepository;
+    private LeadProposalService leadProposalService;
 
-    public void print(Persona persona){
-        System.out.println();
-        System.out.println(" ##### #### ###  ## # Persona Atualizado para novo padrão "
-                + persona.getId() + " " + persona.getName());
-        if(persona.getPersonaType().equals(PersonaType.NATURAL_PERSON)){
-            System.out.println(" ## ID ##: " + persona.getId()
-                    + " Persona Atualizado ** PF ** : "+ persona.getName());
-        }else{
-            System.out.println(" ## ID ##: " + persona.getId()
-                    + " Persona Atualizado ** PJ ** : " + persona.getCompanyData().getCorporateName());
-        }
-    }
+    @Autowired
+    private CompanionService companionService;
+
+    @Autowired
+    private SimulationService simulationService;
 
     public void findAll() {
-//        List<Persona> oldPersonas = this.personaRepository.findAll();
-//        System.out.println("Quantidade de Old - Personas do banco: " + oldPersonas.size());
-//        this.normalization(oldPersonas);
+        List<Persona> oldPersonas = this.personaRepository.findAll();
+        System.out.println("Quantidade de Old - Personas do banco: " + oldPersonas.size());
+
+        this.normalization(oldPersonas);
         this.normalizedProponent();
+        this.leadProposalService.findAll();
+        this.companionService.createCompanion();
+        this.simulationService.findAll();
     }
 
     public  Boolean normalization(List<Persona> oldPersonas){
@@ -177,5 +174,18 @@ public class PersonaNormalizationService {
             proposalProponentSaved.setProposal(proposal);
             this.proposalProponentRepository.save(proposalProponentSaved);
             System.out.println(" ## ID ##: " + persona.getId() + " Proponent Salvo ** PF ** : "+ persona.getName());
+    }
+
+    public void print(Persona persona){
+        System.out.println();
+        System.out.println(" ##### #### ###  ## # Persona Atualizado para novo padrão "
+                + persona.getId() + " " + persona.getName());
+        if(persona.getPersonaType().equals(PersonaType.NATURAL_PERSON)){
+            System.out.println(" ## ID ##: " + persona.getId()
+                    + " Persona Atualizado ** PF ** : "+ persona.getName());
+        }else{
+            System.out.println(" ## ID ##: " + persona.getId()
+                    + " Persona Atualizado ** PJ ** : " + persona.getCompanyData().getCorporateName());
+        }
     }
 }

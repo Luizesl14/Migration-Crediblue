@@ -5,7 +5,6 @@ import com.migration.application.shared.CreateObject;
 import com.migration.domain.ProposalProponent;
 import com.migration.domain.enums.MaritalStatus;
 import com.migration.domain.enums.PersonaType;
-import com.migration.domain.enums.ProponentType;
 import com.migration.domain.enums.TypeRegimeCompanion;
 import com.migration.domain.persona.Companion;
 import com.migration.domain.persona.Persona;
@@ -24,9 +23,6 @@ public class CompanionService {
 
     @Autowired
     private IPersonaRepository personaRepository;
-
-    @Autowired
-    private ConvertLocalDataTime convert;
 
     @Autowired
     private CreateObject create;
@@ -62,10 +58,8 @@ public class CompanionService {
                         if(proponent.getPersona().getMaritalStatus().equals(MaritalStatus.CASADO)){
                             newPerson.setMaritalStatus(MaritalStatus.CASADO);
                         }
+                        newPerson.setPersonaType(PersonaType.NATURAL_PERSON);
 
-                        if (newPerson.getPersonaType() != null) {
-                            newPerson.setPersonaType(PersonaType.NATURAL_PERSON);
-                        }
                         if (companion.getEmail() != null) {
                             newPerson.getContacts().add(
                                     this.create.createEmail(companion.getEmail(), null));
