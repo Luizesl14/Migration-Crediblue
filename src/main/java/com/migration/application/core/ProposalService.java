@@ -53,7 +53,7 @@ public class ProposalService {
             List<Persona> personaDatabase = null;
             if(proposal.getLeadProposal().getCpfCnpj()!= null){
                 String taxId = proposal.getLeadProposal().getCpfCnpj();
-               personaDatabase = this.personaRepository.findByTaxId(taxId);
+               personaDatabase = this.personaRepository.findAllByTaxId(taxId);
                if(personaDatabase.size() > 0){
                    personaDatabase.forEach(s->{
                        System.out.println("<<<<<< PROPONENT JÁ EXISTE NA BASE >>>>>> " + s.getName() + "## ID ## " + s.getId());

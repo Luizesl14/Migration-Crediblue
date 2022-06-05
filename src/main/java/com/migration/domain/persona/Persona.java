@@ -1,10 +1,10 @@
 package com.migration.domain.persona;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.migration.domain.Proposal;
 import com.migration.domain.enums.*;
 import com.migration.domain.persona.aggregation.*;
 import jakarta.persistence.*;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -15,6 +15,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 
 @Getter
@@ -189,4 +190,17 @@ public class Persona {
     @Column(name = "scr_analysis")
     private String scrAnalysis;
 
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Persona persona = (Persona) o;
+        return Objects.equals(cpfCnpj, persona.cpfCnpj);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(cpfCnpj, taxId);
+    }
 }

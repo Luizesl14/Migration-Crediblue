@@ -54,7 +54,7 @@ public class SimulationService {
             if( simulation.getLead() != null){
                 List<Persona> personaDatabase = null;
                 if(simulation.getLead().getCpfCnpj()!= null){
-                    personaDatabase  = this.personaRepository.findByTaxId(simulation.getLead().getCpfCnpj());
+                    personaDatabase  = this.personaRepository.findAllByTaxId(simulation.getLead().getCpfCnpj());
                     if(personaDatabase.size() > 0){
                         personaDatabase.forEach(p-> {
                             if(p.getPersonaType().equals(PersonaType.NATURAL_PERSON)){
