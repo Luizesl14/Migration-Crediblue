@@ -10,6 +10,9 @@ import com.migration.domain.persona.aggregation.ComposeIncome;
 import com.migration.domain.persona.aggregation.PersonaComposeIncome;
 import com.migration.domain.persona.aggregation.Phone;
 import com.migration.infrastructure.ILeadRepository;
+import com.migration.infrastructure.IPartnerRepository;
+import com.migration.infrastructure.IPersonaRepository;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,42 +31,35 @@ public class LeadService {
     @Autowired
     private CreateObject create;
 
+    @Autowired
+    private IPersonaRepository personaRepository;
+
 
 
     public Boolean findAll() {
         List<Lead> leads = this.leadRepository.findAll();
         System.out.println("Quantidade de Lead do banco: " + leads.size());
-        this.normalizationStepOne(leads);
+        this.createPersona(leads);
         return Boolean.TRUE ;
     }
-
-    public Boolean normalizationStepOne (List<Lead> leadDatabase){
-        List<Lead> leadsNormalized = new ArrayList<>();
-        List<Lead> leadsRemaining = new ArrayList<>();
-
-        for (Lead lead: leadDatabase) {
-            if(!Objects.equals(lead.getCpfCnpj(), lead.getCpfCnpj())){
-                leadsRemaining.add(lead);
-            }else {
-                leadsNormalized.add(lead);
-            }
-        }
-        System.out.println("Lead Normalised: " + leadsNormalized.size());
-        System.out.println("lead Remaining: " + leadsRemaining.size());
-        this.createPersona(leadsNormalized);
-        return Boolean.TRUE;
-    }
-
 
 
     @Transactional
     public Boolean createPersona (List<Lead> leadNormalized){
 
-
         for (Lead lead: leadNormalized) {
             Persona persona = new Persona();
             if(lead != null){
-
+                Persona personaDatabase = null;
+                if(lead.getCpfCnpj()!= null){
+                    personaDatabase  = this.personaRepository.findByTaxId(lead.getCpfCnpj());
+                    if(personaDatabase != null)
+                        if (personaDatabase.getPersonaType().equals(PersonaType.NATURAL_PERSON)) {
+                            System.out.println("Persona Existe no banco ** PF ** : " + personaDatabase.getName());
+                        } else {
+                            System.out.println("Persona Existe no banco  ** PJ ** : " + personaDatabase.getCompanyData().getCorporateName());
+                        }
+                }
                 persona.setPersonaType(
                         lead.getCpfCnpj()
                                 .length() == 11 ? PersonaType.NATURAL_PERSON: PersonaType.LEGAL_PERSON);
@@ -103,27 +99,49 @@ public class LeadService {
                     phone.setIsWhatsApp(Boolean.FALSE);
                     persona.getPhones().add(this.create.createPhone(phone, null));
                 }
-                if(persona.getPersonaType().equals(PersonaType.NATURAL_PERSON)){
-                    System.out.println("New Person ** PF ** : " + persona.getName());
+                if(personaDatabase != null){
+                    persona.setId(personaDatabase.getId());
+
+                  BeanUtils.copyProperties(persona ,personaDatabase,
+                          "id", "name", "cpfCnpj", "createdAt");
+
+                    Persona personaSave = this.personaRepository.save(persona);
+                    lead.setPersona(personaSave);
+                    this.save(lead);
+                    this.printUpdated(personaSave);
+
                 }else{
-                    System.out.println("New Person ** PJ ** : " + persona.getCompanyData().getCorporateName());
+                   Persona personaSave = this.personaRepository.save(persona);
+                   lead.setPersona(personaSave);
+                   this.save(lead);
+                    this.printSaved(personaSave);
                 }
             }
         }
-
-        System.out.println("Total de Personas criadas:  " + leadNormalized.size());
-        //this.save(leadNormalized);
         return Boolean.TRUE;
     }
 
+    public void save(Lead lead){
+        this.leadRepository.save(lead);
 
-    @Transactional
-    public Boolean save(List<Lead> leadNormalized){
-        for (Lead lead: leadNormalized) {
-            this.leadRepository.save(lead);
-            System.out.println("*** Save : " + lead.getPersona().getName());
+    }
+
+    public void printUpdated(Persona persona){
+        if (persona.getPersonaType().equals(PersonaType.NATURAL_PERSON)) {
+            System.out.println("UPDATED PERSONA  ** PF ** : " + persona.getName());
+        } else {
+            System.out.println("UPDATED PERSONA   ** PJ ** : " + persona.getCompanyData().getCorporateName());
         }
-        return Boolean.TRUE;
+        System.out.println();
+    }
+
+    public void printSaved(Persona persona){
+        if (persona.getPersonaType().equals(PersonaType.NATURAL_PERSON)) {
+            System.out.println("SAVED PERSONA  ** PF ** : " + persona.getName());
+        } else {
+            System.out.println("SAVED PERSONA   ** PJ ** : " + persona.getCompanyData().getCorporateName());
+        }
+        System.out.println();
     }
 
 }

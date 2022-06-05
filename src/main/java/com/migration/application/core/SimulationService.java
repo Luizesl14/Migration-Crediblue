@@ -10,6 +10,7 @@ import com.migration.domain.persona.aggregation.PersonaCompanion;
 import com.migration.domain.persona.aggregation.Phone;
 import com.migration.infrastructure.IPersonaRepository;
 import com.migration.infrastructure.ISimulatonRepository;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -93,6 +94,7 @@ public class SimulationService {
                 }
                 if(personaDatabase != null){
                         persona.setId(personaDatabase.getId());
+                        BeanUtils.copyProperties(persona ,personaDatabase, "id", "taxId", "cpf", "createdAt");
                         Persona personaUpdated = this.personaRepository.save(persona);
                         this.printSavePersona(personaUpdated);
                         simulation.setPersona(personaUpdated);

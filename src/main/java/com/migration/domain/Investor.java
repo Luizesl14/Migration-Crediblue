@@ -21,7 +21,7 @@ public class Investor {
     private String telephone;
     private String email;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "persona_id")
     private Persona persona;
     private Boolean active = true;

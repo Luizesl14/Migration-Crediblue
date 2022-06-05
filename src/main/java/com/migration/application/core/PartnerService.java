@@ -8,6 +8,7 @@ import com.migration.domain.persona.aggregation.Company;
 import com.migration.domain.persona.aggregation.Phone;
 import com.migration.infrastructure.IPartnerRepository;
 import com.migration.infrastructure.IPersonaRepository;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,32 +40,30 @@ public class PartnerService {
         for (Partner partner: partnerNormalized) {
             Persona persona = new Persona();
 
-            List<Persona> personaDatabase = null;
+          Persona personaDatabase = null;
             if(partner.getCpfCnpj()!= null){
-                personaDatabase  = this.personaRepository.findAllByTaxId(partner.getCpfCnpj());
-                if(personaDatabase.size() > 0){
-                    personaDatabase.forEach(p-> {
-                        System.out.println("*********** Existe Persona: " + p.getName());
-                    });
-                }
-                if(personaDatabase.size() == 0){
-                    personaDatabase = null;
-                }
+                personaDatabase  = this.personaRepository.findByTaxId(partner.getCpfCnpj());
+                if(personaDatabase != null)
+                    if (personaDatabase.getPersonaType().equals(PersonaType.NATURAL_PERSON)) {
+                        System.out.println("Persona Existe no banco ** PF ** : " + personaDatabase.getName());
+                    } else {
+                        System.out.println("Persona Existe no banco  ** PJ ** : " + personaDatabase.getCompanyData().getCorporateName());
+                    }
             }
+               if(partner.getCpfCnpj() != null){
+                   persona.setPersonaType(
+                           partner.getCpfCnpj()
+                                   .length() == 11 ? PersonaType.NATURAL_PERSON: PersonaType.LEGAL_PERSON);
+                   persona.setTaxId(partner.getCpfCnpj());
+               }
 
-            if(partner != null && partner.getCpfCnpj() != null){
-                persona.setPersonaType(
-                        partner.getCpfCnpj()
-                                .length() == 11 ? PersonaType.NATURAL_PERSON: PersonaType.LEGAL_PERSON);
-                persona.setTaxId(partner.getCpfCnpj());
-
-                if(persona.getPersonaType().equals(PersonaType.NATURAL_PERSON)){
-                    persona.setName(partner.getName());
-                }else{
-                    Company company = new Company();
-                    company.setCorporateName(partner.getName());
-                    persona.setCompanyData(company);
-                }
+//                if(persona.getPersonaType().equals(PersonaType.NATURAL_PERSON)){
+//                    persona.setName(partner.getName());
+//                }else{
+//                    Company company = new Company();
+//                    company.setCorporateName(partner.getName());
+//                    persona.setCompanyData(company);
+//                }
 
                 if(partner.getAddress() != null ){
                     persona.getAddresses().add(this.create.createAddress(partner.getAddress(),
@@ -81,21 +80,20 @@ public class PartnerService {
                     persona.getPhones().add(this.create.createPhone(phone, null));
                 }
                 if(personaDatabase != null){
-                    List<Persona> personaNormalized = personaDatabase
-                            .stream().filter(p -> p.getCpfCnpj() != null).toList();
-                    if(personaNormalized != null){
-                        persona.setId(personaNormalized.get(0).getId());
-                        Persona personaSave = this.personaRepository.save(persona);
-                        partner.setPersona(personaSave);
-                        this.save(partner);
-                    }
+//                        persona.setId(personaDatabase.getId());
+//
+//                      BeanUtils.copyProperties(persona ,personaDatabase,
+//                              "id", "name", "cpfCnpj", "createdAt");
+//
+//                        Persona personaSave = this.personaRepository.save(persona);
+//                        partner.setPersona(personaSave);
+//                        this.save(partner);
                 }else{
-                   Persona personaSave = this.personaRepository.save(persona);
-                   partner.setPersona(personaSave);
-                   this.save(partner);
+//                   Persona personaSave = this.personaRepository.save(persona);
+//                   partner.setPersona(personaSave);
+//                   this.save(partner);
                 }
             }
-        }
         return Boolean.TRUE;
     }
 

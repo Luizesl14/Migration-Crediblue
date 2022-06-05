@@ -110,7 +110,7 @@ public class LeadProposalService {
             }
             if (proposal.getLeadProposal().getEmail() != null) {
                 persona.getContacts().add(
-                        this.create.createEmail(proposal.getLeadProposal().getEmail(), null));
+                        this.create.createEmail(proposal.getLeadProposal().getEmail(), proposal.getLeadProposal().getCreatedAt()));
             }
             if (proposal.getLeadProposal().getTelephone() != null) {
                 Phone phone = new Phone();

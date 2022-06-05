@@ -14,6 +14,7 @@ import com.migration.domain.persona.aggregation.PersonaComposeIncome;
 import com.migration.domain.persona.aggregation.Phone;
 import com.migration.infrastructure.IFinderRespository;
 import com.migration.infrastructure.IPersonaRepository;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -51,25 +52,16 @@ public class FinderService {
         for (Finder finder: finderNormalized) {
             Persona persona = new Persona();
             if(finder != null){
-
-                List<Persona> personaDatabase = null;
+                Persona personaDatabase = null;
                 if(finder.getCpf() != null){
-                    personaDatabase  = this.personaRepository.findByTaxIdOld(finder.getCpf());
-                    if(personaDatabase.size() > 0){
-                        personaDatabase.forEach(p-> {
-                            System.out.println("*********** Existe Persona: " + p.getName());
-                        });
+                    personaDatabase  = this.personaRepository.findByTaxId(finder.getCpf());
+                    if(personaDatabase != null){
+                            System.out.println("Persona já existe no banco ** PF ** : " + personaDatabase.getName());
                     }
-                    if(personaDatabase.size() == 0){
-                        personaDatabase = null;
-                    }
-                    System.out.println();
                 }
-
                 persona.setPersonaType(PersonaType.NATURAL_PERSON);
                 persona.setTaxId(finder.getCpf());
                 persona.setName(finder.getName());
-
                 if(finder.getAddress() != null ){
                     persona.getAddresses().add(this.create.createAddress(finder.getAddress(),
                             finder.getAddress().getCreatedAt()));
@@ -83,40 +75,27 @@ public class FinderService {
                     phone.setIsWhatsApp(Boolean.FALSE);
                     persona.getPhones().add(this.create.createPhone(phone, null));
                 }
-
                 if(personaDatabase != null){
-                    List<Persona> personaNormalized = personaDatabase
-                            .stream().filter(p -> p.getCpfCnpj() != null).toList();
-                    if(personaNormalized != null){
-                        this.personaRepository.save(persona);
-                        finder.setPersona(persona);
-                        this.save(finder);
-                    }
-                    if(persona.getPersonaType().equals(PersonaType.NATURAL_PERSON)){
-                        System.out.println("Persona banco de dados ** PF ** : " + persona.getName());
-                    }else{
-                        System.out.println("Persona banco de dados  ** PJ ** : " + persona.getCompanyData().getCorporateName());
-                    }
+//                        BeanUtils.copyProperties(persona ,personaDatabase, "id", "taxId", "cpf", "createdAt");
+//                        Persona personaSave = this.personaRepository.save(personaDatabase);
+//                        finder.setPersona(personaSave);
+//                        this.save(finder);
+                    System.out.println();
                 }else{
                     finder.setPersona(persona);
-                    this.save(finder);
-                    if(persona.getPersonaType().equals(PersonaType.NATURAL_PERSON)){
-                        System.out.println("New Person ** PF ** : " + persona.getName());
-                    }else{
-                        System.out.println("New Person ** PJ ** : " + persona.getCompanyData().getCorporateName());
-                    }
+//                    this.save(finder);
+                    System.out.println();
                 }
             }
         }
-
         return Boolean.TRUE;
     }
 
 
     @Transactional
     public void save (Finder finder) {
-            this.finderRespository.save(finder);
-            System.out.println("Persona save: " + finder.getPersona().getName() + " ** Finder **");
-        System.out.println();
+            Persona persona = this.finderRespository.save(finder).getPersona();
+            System.out.println("Persona salva ** PF ** : " + persona.getName());
+            System.out.println();
     }
 }

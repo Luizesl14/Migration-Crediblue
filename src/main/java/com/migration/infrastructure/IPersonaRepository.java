@@ -30,4 +30,14 @@ public interface IPersonaRepository extends JpaRepository<Persona, Integer> {
     @Query(value = "FROM Persona p WHERE p.id = :id ")
     Persona findByPersonaId(@Param("id") Integer id);
 
+
+
+    @Query(value = "FROM Persona p WHERE p.name =:#{#name} AND p.email = :#{#email} " +
+            "AND p.telephone = :#{#telephone} AND (:#{#cpfCnpj} IS NULL OR :#{#cpfCnpj} = '' OR p.cpfCnpj =:#{#cpfCnpj}) ")
+    Persona findPersonaUser(
+            @Param("name") String name,
+            @Param("email") String email,
+            @Param("telephone") String telephone,
+            @Param("cpfCnpj") String cpfCnpj);
+
 }
