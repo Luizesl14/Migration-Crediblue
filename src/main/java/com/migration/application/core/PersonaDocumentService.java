@@ -48,7 +48,7 @@ public class PersonaDocumentService {
 
                 ProposalProponent proposalProponent  =
                         this.proposalProponentRepository.findAllDByProposalByPersona(
-                                personaDocument.getPersona().getTaxId(),
+                                personaDocument.getPersona().getId(),
                                 personaDocument.getPersona().getProposal().getId());
 
                 if(proposalProponent != null){

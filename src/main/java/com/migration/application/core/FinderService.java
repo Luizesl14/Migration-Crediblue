@@ -46,7 +46,7 @@ public class FinderService {
         return Boolean.TRUE ;
     }
 
-    @Transactional
+
     public Boolean createPersona (List<Finder> finderNormalized){
         Integer count = 0;
         for (Finder finder: finderNormalized) {
@@ -76,14 +76,14 @@ public class FinderService {
                     persona.getPhones().add(this.create.createPhone(phone, null));
                 }
                 if(personaDatabase != null){
-//                        BeanUtils.copyProperties(persona ,personaDatabase, "id", "taxId", "cpf", "createdAt");
-//                        Persona personaSave = this.personaRepository.save(personaDatabase);
-//                        finder.setPersona(personaSave);
-//                        this.save(finder);
+                        BeanUtils.copyProperties(persona ,personaDatabase, "id", "taxId", "cpf", "createdAt");
+                        Persona personaSave = this.personaRepository.save(personaDatabase);
+                        finder.setPersona(personaSave);
+                        this.save(finder);
                     System.out.println();
                 }else{
                     finder.setPersona(persona);
-//                    this.save(finder);
+                    this.save(finder);
                     System.out.println();
                 }
             }
@@ -92,7 +92,6 @@ public class FinderService {
     }
 
 
-    @Transactional
     public void save (Finder finder) {
             Persona persona = this.finderRespository.save(finder).getPersona();
             System.out.println("Persona salva ** PF ** : " + persona.getName());

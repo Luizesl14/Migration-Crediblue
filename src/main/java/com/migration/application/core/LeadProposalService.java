@@ -46,20 +46,11 @@ public class LeadProposalService {
         this.createPersona(proposals);
     }
 
-
     public Boolean createPersona (List<Proposal> proposals) {
 
         for (Proposal proposal : proposals) {
-            Persona personaDatabase = null;
-            if (proposal.getLeadProposal().getCpfCnpj() != null) {
-                personaDatabase = this.personaRepository.findByTaxId(proposal.getLeadProposal().getCpfCnpj());
-                if (personaDatabase != null)
-                    System.out.println("<<<<<< PROPONENT JÁ EXISTE NA BASE >>>>>> "
-                            + personaDatabase.getName() + "## ID ## " + personaDatabase.getId());
-            }
-
             Persona persona = new Persona();
-            persona.setTaxId(proposal.getLeadProposal().getCpfCnpj());
+            persona.setCpfCnpj(proposal.getLeadProposal().getCpfCnpj());
 
             persona.setPersonaType(
                     proposal.getLeadProposal().getCpfCnpj()
@@ -118,22 +109,13 @@ public class LeadProposalService {
                 phone.setIsWhatsApp(Boolean.FALSE);
                 persona.getPhones().add(this.create.createPhone(phone, null));
             }
-            if (personaDatabase != null) {
-                this.saveProponent(personaDatabase, proposal, personaDatabase.getCreatedAt(), ProponentType.PRINCIPAL);
-                if (persona.getPersonaType().equals(PersonaType.NATURAL_PERSON)) {
-                    System.out.println("Person database ** PF ** : " + personaDatabase.getName());
-                } else {
-                    System.out.println("Person database ** PJ ** : " + personaDatabase.getCompanyData().getCorporateName());
-                }
-                System.out.println();
-            }else{
+                persona.setLeadProposal(proposal.getLeadProposal());
                 Persona personaSaved = this.personaRepository.save(persona);
                 this.saveProponent(personaSaved,proposal, personaSaved.getCreatedAt(), ProponentType.PRINCIPAL);
                 if (persona.getPersonaType().equals(PersonaType.NATURAL_PERSON)) {
                     System.out.println("New Person ** PF ** : " + persona.getName());
                 } else {
                     System.out.println("New Person ** PJ ** : " + persona.getCompanyData().getCorporateName());
-                }
                 System.out.println();
             }
         }

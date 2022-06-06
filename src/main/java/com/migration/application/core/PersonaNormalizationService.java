@@ -56,14 +56,14 @@ public class PersonaNormalizationService {
         List<Persona> oldPersonas = this.personaRepository.findAll();
         System.out.println("Quantidade de Old - Personas do banco: " + oldPersonas.size());
 
-        this.createProponent(oldPersonas);
-        this.documentService.findAll();
-        this.normalization(oldPersonas);
-        this.leadProposalService.findAll();
+//        this.createProponent(oldPersonas);
+//        this.documentService.findAll();
+//          this.leadProposalService.findAll();
+//         this.normalization(oldPersonas);
         this.normalizedProponent();
-        this.companionService.createCompanion();
-        this.documentService.findAll();
-        this.simulationService.findAll();
+//        this.companionService.createCompanion();
+//        this.documentService.findAll();
+//        this.simulationService.findAll();
     }
 
     public void createProponent(List<Persona> proponents){
@@ -94,71 +94,89 @@ public class PersonaNormalizationService {
     }
 
     public Boolean updatePersonas (List<Persona> oldPersonas) {
+
+
         for (Persona oldPersona: oldPersonas) {
-                    if(oldPersona.getProponentType() ==  null)
-                        oldPersona.setProponentType(ProponentType.COMPANY_PARTNER);
 
-                    if(oldPersona.getPersonaType() ==  null)
-                        oldPersona.setPersonaType(PersonaType.LEGAL_PERSON);
+              if(oldPersona.getTaxId() == null){
+                  Persona personaDatabase = this.personaRepository.findByTaxId(oldPersona.getCpfCnpj());
+                  if(oldPersona.getProponentType() ==  null)
+                      oldPersona.setProponentType(ProponentType.COMPANY_PARTNER);
 
-                    if(oldPersona.getCpfCnpj() != null){
-                        oldPersona.setPersonaType(
-                                oldPersona.getCpfCnpj()
-                                        .length() == 11 ? PersonaType.NATURAL_PERSON: PersonaType.LEGAL_PERSON);
-                    }
-                    if(oldPersona.getPersonaType().equals(PersonaType.NATURAL_PERSON)){
-                        oldPersona.setName(oldPersona.getName());
-                    }
+                  if(oldPersona.getPersonaType() ==  null)
+                      oldPersona.setPersonaType(PersonaType.LEGAL_PERSON);
 
-                    if(oldPersona.getCpfCnpj() != null)
-                        oldPersona.setTaxId(oldPersona.getCpfCnpj());
+                  if(oldPersona.getCpfCnpj() != null){
+                      oldPersona.setPersonaType(
+                              oldPersona.getCpfCnpj()
+                                      .length() == 11 ? PersonaType.NATURAL_PERSON: PersonaType.LEGAL_PERSON);
+                  }
+                  if(oldPersona.getPersonaType().equals(PersonaType.NATURAL_PERSON)){
+                      oldPersona.setName(oldPersona.getName());
+                  }
 
-                    if(oldPersona.getFinancialInstitutionCode() != null){
-                        List<PersonaAccounts> personaAccountsList = new ArrayList<>();
-                        PersonaAccounts personaAccounts =  this.create.createAccount(
-                                oldPersona.getFinancialInstitutionCode(),oldPersona.getAccountBranch(),
-                                oldPersona.getAccountNumber(), oldPersona.getAccountDigit(), oldPersona.getCreatedAt());
-                        personaAccountsList.add(personaAccounts);
-                        oldPersona.setBankAccounts(personaAccountsList);
-                    }
-                    if(oldPersona.getAddress() != null){
-                        List<PersonaAddress> personaAddressList = new ArrayList<>();
-                        PersonaAddress personaAddress = this.create.createAddress(oldPersona.getAddress(), oldPersona.getAddress().getCreatedAt());
-                        personaAddressList.add(personaAddress);
-                        oldPersona.setAddresses(personaAddressList);
+                  if(oldPersona.getCpfCnpj() != null)
+                      oldPersona.setTaxId(oldPersona.getCpfCnpj());
 
-                    }
-                    if(oldPersona.getEmail() != null){
-                        List<ContactEmail> contactEmailList = new ArrayList<>();
-                        ContactEmail contactEmail = this.create.createEmail(oldPersona.getEmail(), oldPersona.getCreatedAt());
-                        contactEmailList.add(contactEmail);
-                        oldPersona.setContacts(contactEmailList);
-                    }
-                    if(oldPersona.getTelephone() != null){
-                        Phone phone = new Phone();
-                        phone.setNumber(oldPersona.getTelephone());
-                        phone.setIsWhatsApp(Boolean.FALSE);
-                        List<PersonaPhone> personaPhoneList = new ArrayList<>();
-                        PersonaPhone personaPhone = this.create.createPhone(phone, oldPersona.getCreatedAt());
-                        personaPhoneList.add(personaPhone);
-                        oldPersona.setPhones(personaPhoneList);
-                    }
+                  if(oldPersona.getFinancialInstitutionCode() != null){
+                      List<PersonaAccounts> personaAccountsList = new ArrayList<>();
+                      PersonaAccounts personaAccounts =  this.create.createAccount(
+                              oldPersona.getFinancialInstitutionCode(),oldPersona.getAccountBranch(),
+                              oldPersona.getAccountNumber(), oldPersona.getAccountDigit(), oldPersona.getCreatedAt());
+                      personaAccountsList.add(personaAccounts);
+                      oldPersona.setBankAccounts(personaAccountsList);
+                  }
+                  if(oldPersona.getAddress() != null){
+                      List<PersonaAddress> personaAddressList = new ArrayList<>();
+                      PersonaAddress personaAddress = this.create.createAddress(oldPersona.getAddress(), oldPersona.getAddress().getCreatedAt());
+                      personaAddressList.add(personaAddress);
+                      oldPersona.setAddresses(personaAddressList);
 
-                    if(oldPersona.getPersonaType().equals(PersonaType.LEGAL_PERSON)){
-                        Company company = new Company();
-                        company.setCorporateName(oldPersona.getName());
-                        if(oldPersona.getOpeningDate() != null){
-                            company.setFoundationDate(this.convert.convertToLocalDate(oldPersona.getOpeningDate()));
-                        }
-                        if(oldPersona.getOpeningDate()!= null){
-                            company.setFoundationDate(
-                                    this.convert.convertToLocalDate(oldPersona.getOpeningDate()));
-                        }
-                        oldPersona.setCompanyData(company);
-                        this.print(oldPersona);
-                    }
-                    this.personaRepository.save(oldPersona);
-                }
+                  }
+                  if(oldPersona.getEmail() != null){
+                      List<ContactEmail> contactEmailList = new ArrayList<>();
+                      ContactEmail contactEmail = this.create.createEmail(oldPersona.getEmail(), oldPersona.getCreatedAt());
+                      contactEmailList.add(contactEmail);
+                      oldPersona.setContacts(contactEmailList);
+                  }
+                  if(oldPersona.getTelephone() != null){
+                      Phone phone = new Phone();
+                      phone.setNumber(oldPersona.getTelephone());
+                      phone.setIsWhatsApp(Boolean.FALSE);
+                      List<PersonaPhone> personaPhoneList = new ArrayList<>();
+                      PersonaPhone personaPhone = this.create.createPhone(phone, oldPersona.getCreatedAt());
+                      personaPhoneList.add(personaPhone);
+                      oldPersona.setPhones(personaPhoneList);
+                  }
+
+                  if(oldPersona.getPersonaType().equals(PersonaType.LEGAL_PERSON)){
+                      Company company = new Company();
+                      company.setCorporateName(oldPersona.getName());
+                      if(oldPersona.getOpeningDate() != null){
+                          company.setFoundationDate(this.convert.convertToLocalDate(oldPersona.getOpeningDate()));
+                      }
+                      if(oldPersona.getOpeningDate()!= null){
+                          company.setFoundationDate(
+                                  this.convert.convertToLocalDate(oldPersona.getOpeningDate()));
+                      }
+                      oldPersona.setCompanyData(company);
+
+                  }
+                  if(personaDatabase != null){
+                      System.out.println(" ## ID ## PERSONA JA EXISTENTE NO BANCO: " + personaDatabase.getId());
+                  }else {
+                      Persona personaSaved = this.personaRepository.save(oldPersona);
+
+                      if(personaSaved.getPersonaType().equals(PersonaType.NATURAL_PERSON)){
+                          System.out.println(" ## ID ##: " + personaSaved.getId()
+                                  + " Persona Atualizado ** PF ** : "+ personaSaved.getName());
+                      }else{
+                          System.out.println(" ## ID ##: " + personaSaved.getId()
+                                  + " Persona Atualizado ** PJ ** : " + personaSaved.getCompanyData().getCorporateName());
+                      }
+                  }
+              }
+        }
         return  Boolean.TRUE;
     }
 
@@ -173,13 +191,15 @@ public class PersonaNormalizationService {
                 System.out.println("Proponent a ser normalizado:  " + proponent.getPersona().getName());
                 Persona personaSave = this.personaRepository.findByTaxId(proponent.getPersona().getCpfCnpj());
 
-                if(proponent.getPersona().getPersonaType().equals(PersonaType.NATURAL_PERSON)){
-                    System.out.println(" ## ID ##: " + personaSave.getId()
-                            + " ####### PESSOA JÁ EXISTE ######## ** PF ** : "+ proponent.getPersona().getName());
-                }else{
-                    System.out.println(" ## ID ##: " + proponent.getPersona().getId()
-                            + " ####### PESSOA JÁ EXISTE ######## ** PJ ** : " + proponent.getPersona().getCompanyData().getCorporateName());
-                }
+               if(proponent.getPersona().getPersonaType() != null){
+                   if(proponent.getPersona().getPersonaType().equals(PersonaType.NATURAL_PERSON)){
+                       System.out.println(" ## ID ##: " + personaSave.getId()
+                               + " ####### PESSOA JÁ EXISTE ######## ** PF ** : "+ proponent.getPersona().getName());
+                   }else{
+                       System.out.println(" ## ID ##: " + proponent.getPersona().getId()
+                               + " ####### PESSOA JÁ EXISTE ######## ** PJ ** : " + proponent.getPersona().getCompanyData().getCorporateName());
+                   }
+               }
                 proponent.setPersona(personaSave);
                 this.proposalProponentRepository.save(proponent);
                 index ++;
@@ -188,16 +208,4 @@ public class PersonaNormalizationService {
         }
     }
 
-    public void print(Persona persona){
-        System.out.println();
-        System.out.println(" ##### #### ###  ## # Persona Atualizado para novo padrão "
-                + persona.getId() + " " + persona.getName());
-        if(persona.getPersonaType().equals(PersonaType.NATURAL_PERSON)){
-            System.out.println(" ## ID ##: " + persona.getId()
-                    + " Persona Atualizado ** PF ** : "+ persona.getName());
-        }else{
-            System.out.println(" ## ID ##: " + persona.getId()
-                    + " Persona Atualizado ** PJ ** : " + persona.getCompanyData().getCorporateName());
-        }
-    }
 }

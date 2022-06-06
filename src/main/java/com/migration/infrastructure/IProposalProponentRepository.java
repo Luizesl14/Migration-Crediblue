@@ -16,7 +16,10 @@ public interface IProposalProponentRepository extends JpaRepository<ProposalProp
     @Query("FROM ProposalProponent pp WHERE pp.persona.taxId = :taxId")
     List<ProposalProponent> findAllPersonaByTaxId(String taxId);
 
-    @Query("FROM ProposalProponent pp WHERE pp.persona.taxId = :taxId AND pp.proposal.id = :id ")
-    ProposalProponent findAllDByProposalByPersona(String taxId, Integer id);
+    @Query("FROM ProposalProponent pp WHERE pp.persona.id = :personaId AND pp.proposal.id = :proposalId ")
+    ProposalProponent findAllDByProposalByPersona(Integer personaId, Integer proposalId);
+
+    @Query("FROM ProposalProponent pp WHERE pp.persona.leadProposal.id =:leadId AND pp.proposal.id = :proposalId ")
+    ProposalProponent findAllByProposalByLeadProposal(Integer leadId, Integer proposalId );
 
 }

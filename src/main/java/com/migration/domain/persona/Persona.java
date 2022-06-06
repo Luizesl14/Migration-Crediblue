@@ -1,5 +1,6 @@
 package com.migration.domain.persona;
 
+import com.migration.domain.LeadProposal;
 import com.migration.domain.Proposal;
 import com.migration.domain.enums.*;
 import com.migration.domain.persona.aggregation.*;
@@ -189,6 +190,10 @@ public class Persona {
 
     @Column(name = "scr_analysis")
     private String scrAnalysis;
+
+    @OneToOne
+    @JoinColumn(name = "lead_proposal_id")
+    private LeadProposal leadProposal;
 
 
     @Override

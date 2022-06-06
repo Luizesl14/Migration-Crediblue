@@ -26,12 +26,11 @@ public class LeadProposalDocument {
 
 
     @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "proponent_id")
+    @JoinColumn(name = "main_proponent_id")
     private ProposalProponent proponent;
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "document_id")
     private Document document;
-
 
 }
