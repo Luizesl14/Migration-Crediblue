@@ -56,12 +56,35 @@ public class PersonaNormalizationService {
         List<Persona> oldPersonas = this.personaRepository.findAll();
         System.out.println("Quantidade de Old - Personas do banco: " + oldPersonas.size());
 
+        this.createProponent(oldPersonas);
+        this.documentService.findAll();
         this.normalization(oldPersonas);
-        this.normalizedProponent();
         this.leadProposalService.findAll();
+        this.normalizedProponent();
         this.companionService.createCompanion();
         this.documentService.findAll();
         this.simulationService.findAll();
+    }
+
+    public void createProponent(List<Persona> proponents){
+        for (Persona persona: proponents) {
+            ProposalProponent proponent = this.create.createProponent(persona, persona.getCreatedAt(), persona.getProponentType());
+            if (persona.getSourceIncome() != null) {
+                proponent.setComposeIncome(Boolean.TRUE);
+                proponent.setMonthlyIncome(persona.getMonthlyIncome());
+            }
+            if (persona.getParticipationPercentage() != null) {
+                if (persona.getParticipationPercentage() != 0) {
+                    proponent.setPercentageOfCommitment(
+                            persona.getParticipationPercentage() == null ? 0 : persona.getParticipationPercentage());
+                }
+            }
+            ProposalProponent proposalProponentSaved = this.proposalProponentRepository.save(proponent);
+            proposalProponentSaved.setPersona(persona);
+            proposalProponentSaved.setProposal(persona.getProposal());
+            this.proposalProponentRepository.save(proposalProponentSaved);
+            System.out.println(" ## ID ##: " + persona.getId() + " Proponent Salvo ** PF ** : " + persona.getName());
+        }
     }
 
     public  Boolean normalization(List<Persona> oldPersonas){
@@ -141,46 +164,28 @@ public class PersonaNormalizationService {
 
 
     public void normalizedProponent(){
-        List<Persona> proponents = this.personaRepository.findAll();
+        List<ProposalProponent> proponents = this.proposalProponentRepository.findAll();
         System.out.println("Numero total de proponentes: " + proponents.size());
         int index = 0;
-        for (Persona persona: proponents) {
+        for (ProposalProponent proponent: proponents) {
             System.out.println();
-            if(persona.getCpfCnpj() != null){
-                System.out.println("Proponent a ser normalizado:  " + persona.getName());
-                Persona personaSave = this.personaRepository.findByTaxId(persona.getCpfCnpj());
+            if(proponent.getPersona().getCpfCnpj() != null){
+                System.out.println("Proponent a ser normalizado:  " + proponent.getPersona().getName());
+                Persona personaSave = this.personaRepository.findByTaxId(proponent.getPersona().getCpfCnpj());
 
-                if(personaSave.getPersonaType().equals(PersonaType.NATURAL_PERSON)){
+                if(proponent.getPersona().getPersonaType().equals(PersonaType.NATURAL_PERSON)){
                     System.out.println(" ## ID ##: " + personaSave.getId()
-                            + " ####### PESSOA JÁ EXISTE ######## ** PF ** : "+ personaSave.getName());
+                            + " ####### PESSOA JÁ EXISTE ######## ** PF ** : "+ proponent.getPersona().getName());
                 }else{
-                    System.out.println(" ## ID ##: " + persona.getId()
-                            + " ####### PESSOA JÁ EXISTE ######## ** PJ ** : " + personaSave.getCompanyData().getCorporateName());
+                    System.out.println(" ## ID ##: " + proponent.getPersona().getId()
+                            + " ####### PESSOA JÁ EXISTE ######## ** PJ ** : " + proponent.getPersona().getCompanyData().getCorporateName());
                 }
-                this.createProponent(personaSave, persona.getProposal());
+                proponent.setPersona(personaSave);
+                this.proposalProponentRepository.save(proponent);
                 index ++;
                 System.out.println("Total de proponents Normalizados: " + index);
             }
         }
-    }
-
-    public void createProponent(Persona persona, Proposal proposal){
-            ProposalProponent proponent = this.create.createProponent(persona, persona.getCreatedAt(), persona.getProponentType());
-            if(persona.getSourceIncome() != null){
-                proponent.setComposeIncome(Boolean.TRUE);
-                proponent.setMonthlyIncome(persona.getMonthlyIncome());
-            }
-            if( persona.getParticipationPercentage() != null){
-                if(persona.getParticipationPercentage() != 0){
-                    proponent.setPercentageOfCommitment(
-                            persona.getParticipationPercentage() == null ? 0 : persona.getParticipationPercentage());
-                }
-            }
-            ProposalProponent proposalProponentSaved = this.proposalProponentRepository.save(proponent);
-            proposalProponentSaved.setPersona(persona);
-            proposalProponentSaved.setProposal(proposal);
-            this.proposalProponentRepository.save(proposalProponentSaved);
-            System.out.println(" ## ID ##: " + persona.getId() + " Proponent Salvo ** PF ** : "+ persona.getName());
     }
 
     public void print(Persona persona){

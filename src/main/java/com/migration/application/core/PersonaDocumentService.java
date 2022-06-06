@@ -36,26 +36,12 @@ public class PersonaDocumentService {
     public Boolean findAll() {
         List<PersonaDocument> documents = this.personaDocumentRepository.findAll();
         System.out.println("Quantidade de Lead do banco: " + documents.size());
-//        this.normalization(documents);
-        this.createPersona(documents);
+
+        this.normalizedDocument(documents);
         return Boolean.TRUE ;
     }
 
-    public void normalization(List<PersonaDocument> documents){
-        for (PersonaDocument doc: documents) {
-            if(doc.getPersona().getTaxId() != null){
-                Persona persona = this.personaRepository.findByTaxId(doc.getPersona().getTaxId());
-                if(persona != null){
-                    doc.setPersona(persona);
-                    this.personaDocumentRepository.save(doc);
-                    System.out.println("<<<<<< Persona encontrado documento Atualizado! " + doc.getPersona().getName());
-                }
-            }
-
-        }
-    }
-
-    public Boolean createPersona (List<PersonaDocument> documents){
+    public Boolean normalizedDocument (List<PersonaDocument> documents){
         int index = 0;
         for (PersonaDocument personaDocument: documents) {
             if(personaDocument.getPersona() != null && personaDocument.getPersona().getProposal() != null){
@@ -73,13 +59,6 @@ public class PersonaDocumentService {
                     System.out.println();
 
                 }else{
-                    Persona persona = this.personaRepository.findByTaxId(personaDocument.getPersona().getTaxId());
-                    if(persona != null){
-                        personaDocument.setPersona(persona);
-                        this.personaDocumentRepository.save(personaDocument);
-                        System.out.println("### Persona Atualizada"
-                                + personaDocument.getPersona().getId() + " para -->> " + persona.getId());
-                    }
                     System.out.println("### Documento não referenciado " + index++);
                     System.out.println("## ID ## " + personaDocument.getPersona().getId()
                             + " ### Documento não referenciado nome " + personaDocument.getPersona().getName());
