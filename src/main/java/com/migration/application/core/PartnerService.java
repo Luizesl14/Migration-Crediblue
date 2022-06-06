@@ -14,10 +14,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Locale;
+import java.util.UUID;
 
 @Service
 @Transactional
 public class PartnerService {
+
+
 
     @Autowired
     private IPartnerRepository partnerRepository;
@@ -32,8 +36,33 @@ public class PartnerService {
         List<Partner> partners = this.partnerRepository.findAll();
         System.out.println("Quantidade de partner do banco: " + partners.size());
         this.createPersona(partners);
+//        partnerResolver();
         return Boolean.TRUE ;
     }
+
+
+    public void partnerResolver(){
+        List<Partner> partnerNull = this.partnerRepository.findByPartnerTaxIdIsNull();
+        System.out.println("### Persona database " + partnerNull.size());
+        int index = 0;
+        for (Partner partner: partnerNull) {
+            Persona persona = this.personaRepository.findPersonaUser(
+                    partner.getName(), partner.getEmail(), partner.getTelephone(), null);
+            if(persona != null){
+                System.out.println("### Persona encontrada " + persona.getName() + "index " + index++);
+                partner.setPersona(persona);
+              this.partnerRepository.save(partner);
+            }else{
+                String token = UUID.randomUUID().toString().toUpperCase(Locale.ROOT);
+                partner.setCpfCnpj(token.substring(0,10));
+                Partner partnerDatabase = this.partnerRepository.save(partner);
+                System.out.println("### Persona não encontrada set token " + partnerDatabase.getCpfCnpj());
+            }
+        }
+
+    }
+
+
 
     public Boolean createPersona (List<Partner> partnerNormalized){
 
@@ -57,13 +86,13 @@ public class PartnerService {
                    persona.setTaxId(partner.getCpfCnpj());
                }
 
-//                if(persona.getPersonaType().equals(PersonaType.NATURAL_PERSON)){
-//                    persona.setName(partner.getName());
-//                }else{
-//                    Company company = new Company();
-//                    company.setCorporateName(partner.getName());
-//                    persona.setCompanyData(company);
-//                }
+                if(persona.getPersonaType().equals(PersonaType.NATURAL_PERSON)){
+                    persona.setName(partner.getName());
+                }else{
+                    Company company = new Company();
+                    company.setCorporateName(partner.getName());
+                    persona.setCompanyData(company);
+                }
 
                 if(partner.getAddress() != null ){
                     persona.getAddresses().add(this.create.createAddress(partner.getAddress(),
@@ -80,18 +109,18 @@ public class PartnerService {
                     persona.getPhones().add(this.create.createPhone(phone, null));
                 }
                 if(personaDatabase != null){
-//                        persona.setId(personaDatabase.getId());
-//
-//                      BeanUtils.copyProperties(persona ,personaDatabase,
-//                              "id", "name", "cpfCnpj", "createdAt");
-//
-//                        Persona personaSave = this.personaRepository.save(persona);
-//                        partner.setPersona(personaSave);
-//                        this.save(partner);
+                        persona.setId(personaDatabase.getId());
+
+                      BeanUtils.copyProperties(persona ,personaDatabase,
+                              "id", "name", "cpfCnpj", "createdAt");
+
+                        Persona personaSave = this.personaRepository.save(persona);
+                        partner.setPersona(personaSave);
+                        this.save(partner);
                 }else{
-//                   Persona personaSave = this.personaRepository.save(persona);
-//                   partner.setPersona(personaSave);
-//                   this.save(partner);
+                   Persona personaSave = this.personaRepository.save(persona);
+                   partner.setPersona(personaSave);
+                   this.save(partner);
                 }
             }
         return Boolean.TRUE;

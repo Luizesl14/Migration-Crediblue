@@ -14,6 +14,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Locale;
+import java.util.UUID;
 
 @Transactional
 @Service
@@ -42,6 +44,7 @@ public class UserService {
         List<User> users = this.userRepository.findAll();
         System.out.println("Quantidade de Users do banco: " + users.size());
         this.verifyUser(users);
+        this.userResolver();
         return Boolean.TRUE;
     }
 
@@ -80,11 +83,11 @@ public class UserService {
                 persona.getPhones().add(this.create.createPhone(phone, null));
             }
             if (personaDatabase != null) {
-//                    persona.setId(personaDatabase.getId());
-//                    BeanUtils.copyProperties(persona ,personaDatabase, "id", "taxId", "cpf", "createdAt");
-//                    this.personaRepository.save(personaDatabase);
-//                    user.setPersona(persona);
-//                    this.save(user);
+                    persona.setId(personaDatabase.getId());
+                    BeanUtils.copyProperties(persona ,personaDatabase, "id", "taxId", "cpf", "createdAt");
+                    this.personaRepository.save(personaDatabase);
+                    user.setPersona(persona);
+                    this.save(user);
 
                     if (persona.getPersonaType().equals(PersonaType.NATURAL_PERSON)) {
                         System.out.println("Persona Atualizada ** PF ** : " + persona.getName());
@@ -128,16 +131,19 @@ public class UserService {
                 persona.getPhones().add(this.create.createPhone(phone, null));
             }
             if (partnerDatabase != null) {
-//                persona.setId(partnerDatabase.getPersona().getId());
-//                BeanUtils.copyProperties(persona ,partnerDatabase.getPersona(), "id", "taxId", "cpf", "createdAt");
-//                this.personaRepository.save(partnerDatabase.getPersona());
-//                user.setPersona(persona);
-//                this.save(user);
-                if (persona.getPersonaType().equals(PersonaType.NATURAL_PERSON)) {
-                    System.out.println("Persona do parceiro Atualizada ** PF ** : " + persona.getName());
-                } else {
-                    System.out.println("Persona do parceiro Atualizada ** PJ ** : " + persona.getCompanyData().getCorporateName());
+                persona.setId(partnerDatabase.getPersona().getId());
+                BeanUtils.copyProperties(persona ,partnerDatabase.getPersona(), "id", "taxId", "cpf", "createdAt");
+                this.personaRepository.save(partnerDatabase.getPersona());
+                user.setPersona(persona);
+                this.save(user);
+                if(partnerDatabase.getPersona().getPersonaType() != null){
+                    if (partnerDatabase.getPersona().getPersonaType().equals(PersonaType.NATURAL_PERSON)) {
+                        System.out.println("Persona do parceiro Atualizada ** PF ** : " + partnerDatabase.getPersona().getName());
+                    } else {
+                        System.out.println("Persona do parceiro Atualizada ** PJ ** : " + partnerDatabase.getPersona().getCompanyData().getCorporateName());
+                    }
                 }
+
             }else {
                     System.out.println("INTERNAL ERROR 500 ** : " + persona.getName());
             }
@@ -163,11 +169,11 @@ public class UserService {
                 persona.getPhones().add(this.create.createPhone(phone, null));
             }
             if (partnerDatabase != null) {
-//                persona.setId(partnerDatabase.getPersona().getId());
-//                BeanUtils.copyProperties(persona ,partnerDatabase.getPersona(), "id", "name", "taxId", "cpf", "createdAt");
-//                this.personaRepository.save(partnerDatabase.getPersona());
-//                user.setPersona(persona);
-//                this.save(user);
+                persona.setId(partnerDatabase.getPersona().getId());
+                BeanUtils.copyProperties(persona ,partnerDatabase.getPersona(), "id", "name", "taxId", "cpf", "createdAt");
+                this.personaRepository.save(partnerDatabase.getPersona());
+                user.setPersona(persona);
+                this.save(user);
                 if (persona.getPersonaType().equals(PersonaType.NATURAL_PERSON)) {
                     System.out.println("Persona do investidor Atualizada ** PF ** : " + persona.getName());
                 } else {
@@ -178,6 +184,29 @@ public class UserService {
             }
         }
         return Boolean.TRUE;
+    }
+
+
+
+    public void userResolver(){
+        List<User> usersNull = this.userRepository.findByUserTaxIdIsNull();
+        System.out.println("### Persona database " + usersNull.size());
+        int index = 0;
+        for (User user: usersNull) {
+            Persona persona = this.personaRepository.findPersonaUser(
+                    user.getName(), user.getEmail(), user.getTelephone(), null);
+            if(persona != null){
+                System.out.println("### Persona encontrada " + persona.getName() + "index " + index++);
+                user.setPersona(persona);
+                this.userRepository.save(user);
+            }else{
+                String token = UUID.randomUUID().toString().toUpperCase(Locale.ROOT);
+                user.setCpf(token.substring(0,10));
+                User userDatabase = this.userRepository.save(user);
+                System.out.println("### Persona não encontrada set token " + userDatabase.getCpf());
+            }
+        }
+
     }
 
     public void save(User user) {

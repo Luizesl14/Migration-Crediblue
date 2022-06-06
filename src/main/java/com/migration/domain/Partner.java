@@ -65,4 +65,7 @@ public class Partner {
     @Column(name = "instagram")
     private String instagram;
 
+    @Column(name = "opportunity")
+    private Boolean opportunity;
+
 }

@@ -12,4 +12,7 @@ public interface IPartnerRepository extends JpaRepository<Partner, Integer> {
 
     @Query("FROM Partner p WHERE p.id = :id")
     Partner findByPartnerId(Integer id);
+
+    @Query("FROM Partner p WHERE p.cpfCnpj is null")
+    List<Partner> findByPartnerTaxIdIsNull();
 }
