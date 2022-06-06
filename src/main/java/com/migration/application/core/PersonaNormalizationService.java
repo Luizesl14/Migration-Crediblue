@@ -10,6 +10,7 @@ import com.migration.domain.enums.ProponentType;
 import com.migration.domain.enums.TypeRegimeCompanion;
 import com.migration.domain.persona.Persona;
 import com.migration.domain.persona.aggregation.*;
+import com.migration.infrastructure.IPersonaDocumentRepository;
 import com.migration.infrastructure.IPersonaRepository;
 import com.migration.infrastructure.IProposalProponentRepository;
 import com.migration.infrastructure.IProposalRepository;
@@ -46,6 +47,11 @@ public class PersonaNormalizationService {
     @Autowired
     private SimulationService simulationService;
 
+    @Autowired
+    private PersonaDocumentService documentService;
+
+
+
     public void findAll() {
         List<Persona> oldPersonas = this.personaRepository.findAll();
         System.out.println("Quantidade de Old - Personas do banco: " + oldPersonas.size());
@@ -54,6 +60,7 @@ public class PersonaNormalizationService {
         this.normalizedProponent();
         this.leadProposalService.findAll();
         this.companionService.createCompanion();
+        this.documentService.findAll();
         this.simulationService.findAll();
     }
 
