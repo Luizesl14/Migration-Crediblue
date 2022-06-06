@@ -36,7 +36,7 @@ public class Proposal {
     private List<User> users;
 
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "lead_proposal_id")
     private LeadProposal leadProposal;
 
@@ -50,4 +50,6 @@ public class Proposal {
 
     private Boolean sameAddressWarrantyHome;
     private Integer installmentsAmount;
+
+
 }

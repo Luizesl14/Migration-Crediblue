@@ -87,6 +87,9 @@ public class LeadProposal {
     @Column(name = "orgao_emissor")
     private String orgaoEmissor;
 
+    @OneToOne(mappedBy = "leadProposal")
+    private Proposal proposal;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "property_system")
     private TypeRegimeCompanion typeRegimeCompanion;

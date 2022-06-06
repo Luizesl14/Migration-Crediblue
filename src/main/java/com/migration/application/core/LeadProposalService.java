@@ -119,7 +119,7 @@ public class LeadProposalService {
                 persona.getPhones().add(this.create.createPhone(phone, null));
             }
             if (personaDatabase != null) {
-                this.saveProponent(personaDatabase, personaDatabase.getCreatedAt(), ProponentType.PRINCIPAL);
+                this.saveProponent(personaDatabase, proposal, personaDatabase.getCreatedAt(), ProponentType.PRINCIPAL);
                 if (persona.getPersonaType().equals(PersonaType.NATURAL_PERSON)) {
                     System.out.println("Person database ** PF ** : " + personaDatabase.getName());
                 } else {
@@ -128,7 +128,7 @@ public class LeadProposalService {
                 System.out.println();
             }else{
                 Persona personaSaved = this.personaRepository.save(persona);
-                this.saveProponent(personaSaved, personaSaved.getCreatedAt(), ProponentType.PRINCIPAL);
+                this.saveProponent(personaSaved,proposal, personaSaved.getCreatedAt(), ProponentType.PRINCIPAL);
                 if (persona.getPersonaType().equals(PersonaType.NATURAL_PERSON)) {
                     System.out.println("New Person ** PF ** : " + persona.getName());
                 } else {
@@ -140,7 +140,7 @@ public class LeadProposalService {
         return  Boolean.TRUE;
     }
 
-    public  Boolean saveProponent( Persona persona, LocalDateTime createdAt, ProponentType proponentType){
+    public  Boolean saveProponent( Persona persona,Proposal proposal, LocalDateTime createdAt, ProponentType proponentType){
         ProposalProponent proponent = this.create.createProponentPrincipal(createdAt, proponentType);
 
         if(persona.getSourceIncome() != null){
@@ -161,12 +161,11 @@ public class LeadProposalService {
 
         ProposalProponent proposalProponentSaved = this.proposalProponentRepository.save(proponent);
         proposalProponentSaved.setPersona(persona);
-        proposalProponentSaved.setProposal(persona.getProposal());
+        proposalProponentSaved.setProposal(proposal);
         this.proposalProponentRepository.save(proposalProponentSaved);
 
         System.out.println(" ## ID ##: " + persona.getId() + " Proponent Salvo ** PF ** : "+ persona.getName());
         return Boolean.TRUE;
     }
-
 
 }
