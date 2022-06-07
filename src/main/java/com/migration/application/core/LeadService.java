@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+@Transactional
 @Service
 public class LeadService {
 
@@ -44,7 +45,7 @@ public class LeadService {
     }
 
 
-    @Transactional
+
     public Boolean createPersona (List<Lead> leadNormalized){
 
         for (Lead lead: leadNormalized) {

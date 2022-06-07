@@ -2,6 +2,7 @@ package com.migration.application.core;
 
 import com.migration.application.shared.ConvertLocalDataTime;
 import com.migration.application.shared.CreateObject;
+import com.migration.domain.LeadProposal;
 import com.migration.domain.Proposal;
 import com.migration.domain.ProposalProponent;
 import com.migration.domain.enums.MaritalStatus;
@@ -21,6 +22,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+
+
 
 @Transactional
 @Service
@@ -50,21 +53,25 @@ public class PersonaNormalizationService {
     @Autowired
     private PersonaDocumentService documentService;
 
+    @Autowired
+    private LeadProposalDocumentService leadProposalDocumentService;
+
 
 
     public void findAll() {
         List<Persona> oldPersonas = this.personaRepository.findAll();
         System.out.println("Quantidade de Old - Personas do banco: " + oldPersonas.size());
 
-//        this.createProponent(oldPersonas);
-//        this.documentService.findAll();
-//          this.leadProposalService.findAll();
-//         this.normalization(oldPersonas);
-        this.normalizedProponent();
+        this.createProponent(oldPersonas);
+        this.documentService.findAll();
+        this.leadProposalService.findAll();
+        this.leadProposalDocumentService.findAll();
+//        this.normalization(oldPersonas);
+//        this.normalizedProponent();
 //        this.companionService.createCompanion();
-//        this.documentService.findAll();
 //        this.simulationService.findAll();
     }
+
 
     public void createProponent(List<Persona> proponents){
         for (Persona persona: proponents) {

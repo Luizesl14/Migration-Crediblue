@@ -9,6 +9,9 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
+import org.hibernate.annotations.FetchProfile;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -206,6 +209,6 @@ public class Persona {
 
     @Override
     public int hashCode() {
-        return Objects.hash(cpfCnpj, taxId);
+        return Objects.hash(cpfCnpj);
     }
 }
