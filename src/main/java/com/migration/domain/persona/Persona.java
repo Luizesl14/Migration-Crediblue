@@ -1,5 +1,6 @@
 package com.migration.domain.persona;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.migration.domain.LeadProposal;
 import com.migration.domain.Proposal;
 import com.migration.domain.enums.*;
@@ -146,6 +147,7 @@ public class Persona {
     @Column(name = "persona_partners")
     private String personaPartners;
 
+    @JsonIgnore
     @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE})
     @JoinColumn(name = "address_id")
     private Address address;
@@ -172,6 +174,7 @@ public class Persona {
 
     private Boolean legalRepresentative;
 
+    @JsonIgnore
     @ManyToOne(cascade = CascadeType.MERGE)
     @JoinColumn(name = "proposal_id")
     private Proposal proposal;
@@ -194,6 +197,7 @@ public class Persona {
     @Column(name = "scr_analysis")
     private String scrAnalysis;
 
+    @JsonIgnore
     @OneToOne
     @JoinColumn(name = "lead_proposal_id")
     private LeadProposal leadProposal;

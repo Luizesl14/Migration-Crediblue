@@ -62,12 +62,12 @@ public class PersonaNormalizationService {
         List<Persona> oldPersonas = this.personaRepository.findAll();
         System.out.println("Quantidade de Old - Personas do banco: " + oldPersonas.size());
 
-        this.createProponent(oldPersonas);
-        this.documentService.findAll();
-        this.leadProposalService.findAll();
-        this.leadProposalDocumentService.findAll();
+//        this.createProponent(oldPersonas);
+//        this.documentService.findAll();
+//        this.leadProposalService.findAll();
+//        this.leadProposalDocumentService.findAll();
 //        this.normalization(oldPersonas);
-//        this.normalizedProponent();
+        this.normalizedProponent();
 //        this.companionService.createCompanion();
 //        this.simulationService.findAll();
     }
@@ -207,10 +207,13 @@ public class PersonaNormalizationService {
                                + " ####### PESSOA JÁ EXISTE ######## ** PJ ** : " + proponent.getPersona().getCompanyData().getCorporateName());
                    }
                }
-                proponent.setPersona(personaSave);
-                this.proposalProponentRepository.save(proponent);
-                index ++;
-                System.out.println("Total de proponents Normalizados: " + index);
+               if(personaSave != null){
+                   proponent.setPersona(personaSave);
+                   this.proposalProponentRepository.save(proponent);
+                   index ++;
+                   System.out.println("Total de proponents Normalizados: " + index);
+               }
+
             }
         }
     }

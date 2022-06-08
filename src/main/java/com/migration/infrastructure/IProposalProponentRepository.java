@@ -22,4 +22,9 @@ public interface IProposalProponentRepository extends JpaRepository<ProposalProp
     @Query("FROM ProposalProponent pp WHERE pp.persona.leadProposal.id =:leadId AND pp.proposal.id = :proposalId ")
     ProposalProponent findAllByProposalByLeadProposal(Integer leadId, Integer proposalId );
 
+
+
+    @Query("FROM ProposalProponent pp JOIN FETCH  pp.persona.address  JOIN FETCH  pp.persona.proposal JOIN FETCH  pp.persona.leadProposal")
+    List<ProposalProponent> findAllProponent();
+
 }
