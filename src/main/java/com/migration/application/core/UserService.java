@@ -8,11 +8,9 @@ import com.migration.domain.User;
 import com.migration.domain.enums.PersonaType;
 import com.migration.domain.persona.Persona;
 import com.migration.domain.persona.aggregation.ContactEmail;
-import com.migration.domain.persona.aggregation.PersonaAddress;
 import com.migration.domain.persona.aggregation.PersonaPhone;
 import com.migration.domain.persona.aggregation.Phone;
 import com.migration.infrastructure.*;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -69,9 +67,12 @@ public class UserService {
 
     public Boolean createPersona(User user) {
         Persona persona = new Persona();
-       Persona personaDatabase = this.personaRepository.findPersonaUser(
-                user.getName(), user.getEmail(), user.getTelephone(), user.getCpf());
 
+        Persona personaDatabase = null;
+
+        if(user.getCpf() != null){
+            personaDatabase = this.personaRepository.findByTaxId(user.getCpf());
+        }
             if (user.getCpf() != null) {
                 persona.setPersonaType(
                         user.getCpf()
@@ -90,25 +91,15 @@ public class UserService {
                 persona.getPhones().add(this.create.createPhone(phone, null));
             }
             if (personaDatabase != null) {
-                    persona.setId(personaDatabase.getId());
-                    BeanUtils.copyProperties(persona ,personaDatabase, "id", "taxId", "cpf", "createdAt");
-                    this.personaRepository.save(personaDatabase);
-                    user.setPersona(persona);
+                    user.setPersona(personaDatabase);
                     this.save(user);
+                    System.out.println("Persona Atualizada ******* : " + persona.getName());
 
-                    if (persona.getPersonaType().equals(PersonaType.NATURAL_PERSON)) {
-                        System.out.println("Persona Atualizada ** PF ** : " + persona.getName());
-                    } else {
-                        System.out.println("Persona Atualizada ** PJ ** : " + persona.getCompanyData().getCorporateName());
-                    }
             }else {
                 user.setPersona(persona);
                 this.save(user);
-                if (persona.getPersonaType().equals(PersonaType.NATURAL_PERSON)) {
-                    System.out.println("New Person ** PF ** : " + persona.getName());
-                } else {
-                    System.out.println("New Person ** PJ ** : " + persona.getCompanyData().getCorporateName());
-                }
+                System.out.println("New Person ********** : " + persona.getName());
+
             }
         return Boolean.TRUE;
     }
@@ -214,7 +205,7 @@ public class UserService {
                 this.userRepository.save(user);
             }else{
                 String token = UUID.randomUUID().toString().toUpperCase(Locale.ROOT);
-                user.setCpf(token.substring(0,10));
+                user.setCpf(token.substring(0,8));
                 User userDatabase = this.userRepository.save(user);
                 System.out.println("### Persona não encontrada set token " + userDatabase.getCpf());
             }

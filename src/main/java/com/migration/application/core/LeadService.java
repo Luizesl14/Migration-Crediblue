@@ -72,7 +72,7 @@ public class LeadService {
                     persona.setBirthDate(lead.getBirthDate());
                 }else{
                     Company company = new Company();
-                    company.setCorporateName(lead.getName());
+                    company.setFantasyName(lead.getName());
                     persona.setCompanyData(company);
                 }
 

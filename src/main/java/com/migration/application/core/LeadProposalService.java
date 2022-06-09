@@ -61,7 +61,7 @@ public class LeadProposalService {
                 persona.setName(proposal.getLeadProposal().getName());
             } else {
                 Company company = new Company();
-                company.setCorporateName(proposal.getLeadProposal().getName());
+                company.setFantasyName(proposal.getLeadProposal().getName());
                 company.setType(proposal.getLeadProposal().getCompanyType());
                 company.setCnae(proposal.getLeadProposal().getCnaeCode());
 

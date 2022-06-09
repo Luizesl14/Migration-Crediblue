@@ -58,14 +58,13 @@ public class PartnerService {
                     this.partnerRepository.save(partner);
                 }else{
                     String token = UUID.randomUUID().toString().toUpperCase(Locale.ROOT);
-                    partner.setCpfCnpj(token.substring(0,10));
+                    partner.setCpfCnpj(token.substring(0,8));
                     Partner partnerDatabase = this.partnerRepository.save(partner);
                     System.out.println("### Persona não encontrada set token " + partnerDatabase.getCpfCnpj());
                 }
         }
 
     }
-
 
 
     public Boolean createPersona (List<Partner> partnerNormalized){
@@ -96,7 +95,7 @@ public class PartnerService {
                     persona.setName(partner.getName());
                 }else{
                     Company company = new Company();
-                    company.setCorporateName(partner.getName());
+                    company.setFantasyName(partner.getName());
                     persona.setCompanyData(company);
                 }
 

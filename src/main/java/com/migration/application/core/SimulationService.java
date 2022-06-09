@@ -57,7 +57,7 @@ public class SimulationService {
                     persona.setBirthDate( simulation.getLead().getBirthDate());
                 }else{
                     Company company = new Company();
-                    company.setCorporateName( simulation.getLead().getName());
+                    company.setFantasyName( simulation.getLead().getName());
                     persona.setCompanyData(company);
                 }
 

@@ -21,9 +21,10 @@ public class User {
     @Column(name = "id", nullable = false)
     private Integer id;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.MERGE)
     @JoinColumn(name = "persona_id")
     private Persona persona;
+
     private String name;
     private String cpf;
     private String telephone;

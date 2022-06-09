@@ -87,11 +87,11 @@ public class PersonaNormalizationService {
 //        this.normalizedProponent();
 //        this.companionService.createCompanion();
 //        this.simulationService.findAll();
-        this.partnerService.findAll();
-//        this.userService.findAll();
+//        this.partnerService.findAll();
 //        this.finderService.findAll();
 //        this.investorService.findAll();
 //        this.leadService.findAll();
+//        this.userService.findAll();
 
     }
 
@@ -181,7 +181,7 @@ public class PersonaNormalizationService {
 
                   if(oldPersona.getPersonaType().equals(PersonaType.LEGAL_PERSON)){
                       Company company = new Company();
-                      company.setCorporateName(oldPersona.getName());
+                      company.setFantasyName(oldPersona.getName());
                       if(oldPersona.getOpeningDate() != null){
                           company.setFoundationDate(this.convert.convertToLocalDate(oldPersona.getOpeningDate()));
                       }

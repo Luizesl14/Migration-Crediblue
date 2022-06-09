@@ -63,7 +63,7 @@ public class InvestorService {
                     persona.setName(investor.getName());
                 }else{
                     Company company = new Company();
-                    company.setCorporateName(investor.getName());
+                    company.setFantasyName(investor.getName());
                     persona.setCompanyData(company);
                 }
 
