@@ -56,20 +56,35 @@ public class PersonaNormalizationService {
     @Autowired
     private LeadProposalDocumentService leadProposalDocumentService;
 
+    @Autowired
+    private  PartnerService partnerService;
+    @Autowired
+    private UserService userService;
+    @Autowired
+    private FinderService finderService;
+    @Autowired
+    private InvestorService investorService;
+    @Autowired
+    private LeadService leadService;
 
 
     public void findAll() {
-        List<Persona> oldPersonas = this.personaRepository.findAll();
-        System.out.println("Quantidade de Old - Personas do banco: " + oldPersonas.size());
-
+//        List<Persona> oldPersonas = this.personaRepository.findAll();
+//        System.out.println("Quantidade de Old - Personas do banco: " + oldPersonas.size());
+//
 //        this.createProponent(oldPersonas);
 //        this.documentService.findAll();
 //        this.leadProposalService.findAll();
 //        this.leadProposalDocumentService.findAll();
 //        this.normalization(oldPersonas);
-        this.normalizedProponent();
+//        this.normalizedProponent();
 //        this.companionService.createCompanion();
 //        this.simulationService.findAll();
+        this.partnerService.findAll();
+//        this.userService.findAll();
+//        this.finderService.findAll();
+//        this.investorService.findAll();
+//        this.leadService.findAll();
     }
 
 
@@ -207,13 +222,10 @@ public class PersonaNormalizationService {
                                + " ####### PESSOA JÁ EXISTE ######## ** PJ ** : " + proponent.getPersona().getCompanyData().getCorporateName());
                    }
                }
-               if(personaSave != null){
-                   proponent.setPersona(personaSave);
-                   this.proposalProponentRepository.save(proponent);
-                   index ++;
-                   System.out.println("Total de proponents Normalizados: " + index);
-               }
-
+                proponent.setPersona(personaSave);
+                this.proposalProponentRepository.save(proponent);
+                index ++;
+                System.out.println("Total de proponents Normalizados: " + index);
             }
         }
     }

@@ -35,8 +35,8 @@ public class PartnerService {
     public Boolean findAll() {
         List<Partner> partners = this.partnerRepository.findAll();
         System.out.println("Quantidade de partner do banco: " + partners.size());
+        partnerResolver();
         this.createPersona(partners);
-//        partnerResolver();
         return Boolean.TRUE ;
     }
 
@@ -84,6 +84,8 @@ public class PartnerService {
                            partner.getCpfCnpj()
                                    .length() == 11 ? PersonaType.NATURAL_PERSON: PersonaType.LEGAL_PERSON);
                    persona.setTaxId(partner.getCpfCnpj());
+               }else{
+                   persona.setPersonaType(PersonaType.NATURAL_PERSON);
                }
 
                 if(persona.getPersonaType().equals(PersonaType.NATURAL_PERSON)){
