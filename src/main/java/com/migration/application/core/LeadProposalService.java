@@ -41,7 +41,7 @@ public class LeadProposalService {
 
 
     public void findAll() {
-        List<Proposal> proposals = this.proposalRepository.findAll();
+        List<Proposal> proposals = this.proposalRepository.findAllByProposal();
         System.out.println("Quantidade de leads proposal do banco: " + proposals.size());
         this.createPersona(proposals);
     }
