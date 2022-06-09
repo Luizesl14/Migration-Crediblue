@@ -56,20 +56,42 @@ public class PersonaNormalizationService {
     @Autowired
     private LeadProposalDocumentService leadProposalDocumentService;
 
+    @Autowired
+    private UserService userService;
+
+    @Autowired
+    private InvestorService investorService;
+
+    @Autowired
+    private FinderService finderService;
+
+    @Autowired
+    private LeadService leadService;
+
+    @Autowired
+    private PartnerService partnerService;
+
 
 
     public void findAll() {
-        List<Persona> oldPersonas = this.personaRepository.findAll();
-        System.out.println("Quantidade de Old - Personas do banco: " + oldPersonas.size());
+//        List<Persona> oldPersonas = this.personaRepository.findAll();
+//        System.out.println("Quantidade de Old - Personas do banco: " + oldPersonas.size());
 
 //        this.createProponent(oldPersonas);
 //        this.documentService.findAll();
 //        this.leadProposalService.findAll();
 //        this.leadProposalDocumentService.findAll();
 //        this.normalization(oldPersonas);
-        this.normalizedProponent();
+//        this.normalizedProponent();
 //        this.companionService.createCompanion();
 //        this.simulationService.findAll();
+//        this.partnerService.findAll();
+//        this.investorService.findAll();
+//        this.finderService.findAll();
+        this.leadService.findAll();
+//        this.userService.findAll();
+
+
     }
 
 
@@ -135,7 +157,7 @@ public class PersonaNormalizationService {
                   }
                   if(oldPersona.getAddress() != null){
                       List<PersonaAddress> personaAddressList = new ArrayList<>();
-                      PersonaAddress personaAddress = this.create.createAddress(oldPersona.getAddress(), oldPersona.getAddress().getCreatedAt());
+                      PersonaAddress personaAddress = this.create.createAddress(oldPersona.getAddress(), oldPersona.getAddress().getCreatedAt(), oldPersona);
                       personaAddressList.add(personaAddress);
                       oldPersona.setAddresses(personaAddressList);
 

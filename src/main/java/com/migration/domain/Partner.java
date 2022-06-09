@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -67,5 +68,8 @@ public class Partner {
 
     @Column(name = "opportunity")
     private Boolean opportunity;
+
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
 
 }

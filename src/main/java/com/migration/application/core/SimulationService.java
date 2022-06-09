@@ -6,17 +6,14 @@ import com.migration.domain.Simulation;
 import com.migration.domain.enums.PersonaType;
 import com.migration.domain.persona.Persona;
 import com.migration.domain.persona.aggregation.Company;
-import com.migration.domain.persona.aggregation.PersonaCompanion;
 import com.migration.domain.persona.aggregation.Phone;
 import com.migration.infrastructure.IPersonaRepository;
 import com.migration.infrastructure.ISimulatonRepository;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.UUID;
 
 @Transactional
 @Service
@@ -68,20 +65,13 @@ public class SimulationService {
                 persona.setBirthDate(simulation.getLead().getBirthDate());
                 persona.setMaritalStatus(simulation.getLead().getMaritalStatus());
 
-                if(simulation.getLead().getSpouseName() != null){
-                    PersonaCompanion personaCompanion = new PersonaCompanion();
-                    Persona companion = new Persona();
-                    companion.setName(simulation.getLead().getSpouseName());
-                    personaCompanion.setData(companion);
-                }
-
                 if(simulation.getLead().getFamilyIncome() != null){
                     simulation.setFamilyIncome(simulation.getLead().getFamilyIncome());
                 }
 
                 if( simulation.getLead().getAddress() != null ){
                     persona.getAddresses().add(this.create.createAddress( simulation.getLead().getAddress(),
-                            simulation.getLead().getAddress().getCreatedAt()));
+                            simulation.getLead().getAddress().getCreatedAt(), persona));
                 }
                 if( simulation.getLead().getEmail() != null){
                     persona.getContacts().add(this.create.createEmail( simulation.getLead().getEmail(), null));
@@ -94,14 +84,11 @@ public class SimulationService {
                     persona.getPhones().add(this.create.createPhone(phone, null));
                 }
                 if(personaDatabase != null){
-                        persona.setId(personaDatabase.getId());
-                        BeanUtils.copyProperties(persona ,personaDatabase, "id", "taxId", "cpf", "createdAt");
-                        Persona personaUpdated = this.personaRepository.save(persona);
-                        this.printSavePersona(personaUpdated);
-                        simulation.setPersona(personaUpdated);
+                        simulation.setPersona(personaDatabase);
                         this.saveSimulation(simulation);
                     }else {
-                    simulation.setPersona(persona);
+                    Persona personaUpdated = this.personaRepository.save(persona);
+                    simulation.setPersona(personaUpdated);
                     this.saveSimulation(simulation);
                     System.out.println();
                 }

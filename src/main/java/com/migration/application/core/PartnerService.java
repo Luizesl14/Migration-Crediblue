@@ -1,11 +1,11 @@
 package com.migration.application.core;
 
+import com.migration.application.shared.ConvertLocalDataTime;
 import com.migration.application.shared.CreateObject;
 import com.migration.domain.Partner;
 import com.migration.domain.enums.PersonaType;
 import com.migration.domain.persona.Persona;
-import com.migration.domain.persona.aggregation.Company;
-import com.migration.domain.persona.aggregation.Phone;
+import com.migration.domain.persona.aggregation.*;
 import com.migration.infrastructure.IPartnerRepository;
 import com.migration.infrastructure.IPersonaRepository;
 import org.springframework.beans.BeanUtils;
@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
@@ -32,11 +33,14 @@ public class PartnerService {
     @Autowired
     private CreateObject create;
 
+    @Autowired
+    private ConvertLocalDataTime convert;
+
     public Boolean findAll() {
         List<Partner> partners = this.partnerRepository.findAll();
         System.out.println("Quantidade de partner do banco: " + partners.size());
-        this.createPersona(partners);
 //        partnerResolver();
+        this.createPersona(partners);
         return Boolean.TRUE ;
     }
 
@@ -44,20 +48,20 @@ public class PartnerService {
     public void partnerResolver(){
         List<Partner> partnerNull = this.partnerRepository.findByPartnerTaxIdIsNull();
         System.out.println("### Persona database " + partnerNull.size());
-        int index = 0;
-        for (Partner partner: partnerNull) {
-            Persona persona = this.personaRepository.findPersonaUser(
-                    partner.getName(), partner.getEmail(), partner.getTelephone(), null);
-            if(persona != null){
-                System.out.println("### Persona encontrada " + persona.getName() + "index " + index++);
-                partner.setPersona(persona);
-              this.partnerRepository.save(partner);
-            }else{
-                String token = UUID.randomUUID().toString().toUpperCase(Locale.ROOT);
-                partner.setCpfCnpj(token.substring(0,10));
-                Partner partnerDatabase = this.partnerRepository.save(partner);
-                System.out.println("### Persona não encontrada set token " + partnerDatabase.getCpfCnpj());
-            }
+            int index = 0;
+            for (Partner partner: partnerNull) {
+                Persona persona = this.personaRepository.findPersonaUser(
+                        partner.getName(), partner.getEmail(), partner.getTelephone(), null);
+                if(persona != null){
+                    System.out.println("### Persona encontrada " + persona.getName() + "index " + index++);
+                    partner.setPersona(persona);
+                    this.partnerRepository.save(partner);
+                }else{
+                    String token = UUID.randomUUID().toString().toUpperCase(Locale.ROOT);
+                    partner.setCpfCnpj(token.substring(0,10));
+                    Partner partnerDatabase = this.partnerRepository.save(partner);
+                    System.out.println("### Persona não encontrada set token " + partnerDatabase.getCpfCnpj());
+                }
         }
 
     }
@@ -94,32 +98,57 @@ public class PartnerService {
                     persona.setCompanyData(company);
                 }
 
-                if(partner.getAddress() != null ){
-                    persona.getAddresses().add(this.create.createAddress(partner.getAddress(),
-                            partner.getAddress().getCreatedAt()));
-                }
-                if(partner.getEmail() != null){
-                    persona.getContacts().add(this.create.createEmail(partner.getEmail(), null));
-                }
+            List<PersonaAccounts> personaAccountsList = new ArrayList<>();
+            if(partner.getFinancialInstitutionCode() != null){
+                PersonaAccounts personaAccounts =  this.create.createAccount(
+                        partner.getFinancialInstitutionCode(),partner.getAccountBranch(),
+                        partner.getAccountNumber(), partner.getAccountDigit(), this.convert.covertLocalDataTimeToDate(partner.getCreatedAt()));
+                personaAccountsList.add(personaAccounts);
+                persona.setBankAccounts(personaAccountsList);
+            }
 
-                if(partner.getTelephone() != null){
-                    Phone phone = new Phone();
-                    phone.setNumber(partner.getTelephone());
-                    phone.setIsWhatsApp(Boolean.FALSE);
-                    persona.getPhones().add(this.create.createPhone(phone, null));
-                }
+            List<PersonaAddress> personaAddressList = new ArrayList<>();
+            if(partner.getAddress() != null){
+                PersonaAddress personaAddress = this.create.createAddress(partner.getAddress(), partner.getAddress().getCreatedAt(), persona);
+                personaAddressList.add(personaAddress);
+                persona.setAddresses(personaAddressList);
+
+            }
+
+            List<ContactEmail> contactEmailList = new ArrayList<>();
+            if(partner.getEmail() != null){
+                ContactEmail contactEmail = this.create.createEmail(partner.getEmail(), this.convert.covertLocalDataTimeToDate(partner.getCreatedAt()));
+                contactEmailList.add(contactEmail);
+                persona.setContacts(contactEmailList);
+            }
+
+            List<PersonaPhone> personaPhoneList = new ArrayList<>();
+            if(partner.getTelephone() != null){
+                Phone phone = new Phone();
+                phone.setNumber(partner.getTelephone());
+                phone.setIsWhatsApp(Boolean.FALSE);
+                PersonaPhone personaPhone = this.create.createPhone(phone, this.convert.covertLocalDataTimeToDate(partner.getCreatedAt()));
+                personaPhoneList.add(personaPhone);
+                persona.setPhones(personaPhoneList);
+            }
                 if(personaDatabase != null){
-                        persona.setId(personaDatabase.getId());
 
-                      BeanUtils.copyProperties(persona ,personaDatabase,
-                              "id", "name", "cpfCnpj", "createdAt");
+                        if(!personaAccountsList.isEmpty())
+                            personaDatabase.getBankAccounts().addAll(personaAccountsList);
 
-                        Persona personaSave = this.personaRepository.save(persona);
-                        partner.setPersona(personaSave);
+                        if(!personaAddressList.isEmpty())
+                            personaDatabase.getAddresses().addAll(personaAddressList);
+
+                        if(!contactEmailList.isEmpty())
+                            personaDatabase.getContacts().addAll(contactEmailList);
+
+                        if(!personaPhoneList.isEmpty())
+                            personaDatabase.getPhones().addAll(personaPhoneList);
+
+                        partner.setPersona(personaDatabase);
                         this.save(partner);
                 }else{
-                   Persona personaSave = this.personaRepository.save(persona);
-                   partner.setPersona(personaSave);
+                   partner.setPersona(persona);
                    this.save(partner);
                 }
             }

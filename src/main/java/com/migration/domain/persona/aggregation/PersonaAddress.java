@@ -21,7 +21,7 @@ public class PersonaAddress {
     private Integer id;
 
     @OneToOne
-    @JoinColumn(name = "persona_id", insertable = false, updatable = false)
+    @JoinColumn(name = "persona_id")
     private Persona persona;
 
     @OneToOne

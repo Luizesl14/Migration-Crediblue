@@ -3,14 +3,11 @@ package com.migration.application.core;
 import com.migration.application.shared.ConvertLocalDataTime;
 import com.migration.application.shared.CreateObject;
 import com.migration.domain.Finder;
-import com.migration.domain.Lead;
-import com.migration.domain.enums.IncomeType;
 import com.migration.domain.enums.PersonaType;
-import com.migration.domain.enums.ProponentType;
 import com.migration.domain.persona.Persona;
-import com.migration.domain.persona.aggregation.Company;
-import com.migration.domain.persona.aggregation.ComposeIncome;
-import com.migration.domain.persona.aggregation.PersonaComposeIncome;
+import com.migration.domain.persona.aggregation.ContactEmail;
+import com.migration.domain.persona.aggregation.PersonaAddress;
+import com.migration.domain.persona.aggregation.PersonaPhone;
 import com.migration.domain.persona.aggregation.Phone;
 import com.migration.infrastructure.IFinderRespository;
 import com.migration.infrastructure.IPersonaRepository;
@@ -21,7 +18,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 @Transactional
 @Service
@@ -48,7 +44,7 @@ public class FinderService {
 
 
     public Boolean createPersona (List<Finder> finderNormalized){
-        Integer count = 0;
+        int index = 0;
         for (Finder finder: finderNormalized) {
             Persona persona = new Persona();
             if(finder != null){
@@ -62,30 +58,48 @@ public class FinderService {
                 persona.setPersonaType(PersonaType.NATURAL_PERSON);
                 persona.setTaxId(finder.getCpf());
                 persona.setName(finder.getName());
-                if(finder.getAddress() != null ){
-                    persona.getAddresses().add(this.create.createAddress(finder.getAddress(),
-                            finder.getAddress().getCreatedAt()));
+
+                List<PersonaAddress> personaAddressList = new ArrayList<>();
+                if(finder.getAddress() != null){
+                    PersonaAddress personaAddress = this.create.createAddress(finder.getAddress(), finder.getAddress().getCreatedAt(), persona);
+                    personaAddressList.add(personaAddress);
+                    persona.setAddresses(personaAddressList);
+
                 }
+
+                List<ContactEmail> contactEmailList = new ArrayList<>();
                 if(finder.getEmail() != null){
-                    persona.getContacts().add(this.create.createEmail(finder.getEmail(), null));
+                    ContactEmail contactEmail = this.create.createEmail(finder.getEmail(), this.convert.covertLocalDataTimeToDate(finder.getCreatedAt()));
+                    contactEmailList.add(contactEmail);
+                    persona.setContacts(contactEmailList);
                 }
+
+                List<PersonaPhone> personaPhoneList = new ArrayList<>();
                 if(finder.getTelephone() != null){
                     Phone phone = new Phone();
                     phone.setNumber(finder.getTelephone());
                     phone.setIsWhatsApp(Boolean.FALSE);
-                    persona.getPhones().add(this.create.createPhone(phone, null));
+                    PersonaPhone personaPhone = this.create.createPhone(phone, this.convert.covertLocalDataTimeToDate(finder.getCreatedAt()));
+                    personaPhoneList.add(personaPhone);
+                    persona.setPhones(personaPhoneList);
                 }
                 if(personaDatabase != null){
-                        BeanUtils.copyProperties(persona ,personaDatabase, "id", "taxId", "cpf", "createdAt");
-                        Persona personaSave = this.personaRepository.save(personaDatabase);
-                        finder.setPersona(personaSave);
-                        this.save(finder);
-                    System.out.println();
+                    if(!personaAddressList.isEmpty())
+                        personaDatabase.getAddresses().addAll(personaAddressList);
+
+                    if(!contactEmailList.isEmpty())
+                        personaDatabase.getContacts().addAll(contactEmailList);
+
+                    if(!personaPhoneList.isEmpty())
+                        personaDatabase.getPhones().addAll(personaPhoneList);
+
+                    finder.setPersona(personaDatabase);
+                    this.save(finder);
                 }else{
                     finder.setPersona(persona);
                     this.save(finder);
-                    System.out.println();
                 }
+                System.out.println("##### Finder  : " + index++);
             }
         }
         return Boolean.TRUE;
@@ -94,7 +108,7 @@ public class FinderService {
 
     public void save (Finder finder) {
             Persona persona = this.finderRespository.save(finder).getPersona();
-            System.out.println("Persona salva ** PF ** : " + persona.getName());
+            System.out.println("Persona salva  : " + persona.getName());
             System.out.println();
     }
 }

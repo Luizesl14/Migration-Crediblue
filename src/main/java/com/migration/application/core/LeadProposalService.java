@@ -17,7 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 
 @Transactional
@@ -48,6 +48,7 @@ public class LeadProposalService {
 
     public Boolean createPersona (List<Proposal> proposals) {
 
+        int index = 0;
         for (Proposal proposal : proposals) {
             Persona persona = new Persona();
             persona.setCpfCnpj(proposal.getLeadProposal().getCpfCnpj());
@@ -88,6 +89,9 @@ public class LeadProposalService {
                 personaCompanion.setType(proposal.getLeadProposal().getTypeRegimeCompanion());
                 personaCompanion.setData(companion);
             }
+            if(proposal.getLeadProposal().getCreatedAt() != null){
+                persona.setCreatedAt(this.convert.covertLocalDataTimeToDate(proposal.getLeadProposal().getCreatedAt()));
+            }
 
             if (proposal.getLeadProposal().getFinancialInstitutionCode() != null) {
                 persona.getBankAccounts().add(
@@ -97,11 +101,12 @@ public class LeadProposalService {
             }
             if (proposal.getLeadProposal().getAddress() != null) {
                 persona.getAddresses().add(
-                        this.create.createAddress(proposal.getLeadProposal().getAddress(), proposal.getLeadProposal().getAddress().getCreatedAt()));
+                        this.create.createAddress(proposal.getLeadProposal().getAddress(), proposal.getLeadProposal().getAddress().getCreatedAt(), persona));
             }
             if (proposal.getLeadProposal().getEmail() != null) {
                 persona.getContacts().add(
-                        this.create.createEmail(proposal.getLeadProposal().getEmail(), proposal.getLeadProposal().getCreatedAt()));
+                        this.create.createEmail(proposal.getLeadProposal().getEmail(),
+                                this.convert.covertLocalDataTimeToDate(proposal.getLeadProposal().getCreatedAt())));
             }
             if (proposal.getLeadProposal().getTelephone() != null) {
                 Phone phone = new Phone();
@@ -118,11 +123,12 @@ public class LeadProposalService {
                     System.out.println("New Person ** PJ ** : " + persona.getCompanyData().getCorporateName());
                 System.out.println();
             }
+            System.out.println("### Index persona criado: " + index++);
         }
         return  Boolean.TRUE;
     }
 
-    public  Boolean saveProponent( Persona persona,Proposal proposal, LocalDateTime createdAt, ProponentType proponentType){
+    public  Boolean saveProponent(Persona persona, Proposal proposal, Date createdAt, ProponentType proponentType){
         ProposalProponent proponent = this.create.createProponentPrincipal(createdAt, proponentType);
 
         if(persona.getSourceIncome() != null){

@@ -125,9 +125,8 @@ public class Persona {
     @Column(name = "pep")
     private Boolean pep;
 
-    @Transient
     @Column(name = "created_at")
-    private LocalDateTime createdAt;
+    private Date createdAt;
 
     @Column(name = "updated_at")
     private Date updatedAt;

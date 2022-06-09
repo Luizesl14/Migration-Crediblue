@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Setter
 @ToString
@@ -25,4 +27,7 @@ public class Investor {
     @JoinColumn(name = "persona_id")
     private Persona persona;
     private Boolean active = true;
+
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
 }

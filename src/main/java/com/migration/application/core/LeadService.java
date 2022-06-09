@@ -1,14 +1,12 @@
 package com.migration.application.core;
 
+import com.migration.application.shared.ConvertLocalDataTime;
 import com.migration.application.shared.CreateObject;
 import com.migration.domain.Lead;
 import com.migration.domain.enums.IncomeType;
 import com.migration.domain.enums.PersonaType;
 import com.migration.domain.persona.Persona;
-import com.migration.domain.persona.aggregation.Company;
-import com.migration.domain.persona.aggregation.ComposeIncome;
-import com.migration.domain.persona.aggregation.PersonaComposeIncome;
-import com.migration.domain.persona.aggregation.Phone;
+import com.migration.domain.persona.aggregation.*;
 import com.migration.infrastructure.ILeadRepository;
 import com.migration.infrastructure.IPartnerRepository;
 import com.migration.infrastructure.IPersonaRepository;
@@ -35,6 +33,8 @@ public class LeadService {
     @Autowired
     private IPersonaRepository personaRepository;
 
+    @Autowired
+    private ConvertLocalDataTime convert;
 
 
     public Boolean findAll() {
@@ -86,36 +86,48 @@ public class LeadService {
                     persona.getComposeIncomes().add(personaComposeIncome);
                 }
 
-                if(lead.getAddress() != null ){
-                    persona.getAddresses().add(this.create.createAddress(lead.getAddress(),
-                            lead.getAddress().getCreatedAt()));
-                }
-                if(lead.getEmail() != null){
-                    persona.getContacts().add(this.create.createEmail(lead.getEmail(), null));
+                List<PersonaAddress> personaAddressList = new ArrayList<>();
+                if(lead.getAddress() != null){
+                    PersonaAddress personaAddress = this.create.createAddress(lead.getAddress(), lead.getAddress().getCreatedAt(), persona);
+                    personaAddressList.add(personaAddress);
+                    persona.setAddresses(personaAddressList);
+
                 }
 
+                List<ContactEmail> contactEmailList = new ArrayList<>();
+                if(lead.getEmail() != null){
+                    ContactEmail contactEmail = this.create.createEmail(lead.getEmail(), this.convert.covertLocalDataTimeToDate(lead.getCreatedAt()));
+                    contactEmailList.add(contactEmail);
+                    persona.setContacts(contactEmailList);
+                }
+
+                List<PersonaPhone> personaPhoneList = new ArrayList<>();
                 if(lead.getTelephone() != null){
                     Phone phone = new Phone();
                     phone.setNumber(lead.getTelephone());
                     phone.setIsWhatsApp(Boolean.FALSE);
-                    persona.getPhones().add(this.create.createPhone(phone, null));
+                    PersonaPhone personaPhone = this.create.createPhone(phone, this.convert.covertLocalDataTimeToDate(lead.getCreatedAt()));
+                    personaPhoneList.add(personaPhone);
+                    persona.setPhones(personaPhoneList);
                 }
                 if(personaDatabase != null){
-                    persona.setId(personaDatabase.getId());
 
-                  BeanUtils.copyProperties(persona ,personaDatabase,
-                          "id", "name", "cpfCnpj", "createdAt");
+                    if(!personaAddressList.isEmpty())
+                        personaDatabase.getAddresses().addAll(personaAddressList);
 
-                    Persona personaSave = this.personaRepository.save(persona);
-                    lead.setPersona(personaSave);
-                    this.save(lead);
-                    this.printUpdated(personaSave);
+                    if(!contactEmailList.isEmpty())
+                        personaDatabase.getContacts().addAll(contactEmailList);
 
+                    if(!personaPhoneList.isEmpty())
+                        personaDatabase.getPhones().addAll(personaPhoneList);
+
+                    lead.setPersona(personaDatabase);
+                    this.leadRepository.save(lead);
+                    this.printUpdated(persona);
                 }else{
-                   Persona personaSave = this.personaRepository.save(persona);
-                   lead.setPersona(personaSave);
-                   this.save(lead);
-                    this.printSaved(personaSave);
+                    lead.setPersona(persona);
+                    this.leadRepository.save(lead);
+                    this.printSaved(persona);
                 }
             }
         }
