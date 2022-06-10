@@ -7,6 +7,7 @@ import com.migration.domain.Partner;
 import com.migration.domain.User;
 import com.migration.domain.enums.PersonaType;
 import com.migration.domain.persona.Persona;
+import com.migration.domain.persona.aggregation.Company;
 import com.migration.domain.persona.aggregation.ContactEmail;
 import com.migration.domain.persona.aggregation.PersonaPhone;
 import com.migration.domain.persona.aggregation.Phone;
@@ -79,7 +80,16 @@ public class UserService {
                                 .length() == 11 ? PersonaType.NATURAL_PERSON : PersonaType.LEGAL_PERSON);
                 persona.setTaxId(user.getCpf());
             }
-            persona.setName(user.getName());
+
+            if (persona.getPersonaType().equals(PersonaType.NATURAL_PERSON)) {
+                persona.setName(user.getName().toUpperCase());
+            } else {
+                Company company = new Company();
+                if(user.getName() != null)
+                    company.setFantasyName(user.getName().toUpperCase());
+
+                persona.setCompanyData(company);
+            }
             if (user.getEmail() != null) {
                 persona.getContacts().add(
                         this.create.createEmail(user.getEmail(), this.convert.covertLocalDataTimeToDate(user.getCreatedAt())));

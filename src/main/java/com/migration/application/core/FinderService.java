@@ -57,7 +57,7 @@ public class FinderService {
                 }
                 persona.setPersonaType(PersonaType.NATURAL_PERSON);
                 persona.setTaxId(finder.getCpf());
-                persona.setName(finder.getName());
+                persona.setName(finder.getName().toUpperCase());
 
                 List<PersonaAddress> personaAddressList = new ArrayList<>();
                 if(finder.getAddress() != null){

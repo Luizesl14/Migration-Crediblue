@@ -60,10 +60,10 @@ public class InvestorService {
                 persona.setTaxId(investor.getCnpj());
 
                 if(persona.getPersonaType().equals(PersonaType.NATURAL_PERSON)){
-                    persona.setName(investor.getName());
+                    persona.setName(investor.getName().toUpperCase());
                 }else{
                     Company company = new Company();
-                    company.setFantasyName(investor.getName());
+                    company.setFantasyName(investor.getName().toUpperCase());
                     persona.setCompanyData(company);
                 }
 

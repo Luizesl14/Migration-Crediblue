@@ -21,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 
@@ -76,15 +77,15 @@ public class PersonaNormalizationService {
 
 
     public void findAll() {
-//        List<Persona> oldPersonas = this.personaRepository.findAll();
-//        System.out.println("Quantidade de Old - Personas do banco: " + oldPersonas.size());
+        List<Persona> oldPersonas = this.personaRepository.findAll();
+        System.out.println("Quantidade de Old - Personas do banco: " + oldPersonas.size());
 
 //        this.createProponent(oldPersonas);
 //        this.documentService.findAll();
 //        this.leadProposalService.findAll();
 //        this.leadProposalDocumentService.findAll();
-//        this.normalization(oldPersonas);
-//        this.normalizedProponent();
+        this.normalization(oldPersonas);
+        this.normalizedProponent();
 //        this.companionService.createCompanion();
 //        this.simulationService.findAll();
 //        this.partnerService.findAll();
@@ -142,7 +143,7 @@ public class PersonaNormalizationService {
                                       .length() == 11 ? PersonaType.NATURAL_PERSON: PersonaType.LEGAL_PERSON);
                   }
                   if(oldPersona.getPersonaType().equals(PersonaType.NATURAL_PERSON)){
-                      oldPersona.setName(oldPersona.getName());
+                      oldPersona.setName(oldPersona.getName().toUpperCase());
                   }
 
                   if(oldPersona.getCpfCnpj() != null)
@@ -181,7 +182,12 @@ public class PersonaNormalizationService {
 
                   if(oldPersona.getPersonaType().equals(PersonaType.LEGAL_PERSON)){
                       Company company = new Company();
-                      company.setFantasyName(oldPersona.getName());
+                      if(oldPersona.getName() != null){
+                          company.setFantasyName(oldPersona.getName().toUpperCase());
+                      }else{
+                          company.setFantasyName(oldPersona.getCompanyData().getFantasyName().toUpperCase());
+                      }
+
                       if(oldPersona.getOpeningDate() != null){
                           company.setFoundationDate(this.convert.convertToLocalDate(oldPersona.getOpeningDate()));
                       }

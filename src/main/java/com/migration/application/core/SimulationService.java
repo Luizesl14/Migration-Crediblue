@@ -52,12 +52,12 @@ public class SimulationService {
                 persona.setTaxId( simulation.getLead().getCpfCnpj());
 
                 if(persona.getPersonaType().equals(PersonaType.NATURAL_PERSON)){
-                    persona.setName( simulation.getLead().getName());
+                    persona.setName( simulation.getLead().getName().toUpperCase());
                     persona.setMaritalStatus( simulation.getLead().getMaritalStatus());
                     persona.setBirthDate( simulation.getLead().getBirthDate());
                 }else{
                     Company company = new Company();
-                    company.setFantasyName( simulation.getLead().getName());
+                    company.setFantasyName(simulation.getLead().getName().toUpperCase());
                     persona.setCompanyData(company);
                 }
 

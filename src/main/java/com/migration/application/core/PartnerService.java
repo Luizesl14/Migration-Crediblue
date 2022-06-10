@@ -92,10 +92,15 @@ public class PartnerService {
                }
 
                 if(persona.getPersonaType().equals(PersonaType.NATURAL_PERSON)){
-                    persona.setName(partner.getName());
+                    persona.setName(partner.getName().toUpperCase());
                 }else{
                     Company company = new Company();
-                    company.setFantasyName(partner.getName());
+                    if(partner.getName() != null){
+                        company.setFantasyName(partner.getName().toUpperCase());
+                    }else{
+                        company.setFantasyName(partner.getName().toUpperCase());
+                    }
+
                     persona.setCompanyData(company);
                 }
 

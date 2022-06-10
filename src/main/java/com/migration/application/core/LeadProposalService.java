@@ -58,10 +58,10 @@ public class LeadProposalService {
                             .length() == 11 ? PersonaType.NATURAL_PERSON : PersonaType.LEGAL_PERSON);
 
             if (persona.getPersonaType().equals(PersonaType.NATURAL_PERSON)) {
-                persona.setName(proposal.getLeadProposal().getName());
+                persona.setName(proposal.getLeadProposal().getName().toUpperCase());
             } else {
                 Company company = new Company();
-                company.setFantasyName(proposal.getLeadProposal().getName());
+                company.setFantasyName(proposal.getLeadProposal().getName().toUpperCase());
                 company.setType(proposal.getLeadProposal().getCompanyType());
                 company.setCnae(proposal.getLeadProposal().getCnaeCode());
 

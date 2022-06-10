@@ -67,12 +67,12 @@ public class LeadService {
                    persona.setTaxId(lead.getCpfCnpj());
 
                 if(persona.getPersonaType().equals(PersonaType.NATURAL_PERSON)){
-                    persona.setName(lead.getName());
+                    persona.setName(lead.getName().toUpperCase());
                     persona.setMaritalStatus(lead.getMaritalStatus());
                     persona.setBirthDate(lead.getBirthDate());
                 }else{
                     Company company = new Company();
-                    company.setFantasyName(lead.getName());
+                    company.setFantasyName(lead.getName().toUpperCase());
                     persona.setCompanyData(company);
                 }
 
