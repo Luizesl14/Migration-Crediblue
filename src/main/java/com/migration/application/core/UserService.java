@@ -2,6 +2,7 @@ package com.migration.application.core;
 
 import com.migration.application.shared.ConvertLocalDataTime;
 import com.migration.application.shared.CreateObject;
+import com.migration.application.shared.ExistsEntity;
 import com.migration.domain.Investor;
 import com.migration.domain.Partner;
 import com.migration.domain.User;
@@ -46,11 +47,14 @@ public class UserService {
     @Autowired
     private ConvertLocalDataTime convert;
 
+    @Autowired
+    private ExistsEntity existsEntity;
+
     public Boolean findAll() {
         List<User> users = this.userRepository.findAll();
         System.out.println("Quantidade de Users do banco: " + users.size());
-        this.verifyUser(users);
         this.userResolver();
+        this.verifyUser(users);
         return Boolean.TRUE;
     }
 
@@ -77,19 +81,23 @@ public class UserService {
             if (user.getCpf() != null) {
                 persona.setPersonaType(
                         user.getCpf()
-                                .length() == 11 ? PersonaType.NATURAL_PERSON : PersonaType.LEGAL_PERSON);
+                                .length() <= 11 ? PersonaType.NATURAL_PERSON : PersonaType.LEGAL_PERSON);
                 persona.setTaxId(user.getCpf());
             }
 
-            if (persona.getPersonaType().equals(PersonaType.NATURAL_PERSON)) {
-                persona.setName(user.getName().toUpperCase());
-            } else {
-                Company company = new Company();
-                if(user.getName() != null)
-                    company.setFantasyName(user.getName().toUpperCase());
+            if(persona.getPersonaType() != null){
+                if (persona.getPersonaType().equals(PersonaType.NATURAL_PERSON)) {
+                    persona.setName(user.getName().toUpperCase());
+                } else {
+                    Company company = new Company();
+                    if(user.getName() != null)
+                        company.setFantasyName(user.getName().toUpperCase());
+                        company.setCorporateName(user.getName().toUpperCase());
 
-                persona.setCompanyData(company);
+                    persona.setCompanyData(company);
+                }
             }
+
             if (user.getEmail() != null) {
                 persona.getContacts().add(
                         this.create.createEmail(user.getEmail(), this.convert.covertLocalDataTimeToDate(user.getCreatedAt())));
@@ -108,7 +116,7 @@ public class UserService {
             }else {
                 user.setPersona(persona);
                 this.save(user);
-                System.out.println("New Person ********** : " + persona.getName());
+                System.out.println("NOVA PERSONA ********** : " + persona.getName());
 
             }
         return Boolean.TRUE;
@@ -145,16 +153,33 @@ public class UserService {
                     persona.setPhones(personaPhoneList);
                 }
                 if(partnerDatabase != null){
-                    if(!contactEmailList.isEmpty())
+                    if (partnerDatabase.getPersona().getPersonaType().equals(PersonaType.NATURAL_PERSON)) {
+                        partnerDatabase.getPersona().setName(user.getName().toUpperCase());
+                    }
+                    if (partnerDatabase.getPersona().getPersonaType().equals(PersonaType.LEGAL_PERSON)) {
+                        partnerDatabase.getPersona().getCompanyData().setFantasyName(user.getName().toUpperCase());
+                        partnerDatabase.getPersona().getCompanyData().setCorporateName(user.getName().toUpperCase());
+                    }
+                    if(!contactEmailList.isEmpty()
+                            && this.existsEntity.verifyEmail(partnerDatabase.getPersona().getContacts(), contactEmailList)
+                            .equals(Boolean.FALSE)){
+
+                        System.out.println("-----------EMAIL DIFERENTE ADICIONADO-----------");
                         partnerDatabase.getPersona().getContacts().addAll(contactEmailList);
+                    }
 
-                    if(!personaPhoneList.isEmpty())
-                        partnerDatabase.getPersona().getPhones().addAll(personaPhoneList);
+                    if(!personaPhoneList.isEmpty()
+                            && this.existsEntity.verifyPhone(partnerDatabase.getPersona().getPhones(),personaPhoneList )
+                            .equals(Boolean.FALSE))
 
-                    user.setPersona( partnerDatabase.getPersona());
+                        System.out.println("-----------PHONE DIFERENTE ADICIONADO-----------");
+                    partnerDatabase.getPersona().getPhones().addAll(personaPhoneList);
+
+                    user.setPersona(partnerDatabase.getPersona());
                     this.save(user);
                 }else{
-                    System.out.println("INTERNAL ERROR 500 ** : " + persona.getName());
+                    System.out.println("CREATE NEW PERSONA ** : " + persona.getName());
+                    this.createPersona(user);
                 }
 
         }
@@ -194,7 +219,8 @@ public class UserService {
                 user.setPersona( investDatabase.getPersona());
                 this.save(user);
             }else{
-                System.out.println("INTERNAL ERROR 500 ** : " + persona.getName());
+                System.out.println("CREATE NEW PERSONA ** : " + persona.getName());
+                this.createPersona(user);
             }
         }
         return Boolean.TRUE;

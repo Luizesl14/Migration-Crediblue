@@ -2,6 +2,7 @@ package com.migration.application.core;
 
 import com.migration.application.shared.ConvertLocalDataTime;
 import com.migration.application.shared.CreateObject;
+import com.migration.application.shared.ExistsEntity;
 import com.migration.domain.Finder;
 import com.migration.domain.enums.PersonaType;
 import com.migration.domain.persona.Persona;
@@ -31,6 +32,9 @@ public class FinderService {
 
     @Autowired
     private ConvertLocalDataTime convert;
+
+    @Autowired
+    private ExistsEntity existsEntity;
 
     @Autowired
     private CreateObject create;
@@ -84,14 +88,36 @@ public class FinderService {
                     persona.setPhones(personaPhoneList);
                 }
                 if(personaDatabase != null){
-                    if(!personaAddressList.isEmpty())
+
+                    if (personaDatabase.getPersonaType().equals(PersonaType.NATURAL_PERSON)) {
+                        personaDatabase.setName(finder.getName().toUpperCase());
+                    }
+                    if (personaDatabase.getPersonaType().equals(PersonaType.LEGAL_PERSON)) {
+                        personaDatabase.getCompanyData().setFantasyName(finder.getName().toUpperCase());
+                        personaDatabase.getCompanyData().setCorporateName(finder.getName().toUpperCase());
+                    }
+
+                    if(!personaAddressList.isEmpty()
+                            && this.existsEntity.verifyAddress(personaDatabase.getAddresses(), personaAddressList)
+                            .equals(Boolean.FALSE)){
+
+                        System.out.println("-----------ADDRESS DIFERENTE ADICIONADO-----------");
                         personaDatabase.getAddresses().addAll(personaAddressList);
+                    }
+                    if(!contactEmailList.isEmpty()
+                            && this.existsEntity.verifyEmail(personaDatabase.getContacts(), contactEmailList)
+                            .equals(Boolean.FALSE)){
 
-                    if(!contactEmailList.isEmpty())
+                        System.out.println("-----------EMAIL DIFERENTE ADICIONADO-----------");
                         personaDatabase.getContacts().addAll(contactEmailList);
+                    }
 
-                    if(!personaPhoneList.isEmpty())
-                        personaDatabase.getPhones().addAll(personaPhoneList);
+                    if(!personaPhoneList.isEmpty()
+                            && this.existsEntity.verifyPhone(personaDatabase.getPhones(),personaPhoneList )
+                            .equals(Boolean.FALSE))
+
+                        System.out.println("-----------PHONE DIFERENTE ADICIONADO-----------");
+                    personaDatabase.getPhones().addAll(personaPhoneList);
 
                     finder.setPersona(personaDatabase);
                     this.save(finder);

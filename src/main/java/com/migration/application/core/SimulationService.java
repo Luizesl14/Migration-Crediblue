@@ -57,7 +57,13 @@ public class SimulationService {
                     persona.setBirthDate( simulation.getLead().getBirthDate());
                 }else{
                     Company company = new Company();
-                    company.setFantasyName(simulation.getLead().getName().toUpperCase());
+                    if(simulation.getLead().getName() != null){
+                        company.setFantasyName(simulation.getLead().getName().toUpperCase());
+                        company.setCorporateName(simulation.getLead().getName().toUpperCase());
+                    }
+
+
+
                     persona.setCompanyData(company);
                 }
 

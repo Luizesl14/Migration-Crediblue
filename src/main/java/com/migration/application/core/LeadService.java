@@ -2,6 +2,7 @@ package com.migration.application.core;
 
 import com.migration.application.shared.ConvertLocalDataTime;
 import com.migration.application.shared.CreateObject;
+import com.migration.application.shared.ExistsEntity;
 import com.migration.domain.Lead;
 import com.migration.domain.enums.IncomeType;
 import com.migration.domain.enums.PersonaType;
@@ -35,6 +36,9 @@ public class LeadService {
 
     @Autowired
     private ConvertLocalDataTime convert;
+
+    @Autowired
+    private ExistsEntity existsEntity;
 
 
     public Boolean findAll() {
@@ -73,6 +77,7 @@ public class LeadService {
                 }else{
                     Company company = new Company();
                     company.setFantasyName(lead.getName().toUpperCase());
+                    company.setCorporateName(lead.getName().toUpperCase());
                     persona.setCompanyData(company);
                 }
 
@@ -112,14 +117,34 @@ public class LeadService {
                 }
                 if(personaDatabase != null){
 
-                    if(!personaAddressList.isEmpty())
+                    if (personaDatabase.getPersonaType().equals(PersonaType.NATURAL_PERSON)) {
+                        personaDatabase.setName(lead.getName().toUpperCase());
+                    }
+                    if (personaDatabase.getPersonaType().equals(PersonaType.LEGAL_PERSON)) {
+                        personaDatabase.getCompanyData().setFantasyName(lead.getName().toUpperCase());
+                        personaDatabase.getCompanyData().setCorporateName(lead.getName().toUpperCase());
+                    }
+                    if(!personaAddressList.isEmpty()
+                            && this.existsEntity.verifyAddress(personaDatabase.getAddresses(), personaAddressList)
+                            .equals(Boolean.FALSE)){
+
+                        System.out.println("-----------ADDRESS DIFERENTE ADICIONADO-----------");
                         personaDatabase.getAddresses().addAll(personaAddressList);
+                    }
+                    if(!contactEmailList.isEmpty()
+                            && this.existsEntity.verifyEmail(personaDatabase.getContacts(), contactEmailList)
+                            .equals(Boolean.FALSE)){
 
-                    if(!contactEmailList.isEmpty())
+                        System.out.println("-----------EMAIL DIFERENTE ADICIONADO-----------");
                         personaDatabase.getContacts().addAll(contactEmailList);
+                    }
 
-                    if(!personaPhoneList.isEmpty())
-                        personaDatabase.getPhones().addAll(personaPhoneList);
+                    if(!personaPhoneList.isEmpty()
+                            && this.existsEntity.verifyPhone(personaDatabase.getPhones(),personaPhoneList )
+                            .equals(Boolean.FALSE))
+
+                        System.out.println("-----------PHONE DIFERENTE ADICIONADO-----------");
+                    personaDatabase.getPhones().addAll(personaPhoneList);
 
                     lead.setPersona(personaDatabase);
                     this.leadRepository.save(lead);

@@ -69,7 +69,7 @@ public class Lead {
     @JoinColumn(name = "partner_id")
     private Partner partner;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "persona_id")
     private Persona persona;
 

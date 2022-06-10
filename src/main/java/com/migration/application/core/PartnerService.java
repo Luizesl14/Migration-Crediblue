@@ -2,6 +2,7 @@ package com.migration.application.core;
 
 import com.migration.application.shared.ConvertLocalDataTime;
 import com.migration.application.shared.CreateObject;
+import com.migration.application.shared.ExistsEntity;
 import com.migration.domain.Partner;
 import com.migration.domain.enums.PersonaType;
 import com.migration.domain.persona.Persona;
@@ -36,10 +37,13 @@ public class PartnerService {
     @Autowired
     private ConvertLocalDataTime convert;
 
+    @Autowired
+    private ExistsEntity existsEntity;
+
     public Boolean findAll() {
         List<Partner> partners = this.partnerRepository.findAll();
         System.out.println("Quantidade de partner do banco: " + partners.size());
-        partnerResolver();
+//        partnerResolver();
         this.createPersona(partners);
         return Boolean.TRUE ;
     }
@@ -76,19 +80,14 @@ public class PartnerService {
             if(partner.getCpfCnpj()!= null){
                 personaDatabase  = this.personaRepository.findByTaxId(partner.getCpfCnpj());
                 if(personaDatabase != null)
-                    if (personaDatabase.getPersonaType().equals(PersonaType.NATURAL_PERSON)) {
-                        System.out.println("Persona Existe no banco ** PF ** : " + personaDatabase.getName());
-                    } else {
-                        System.out.println("Persona Existe no banco  ** PJ ** : " + personaDatabase.getCompanyData().getCorporateName());
-                    }
+                    if (personaDatabase.getPersonaType().equals(PersonaType.NATURAL_PERSON))
+                        System.out.println("Persona Existe no banco **** : " + personaDatabase.getId());
             }
                if(partner.getCpfCnpj() != null){
                    persona.setPersonaType(
                            partner.getCpfCnpj()
                                    .length() == 11 ? PersonaType.NATURAL_PERSON: PersonaType.LEGAL_PERSON);
                    persona.setTaxId(partner.getCpfCnpj());
-               }else{
-                   persona.setPersonaType(PersonaType.NATURAL_PERSON);
                }
 
                 if(persona.getPersonaType().equals(PersonaType.NATURAL_PERSON)){
@@ -97,10 +96,8 @@ public class PartnerService {
                     Company company = new Company();
                     if(partner.getName() != null){
                         company.setFantasyName(partner.getName().toUpperCase());
-                    }else{
-                        company.setFantasyName(partner.getName().toUpperCase());
+                        company.setCorporateName(partner.getName().toUpperCase());
                     }
-
                     persona.setCompanyData(company);
                 }
 
@@ -138,17 +135,40 @@ public class PartnerService {
                 persona.setPhones(personaPhoneList);
             }
                 if(personaDatabase != null){
+                        if (personaDatabase.getPersonaType().equals(PersonaType.NATURAL_PERSON)) {
+                            personaDatabase.setName(partner.getName().toUpperCase());
+                        }
+                        if (personaDatabase.getPersonaType().equals(PersonaType.LEGAL_PERSON)) {
+                            personaDatabase.getCompanyData().setFantasyName(partner.getName().toUpperCase());
+                            personaDatabase.getCompanyData().setCorporateName(partner.getName().toUpperCase());
+                        }
+                        if(!personaAccountsList.isEmpty()
+                                && this.existsEntity.verifyAccount(personaDatabase.getBankAccounts(), personaAccountsList)
+                                .equals(Boolean.FALSE)){
 
-                        if(!personaAccountsList.isEmpty())
+                            System.out.println("-----------ACCOUT DIFERENTE ADICIONADO-----------");
                             personaDatabase.getBankAccounts().addAll(personaAccountsList);
+                        }
+                        if(!personaAddressList.isEmpty()
+                               && this.existsEntity.verifyAddress(personaDatabase.getAddresses(), personaAddressList)
+                                .equals(Boolean.FALSE)){
 
-                        if(!personaAddressList.isEmpty())
+                            System.out.println("-----------ADDRESS DIFERENTE ADICIONADO-----------");
                             personaDatabase.getAddresses().addAll(personaAddressList);
+                        }
+                        if(!contactEmailList.isEmpty()
+                                && this.existsEntity.verifyEmail(personaDatabase.getContacts(), contactEmailList)
+                                .equals(Boolean.FALSE)){
 
-                        if(!contactEmailList.isEmpty())
+                            System.out.println("-----------EMAIL DIFERENTE ADICIONADO-----------");
                             personaDatabase.getContacts().addAll(contactEmailList);
+                        }
 
-                        if(!personaPhoneList.isEmpty())
+                        if(!personaPhoneList.isEmpty()
+                                && this.existsEntity.verifyPhone(personaDatabase.getPhones(),personaPhoneList )
+                                .equals(Boolean.FALSE))
+
+                            System.out.println("-----------PHONE DIFERENTE ADICIONADO-----------");
                             personaDatabase.getPhones().addAll(personaPhoneList);
 
                         partner.setPersona(personaDatabase);
@@ -161,12 +181,15 @@ public class PartnerService {
         return Boolean.TRUE;
     }
 
+
+
+
     public void save (Partner partner) {
             this.partnerRepository.save(partner);
         if(partner.getPersona().getPersonaType().equals(PersonaType.NATURAL_PERSON)){
-            System.out.println("New Person ** PF ** : " + partner.getPersona().getName());
+            System.out.println("## PERSONA SALVA ** PF ** : " + partner.getPersona().getName());
         }else{
-            System.out.println("New Person ** PJ ** : " + partner.getPersona().getCompanyData().getCorporateName());
+            System.out.println("## PERSONA SALVA ** PJ ** : " + partner.getPersona().getCompanyData().getCorporateName());
         }
         }
 }

@@ -77,22 +77,22 @@ public class PersonaNormalizationService {
 
 
     public void findAll() {
-        List<Persona> oldPersonas = this.personaRepository.findAll();
-        System.out.println("Quantidade de Old - Personas do banco: " + oldPersonas.size());
+//        List<Persona> oldPersonas = this.personaRepository.findAll();
+//        System.out.println("Quantidade de Old - Personas do banco: " + oldPersonas.size());
 
 //        this.createProponent(oldPersonas);
 //        this.documentService.findAll();
 //        this.leadProposalService.findAll();
 //        this.leadProposalDocumentService.findAll();
-        this.normalization(oldPersonas);
-        this.normalizedProponent();
+//        this.normalization(oldPersonas);
+//        this.normalizedProponent();
 //        this.companionService.createCompanion();
 //        this.simulationService.findAll();
 //        this.partnerService.findAll();
 //        this.finderService.findAll();
 //        this.investorService.findAll();
 //        this.leadService.findAll();
-//        this.userService.findAll();
+        this.userService.findAll();
 
     }
 
@@ -100,7 +100,7 @@ public class PersonaNormalizationService {
     public void createProponent(List<Persona> proponents){
         for (Persona persona: proponents) {
             ProposalProponent proponent = this.create.createProponent(persona, persona.getCreatedAt(), persona.getProponentType());
-            if (persona.getSourceIncome() != null) {
+            if (!persona.getSourceIncome().equals(Boolean.FALSE)) {
                 proponent.setComposeIncome(Boolean.TRUE);
                 proponent.setMonthlyIncome(persona.getMonthlyIncome());
             }
@@ -114,7 +114,7 @@ public class PersonaNormalizationService {
             proposalProponentSaved.setPersona(persona);
             proposalProponentSaved.setProposal(persona.getProposal());
             this.proposalProponentRepository.save(proposalProponentSaved);
-            System.out.println(" ## ID ##: " + persona.getId() + " Proponent Salvo ** PF ** : " + persona.getName());
+            System.out.println(" ## ID ##: " + persona.getId() + " Proponent Salvo ** PF ** : " + persona.getId());
         }
     }
 
@@ -184,8 +184,10 @@ public class PersonaNormalizationService {
                       Company company = new Company();
                       if(oldPersona.getName() != null){
                           company.setFantasyName(oldPersona.getName().toUpperCase());
+                          company.setCorporateName(oldPersona.getName().toUpperCase());
                       }else{
                           company.setFantasyName(oldPersona.getCompanyData().getFantasyName().toUpperCase());
+                          company.setCorporateName(oldPersona.getCompanyData().getFantasyName().toUpperCase());
                       }
 
                       if(oldPersona.getOpeningDate() != null){

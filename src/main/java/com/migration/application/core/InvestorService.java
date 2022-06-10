@@ -64,6 +64,7 @@ public class InvestorService {
                 }else{
                     Company company = new Company();
                     company.setFantasyName(investor.getName().toUpperCase());
+                    company.setCorporateName(investor.getName().toUpperCase());
                     persona.setCompanyData(company);
                 }
 

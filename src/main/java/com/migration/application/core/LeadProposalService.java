@@ -62,6 +62,7 @@ public class LeadProposalService {
             } else {
                 Company company = new Company();
                 company.setFantasyName(proposal.getLeadProposal().getName().toUpperCase());
+                company.setCorporateName(proposal.getLeadProposal().getName().toUpperCase());
                 company.setType(proposal.getLeadProposal().getCompanyType());
                 company.setCnae(proposal.getLeadProposal().getCnaeCode());
 
@@ -97,7 +98,8 @@ public class LeadProposalService {
                 persona.getBankAccounts().add(
                         this.create.createAccount(
                                 proposal.getLeadProposal().getFinancialInstitutionCode(), proposal.getLeadProposal().getAccountBranch(),
-                                proposal.getLeadProposal().getAccountNumber(), proposal.getLeadProposal().getAccountDigit(), null));
+                                proposal.getLeadProposal().getAccountNumber(), proposal.getLeadProposal().getAccountDigit(),
+                                this.convert.covertLocalDataTimeToDate(proposal.getLeadProposal().getCreatedAt())));
             }
             if (proposal.getLeadProposal().getAddress() != null) {
                 persona.getAddresses().add(
@@ -139,6 +141,8 @@ public class LeadProposalService {
             if(persona.getProponentType().equals(ProponentType.PRINCIPAL)){
                 proponent.setScrConsulted(persona.getProposal().getLeadProposal().getScrConsulted());
             }
+        }else{
+            proponent.setScrConsulted(Boolean.FALSE);
         }
         if( persona.getParticipationPercentage() != null){
             if(persona.getParticipationPercentage() != 0){
