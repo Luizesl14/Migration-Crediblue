@@ -43,7 +43,7 @@ public class PartnerService {
     public Boolean findAll() {
         List<Partner> partners = this.partnerRepository.findAll();
         System.out.println("Quantidade de partner do banco: " + partners.size());
-//        partnerResolver();
+        partnerResolver();
         this.createPersona(partners);
         return Boolean.TRUE ;
     }

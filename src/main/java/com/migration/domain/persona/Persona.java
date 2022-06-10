@@ -114,6 +114,10 @@ public class Persona {
     private List<PersonaComposeIncome> composeIncomes = new ArrayList<>();
 
 
+    @Column(name = "compose_income")
+    private Boolean composeIncome;
+
+
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "persona_id")
     private List<ContactEmail> contacts = new ArrayList<>();

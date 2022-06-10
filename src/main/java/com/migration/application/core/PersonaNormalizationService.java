@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -77,21 +78,21 @@ public class PersonaNormalizationService {
 
 
     public void findAll() {
-//        List<Persona> oldPersonas = this.personaRepository.findAll();
-//        System.out.println("Quantidade de Old - Personas do banco: " + oldPersonas.size());
+        List<Persona> oldPersonas = this.personaRepository.findAll();
+        System.out.println("Quantidade de Old - Personas do banco: " + oldPersonas.size());
 
-//        this.createProponent(oldPersonas);
-//        this.documentService.findAll();
-//        this.leadProposalService.findAll();
-//        this.leadProposalDocumentService.findAll();
-//        this.normalization(oldPersonas);
-//        this.normalizedProponent();
-//        this.companionService.createCompanion();
-//        this.simulationService.findAll();
-//        this.partnerService.findAll();
-//        this.finderService.findAll();
-//        this.investorService.findAll();
-//        this.leadService.findAll();
+        this.createProponent(oldPersonas);
+        this.documentService.findAll();
+        this.leadProposalService.findAll();
+        this.leadProposalDocumentService.findAll();
+        this.normalization(oldPersonas);
+        this.normalizedProponent();
+        this.companionService.createCompanion();
+        this.simulationService.findAll();
+        this.partnerService.findAll();
+        this.finderService.findAll();
+        this.investorService.findAll();
+        this.leadService.findAll();
         this.userService.findAll();
 
     }
@@ -100,10 +101,12 @@ public class PersonaNormalizationService {
     public void createProponent(List<Persona> proponents){
         for (Persona persona: proponents) {
             ProposalProponent proponent = this.create.createProponent(persona, persona.getCreatedAt(), persona.getProponentType());
-            if (!persona.getSourceIncome().equals(Boolean.FALSE)) {
-                proponent.setComposeIncome(Boolean.TRUE);
-                proponent.setMonthlyIncome(persona.getMonthlyIncome());
-            }
+
+                if (persona.getComposeIncome().equals(Boolean.TRUE)) {
+                    proponent.setComposeIncome(Boolean.TRUE);
+                    proponent.setMonthlyIncome(persona.getMonthlyIncome() != null ? persona.getMonthlyIncome() : BigDecimal.ZERO);
+                }
+
             if (persona.getParticipationPercentage() != null) {
                 if (persona.getParticipationPercentage() != 0) {
                     proponent.setPercentageOfCommitment(
