@@ -81,11 +81,12 @@ public class LeadService {
                 personaDatabase.getContacts().addAll(persona.getContacts());
             }
 
-                if(this.existsEntity.verifyPhone(personaDatabase.getPhones(), persona.getPhones())
-                        .equals(Boolean.FALSE))
-
-                    System.out.println("-----------PHONE DIFERENTE ADICIONADO-----------");
+            if(this.existsEntity.verifyPhone(personaDatabase.getPhones(), persona.getPhones())
+                    .equals(Boolean.FALSE)){
+                System.out.println("-----------PHONE DIFERENTE ADICIONADO-----------");
                 personaDatabase.getPhones().addAll(persona.getPhones());
+            }
+
 
                 lead.setPersona(personaDatabase);
                 this.leadRepository.save(lead);

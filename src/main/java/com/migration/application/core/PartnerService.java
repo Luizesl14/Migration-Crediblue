@@ -106,10 +106,10 @@ public class PartnerService {
                     }
 
                     if(this.existsEntity.verifyPhone(personaDatabase.getPhones(),persona.getPhones() )
-                            .equals(Boolean.FALSE))
-
+                            .equals(Boolean.FALSE)){
                         System.out.println("-----------PHONE DIFERENTE ADICIONADO-----------");
                         personaDatabase.getPhones().addAll(persona.getPhones());
+                    }
 
                     partner.setPersona(personaDatabase);
                     this.partnerRepository.save(partner);

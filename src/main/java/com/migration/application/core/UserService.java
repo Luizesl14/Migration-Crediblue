@@ -170,10 +170,11 @@ public class UserService {
 
                     if(!personaPhoneList.isEmpty()
                             && this.existsEntity.verifyPhone(partnerDatabase.getPersona().getPhones(),personaPhoneList )
-                            .equals(Boolean.FALSE))
-
+                            .equals(Boolean.FALSE)){
                         System.out.println("-----------PHONE DIFERENTE ADICIONADO-----------");
-                    partnerDatabase.getPersona().getPhones().addAll(personaPhoneList);
+                        partnerDatabase.getPersona().getPhones().addAll(personaPhoneList);
+                    }
+
 
                     user.setPersona(partnerDatabase.getPersona());
                     this.save(user);
@@ -210,11 +211,25 @@ public class UserService {
                 persona.setPhones(personaPhoneList);
             }
             if(investDatabase != null){
-                if(!contactEmailList.isEmpty())
-                    investDatabase.getPersona().getContacts().addAll(contactEmailList);
 
-                if(!personaPhoneList.isEmpty())
-                    investDatabase.getPersona().getPhones().addAll(personaPhoneList);
+                if (investDatabase.getPersona().getPersonaType().equals(PersonaType.LEGAL_PERSON)) {
+                    investDatabase.getPersona().getCompanyData().setFantasyName(user.getName().toUpperCase());
+                    investDatabase.getPersona().getCompanyData().setCorporateName(user.getName().toUpperCase());
+                }
+
+                if(this.existsEntity.verifyEmail(investDatabase.getPersona().getContacts(), persona.getContacts())
+                        .equals(Boolean.FALSE)){
+
+                    System.out.println("-----------EMAIL DIFERENTE ADICIONADO-----------");
+                    investDatabase.getPersona().getContacts().addAll(persona.getContacts());
+                }
+
+                if(this.existsEntity.verifyPhone(investDatabase.getPersona().getPhones(), persona.getPhones())
+                        .equals(Boolean.FALSE)){
+                    System.out.println("-----------PHONE DIFERENTE ADICIONADO-----------");
+                    investDatabase.getPersona().getPhones().addAll(persona.getPhones());
+
+                }
 
                 user.setPersona( investDatabase.getPersona());
                 this.save(user);

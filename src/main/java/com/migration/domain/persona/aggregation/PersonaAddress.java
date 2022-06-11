@@ -43,5 +43,4 @@ public class PersonaAddress {
         PersonaAddress that = (PersonaAddress) o;
         return Objects.equals(persona, that.persona) && Objects.equals(data, that.data);
     }
-
 }
