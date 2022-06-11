@@ -78,22 +78,22 @@ public class PersonaNormalizationService {
 
 
     public void findAll() {
-//        List<Persona> oldPersonas = this.personaRepository.findAll();
-//        System.out.println("Quantidade de Old - Personas do banco: " + oldPersonas.size());
-//
-//        this.createProponent(oldPersonas);
-//        this.documentService.findAll();
-//        this.leadProposalService.findAll();
-//        this.leadProposalDocumentService.findAll();
-//        this.normalization(oldPersonas);
-//        this.normalizedProponent();
-//        this.companionService.createCompanion();
-//        this.userService.findAll();
-//        this.simulationService.findAll();
+        List<Persona> oldPersonas = this.personaRepository.findAll();
+        System.out.println("Quantidade de Old - Personas do banco: " + oldPersonas.size());
+
+        this.createProponent(oldPersonas);
+        this.documentService.findAll();
+        this.leadProposalService.findAll();
+        this.leadProposalDocumentService.findAll();
+        this.normalization(oldPersonas);
+        this.normalizedProponent();
+        this.companionService.createCompanion();
+        this.userService.findAll();
+        this.simulationService.findAll();
         this.partnerService.findAll();
-//        this.finderService.findAll();
-//        this.investorService.findAll();
-//        this.leadService.findAll();
+        this.finderService.findAll();
+        this.investorService.findAll();
+        this.leadService.findAll();
 
 
     }
@@ -103,10 +103,13 @@ public class PersonaNormalizationService {
         for (Persona persona: proponents) {
             ProposalProponent proponent = this.create.createProponent(persona, persona.getCreatedAt(), persona.getProponentType());
 
-                if (persona.getComposeIncome().equals(Boolean.TRUE)) {
-                    proponent.setComposeIncome(Boolean.TRUE);
-                    proponent.setMonthlyIncome(persona.getMonthlyIncome() != null ? persona.getMonthlyIncome() : BigDecimal.ZERO);
+                if(persona.getComposeIncome() != null){
+                    if (persona.getComposeIncome().equals(Boolean.TRUE)) {
+                        proponent.setComposeIncome(Boolean.TRUE);
+                        proponent.setMonthlyIncome(persona.getMonthlyIncome() != null ? persona.getMonthlyIncome() : BigDecimal.ZERO);
+                    }
                 }
+
             if (persona.getParticipationPercentage() != null) {
                 if (persona.getParticipationPercentage() != 0) {
                     proponent.setPercentageOfCommitment(
