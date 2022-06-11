@@ -1,6 +1,5 @@
 package com.migration.application.core;
 
-import com.migration.application.shared.ConvertLocalDataTime;
 import com.migration.application.shared.CreateObject;
 import com.migration.domain.ProposalProponent;
 import com.migration.domain.enums.MaritalStatus;

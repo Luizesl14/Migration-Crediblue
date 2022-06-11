@@ -78,22 +78,23 @@ public class PersonaNormalizationService {
 
 
     public void findAll() {
-        List<Persona> oldPersonas = this.personaRepository.findAll();
-        System.out.println("Quantidade de Old - Personas do banco: " + oldPersonas.size());
-
-        this.createProponent(oldPersonas);
-        this.documentService.findAll();
-        this.leadProposalService.findAll();
-        this.leadProposalDocumentService.findAll();
-        this.normalization(oldPersonas);
-        this.normalizedProponent();
-        this.companionService.createCompanion();
-        this.simulationService.findAll();
+//        List<Persona> oldPersonas = this.personaRepository.findAll();
+//        System.out.println("Quantidade de Old - Personas do banco: " + oldPersonas.size());
+//
+//        this.createProponent(oldPersonas);
+//        this.documentService.findAll();
+//        this.leadProposalService.findAll();
+//        this.leadProposalDocumentService.findAll();
+//        this.normalization(oldPersonas);
+//        this.normalizedProponent();
+//        this.companionService.createCompanion();
+//        this.userService.findAll();
+//        this.simulationService.findAll();
         this.partnerService.findAll();
-        this.finderService.findAll();
-        this.investorService.findAll();
-        this.leadService.findAll();
-        this.userService.findAll();
+//        this.finderService.findAll();
+//        this.investorService.findAll();
+//        this.leadService.findAll();
+
 
     }
 
@@ -106,7 +107,6 @@ public class PersonaNormalizationService {
                     proponent.setComposeIncome(Boolean.TRUE);
                     proponent.setMonthlyIncome(persona.getMonthlyIncome() != null ? persona.getMonthlyIncome() : BigDecimal.ZERO);
                 }
-
             if (persona.getParticipationPercentage() != null) {
                 if (persona.getParticipationPercentage() != 0) {
                     proponent.setPercentageOfCommitment(
@@ -128,7 +128,7 @@ public class PersonaNormalizationService {
     }
 
     public Boolean updatePersonas (List<Persona> oldPersonas) {
-
+        System.out.println(" ## QUANTIDADE DE PERSONAS NORMALIZADOS ##: " + oldPersonas.size());
 
         for (Persona oldPersona: oldPersonas) {
 
@@ -148,7 +148,6 @@ public class PersonaNormalizationService {
                   if(oldPersona.getPersonaType().equals(PersonaType.NATURAL_PERSON)){
                       oldPersona.setName(oldPersona.getName().toUpperCase());
                   }
-
                   if(oldPersona.getCpfCnpj() != null)
                       oldPersona.setTaxId(oldPersona.getCpfCnpj());
 
@@ -193,15 +192,13 @@ public class PersonaNormalizationService {
                           company.setCorporateName(oldPersona.getCompanyData().getFantasyName().toUpperCase());
                       }
 
-                      if(oldPersona.getOpeningDate() != null){
+                      if(oldPersona.getOpeningDate() != null)
                           company.setFoundationDate(this.convert.convertToLocalDate(oldPersona.getOpeningDate()));
-                      }
-                      if(oldPersona.getOpeningDate()!= null){
-                          company.setFoundationDate(
-                                  this.convert.convertToLocalDate(oldPersona.getOpeningDate()));
-                      }
-                      oldPersona.setCompanyData(company);
 
+                      if(oldPersona.getOpeningDate()!= null)
+                          company.setFoundationDate(this.convert.convertToLocalDate(oldPersona.getOpeningDate()));
+
+                      oldPersona.setCompanyData(company);
                   }
                   if(personaDatabase != null){
                       System.out.println(" ## ID ## PERSONA JA EXISTENTE NO BANCO: " + personaDatabase.getId());
@@ -231,18 +228,10 @@ public class PersonaNormalizationService {
             if(proponent.getPersona().getCpfCnpj() != null){
                 System.out.println("Proponent a ser normalizado:  " + proponent.getPersona().getName());
                 Persona personaSave = this.personaRepository.findByTaxId(proponent.getPersona().getCpfCnpj());
-
-               if(proponent.getPersona().getPersonaType() != null){
-                   if(proponent.getPersona().getPersonaType().equals(PersonaType.NATURAL_PERSON)){
-                       System.out.println(" ## ID ##: " + personaSave.getId()
-                               + " ####### PESSOA JÁ EXISTE ######## ** PF ** : "+ proponent.getPersona().getName());
-                   }else{
-                       System.out.println(" ## ID ##: " + proponent.getPersona().getId()
-                               + " ####### PESSOA JÁ EXISTE ######## ** PJ ** : " + proponent.getPersona().getCompanyData().getCorporateName());
-                   }
-               }
-                proponent.setPersona(personaSave);
-                this.proposalProponentRepository.save(proponent);
+                if(personaSave != null){
+                    proponent.setPersona(personaSave);
+                    this.proposalProponentRepository.save(proponent);
+                }
                 index ++;
                 System.out.println("Total de proponents Normalizados: " + index);
             }

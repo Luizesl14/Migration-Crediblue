@@ -10,8 +10,7 @@ import com.migration.domain.persona.aggregation.ContactEmail;
 import com.migration.domain.persona.aggregation.PersonaAddress;
 import com.migration.domain.persona.aggregation.PersonaPhone;
 import com.migration.domain.persona.aggregation.Phone;
-import com.migration.infrastructure.IFinderRespository;
-import com.migration.infrastructure.IPersonaRepository;
+import com.migration.infrastructure.*;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -35,6 +34,18 @@ public class FinderService {
 
     @Autowired
     private ExistsEntity existsEntity;
+
+    @Autowired
+    private IPersonaAccountRepository personaAccountRepository;
+
+    @Autowired
+    private IPersonaAddressRepository personaAddressRepository;
+
+    @Autowired
+    private IContactEmailRepository contactEmailRepository;
+
+    @Autowired
+    private IPersonaPhoneRepository personaPhoneRepository;
 
     @Autowired
     private CreateObject create;

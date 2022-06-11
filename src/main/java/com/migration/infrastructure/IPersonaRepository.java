@@ -21,8 +21,8 @@ public interface IPersonaRepository extends JpaRepository<Persona, Integer> {
 
     Persona findByTaxId(String taxId);
 
-    @Query(value = "SELECT DISTINCT p FROM Persona p WHERE p.cpfCnpj = :cpfCnpj ")
-    List<Persona> findAllByCpfCnpj(String cpfCnpj);
+    @Query(value = "SELECT DISTINCT p.cpfCnpj FROM Persona p  ")
+    List<Persona> findAllByCpfCnpj();
 
     @Query(value = "FROM Persona p WHERE p.cpfCnpj = :cpfCnpj")
     List<Persona> findByTaxIdOld(@Param("cpfCnpj") String cpfCnpj);
@@ -39,5 +39,9 @@ public interface IPersonaRepository extends JpaRepository<Persona, Integer> {
             @Param("email") String email,
             @Param("telephone") String telephone,
             @Param("cpfCnpj") String cpfCnpj);
+
+
+    @Query(value = "SELECT  p FROM Persona p WHERE p.leadProposal is not null ")
+    List<Persona> personaLeadProposal();
 
 }

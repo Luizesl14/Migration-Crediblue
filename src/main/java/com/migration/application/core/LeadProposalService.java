@@ -17,7 +17,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Date;
 import java.util.List;
 
 @Transactional
@@ -44,6 +43,7 @@ public class LeadProposalService {
         List<Proposal> proposals = this.proposalRepository.findAllByProposal();
         System.out.println("Quantidade de leads proposal do banco: " + proposals.size());
         this.createPersona(proposals);
+        this.saveProponent();
     }
 
     public Boolean createPersona (List<Proposal> proposals) {
@@ -117,8 +117,7 @@ public class LeadProposalService {
                 persona.getPhones().add(this.create.createPhone(phone, null));
             }
                 persona.setLeadProposal(proposal.getLeadProposal());
-                Persona personaSaved = this.personaRepository.save(persona);
-                this.saveProponent(personaSaved,proposal, personaSaved.getCreatedAt(), ProponentType.PRINCIPAL);
+                this.personaRepository.save(persona);
                 if (persona.getPersonaType().equals(PersonaType.NATURAL_PERSON)) {
                     System.out.println("New Person ** PF ** : " + persona.getName());
                 } else {
@@ -130,33 +129,35 @@ public class LeadProposalService {
         return  Boolean.TRUE;
     }
 
-    public  Boolean saveProponent(Persona persona, Proposal proposal, Date createdAt, ProponentType proponentType){
-        ProposalProponent proponent = this.create.createProponentPrincipal(createdAt, proponentType);
+    public  Boolean saveProponent(){
+        List<Persona> personas = this.personaRepository.personaLeadProposal();
+        System.out.println("### numero de leadProposal: " + personas.size());
 
-        if(persona.getSourceIncome() != null){
-            proponent.setComposeIncome(Boolean.TRUE);
-            proponent.setMonthlyIncome(persona.getMonthlyIncome());
-        }
-        if(persona.getProponentType() != null){
-            if(persona.getProponentType().equals(ProponentType.PRINCIPAL)){
-                proponent.setScrConsulted(persona.getProposal().getLeadProposal().getScrConsulted());
+        for (Persona personaDatabase: personas) {
+
+            ProposalProponent proponent = this.create.createProponentPrincipal(personaDatabase.getCreatedAt(), ProponentType.PRINCIPAL);
+
+            proponent.setComposeIncome(Boolean.FALSE);
+
+            if(personaDatabase.getLeadProposal() != null)
+                proponent.setMonthlyIncome(personaDatabase.getLeadProposal().getFamilyIncome());
+
+            if(personaDatabase.getProponentType() != null){
+                if(personaDatabase.getProponentType().equals(ProponentType.PRINCIPAL)){
+                    proponent.setScrConsulted(personaDatabase.getProposal().getLeadProposal().getScrConsulted());
+                }
+            }else{
+                proponent.setScrConsulted(Boolean.FALSE);
             }
-        }else{
-            proponent.setScrConsulted(Boolean.FALSE);
-        }
-        if( persona.getParticipationPercentage() != null){
-            if(persona.getParticipationPercentage() != 0){
-                proponent.setPercentageOfCommitment(
-                        persona.getParticipationPercentage() == null ? 0 : persona.getParticipationPercentage());
-            }
-        }
+            proponent.setPercentageOfCommitment(0.0);
 
-        ProposalProponent proposalProponentSaved = this.proposalProponentRepository.save(proponent);
-        proposalProponentSaved.setPersona(persona);
-        proposalProponentSaved.setProposal(proposal);
-        this.proposalProponentRepository.save(proposalProponentSaved);
+            ProposalProponent proposalProponentSaved = this.proposalProponentRepository.save(proponent);
+            proposalProponentSaved.setPersona(personaDatabase);
+            proposalProponentSaved.setProposal(personaDatabase.getLeadProposal().getProposal());
+            this.proposalProponentRepository.save(proposalProponentSaved);
 
-        System.out.println(" ## ID ##: " + persona.getId() + " Proponent Salvo ** PF ** : "+ persona.getName());
+            System.out.println(" ## ID ##: " + personaDatabase.getId() + " Proponent Salvo ** PF ** : "+ personaDatabase.getName());
+        }
         return Boolean.TRUE;
     }
 

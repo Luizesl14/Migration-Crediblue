@@ -33,4 +33,6 @@ public class PersonaAddress {
 
     private Boolean principal;
     private Date createdAt;
+
+
 }
