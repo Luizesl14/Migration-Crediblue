@@ -109,14 +109,14 @@ public class FinderService {
                     }
 
                     if(!personaAddressList.isEmpty()
-                            && this.existsEntity.verifyAddress(personaDatabase.getAddresses(), personaAddressList)
+                            && this.existsEntity.verifyAddress(personaAddressList, personaDatabase.getId())
                             .equals(Boolean.TRUE)){
 
                         System.out.println("-----------ADDRESS DIFERENTE ADICIONADO-----------");
                         personaDatabase.getAddresses().addAll(personaAddressList);
                     }
                     if(!contactEmailList.isEmpty()
-                            && this.existsEntity.verifyEmail(personaDatabase.getContacts(), contactEmailList)
+                            && this.existsEntity.verifyEmail(contactEmailList, personaDatabase.getId())
                             .equals(Boolean.TRUE)){
 
                         System.out.println("-----------EMAIL DIFERENTE ADICIONADO-----------");
@@ -124,7 +124,7 @@ public class FinderService {
                     }
 
                     if(!personaPhoneList.isEmpty()
-                            && this.existsEntity.verifyPhone(personaDatabase.getPhones(),personaPhoneList )
+                            && this.existsEntity.verifyPhone(personaPhoneList, personaDatabase.getId())
                             .equals(Boolean.TRUE)){
                         System.out.println("-----------PHONE DIFERENTE ADICIONADO-----------");
                         personaDatabase.getPhones().addAll(personaPhoneList);

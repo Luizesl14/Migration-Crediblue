@@ -91,7 +91,7 @@ public class PersonaNormalizationService {
 //        this.normalizedProponent();
 //        this.companionService.createCompanion();
 //        this.leadService.findAll();
-        this.simulationService.findAll();
+//        this.simulationService.findAll();
         this.partnerService.findAll();
         this.finderService.findAll();
         this.investorService.findAll();

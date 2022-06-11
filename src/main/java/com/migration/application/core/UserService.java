@@ -161,7 +161,7 @@ public class UserService {
                         partnerDatabase.getPersona().getCompanyData().setCorporateName(user.getName().toUpperCase());
                     }
                     if(!contactEmailList.isEmpty()
-                            && this.existsEntity.verifyEmail(partnerDatabase.getPersona().getContacts(), contactEmailList)
+                            && this.existsEntity.verifyEmail(contactEmailList, partnerDatabase.getPersona().getId())
                             .equals(Boolean.FALSE)){
 
                         System.out.println("-----------EMAIL DIFERENTE ADICIONADO-----------");
@@ -169,7 +169,7 @@ public class UserService {
                     }
 
                     if(!personaPhoneList.isEmpty()
-                            && this.existsEntity.verifyPhone(partnerDatabase.getPersona().getPhones(),personaPhoneList )
+                            && this.existsEntity.verifyPhone(personaPhoneList, partnerDatabase.getPersona().getId())
                             .equals(Boolean.FALSE)){
                         System.out.println("-----------PHONE DIFERENTE ADICIONADO-----------");
                         partnerDatabase.getPersona().getPhones().addAll(personaPhoneList);
@@ -217,14 +217,14 @@ public class UserService {
                     investDatabase.getPersona().getCompanyData().setCorporateName(user.getName().toUpperCase());
                 }
 
-                if(this.existsEntity.verifyEmail(investDatabase.getPersona().getContacts(), persona.getContacts())
+                if(this.existsEntity.verifyEmail(persona.getContacts(), investDatabase.getPersona().getId())
                         .equals(Boolean.FALSE)){
 
                     System.out.println("-----------EMAIL DIFERENTE ADICIONADO-----------");
                     investDatabase.getPersona().getContacts().addAll(persona.getContacts());
                 }
 
-                if(this.existsEntity.verifyPhone(investDatabase.getPersona().getPhones(), persona.getPhones())
+                if(this.existsEntity.verifyPhone(persona.getPhones(), investDatabase.getPersona().getId())
                         .equals(Boolean.FALSE)){
                     System.out.println("-----------PHONE DIFERENTE ADICIONADO-----------");
                     investDatabase.getPersona().getPhones().addAll(persona.getPhones());

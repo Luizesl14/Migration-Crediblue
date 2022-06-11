@@ -67,21 +67,21 @@ public class LeadService {
                 personaDatabase.getCompanyData().setFantasyName(lead.getName().toUpperCase());
                 personaDatabase.getCompanyData().setCorporateName(lead.getName().toUpperCase());
             }
-            if(this.existsEntity.verifyAddress(personaDatabase.getAddresses(), persona.getAddresses())
+            if(this.existsEntity.verifyAddress(persona.getAddresses(), personaDatabase.getId())
                     .equals(Boolean.FALSE)){
 
                 System.out.println("-----------ADDRESS DIFERENTE ADICIONADO-----------");
                 personaDatabase.getAddresses().addAll(persona.getAddresses());
             }
 
-            if(this.existsEntity.verifyEmail(personaDatabase.getContacts(), persona.getContacts())
+            if(this.existsEntity.verifyEmail(persona.getContacts(), personaDatabase.getId())
                     .equals(Boolean.FALSE)){
 
                 System.out.println("-----------EMAIL DIFERENTE ADICIONADO-----------");
                 personaDatabase.getContacts().addAll(persona.getContacts());
             }
 
-            if(this.existsEntity.verifyPhone(personaDatabase.getPhones(), persona.getPhones())
+            if(this.existsEntity.verifyPhone(persona.getPhones(), personaDatabase.getId())
                     .equals(Boolean.FALSE)){
                 System.out.println("-----------PHONE DIFERENTE ADICIONADO-----------");
                 personaDatabase.getPhones().addAll(persona.getPhones());

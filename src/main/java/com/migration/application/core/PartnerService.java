@@ -86,26 +86,26 @@ public class PartnerService {
                         personaDatabase.getCompanyData().setFantasyName(partner.getName().toUpperCase());
                         personaDatabase.getCompanyData().setCorporateName(partner.getName().toUpperCase());
                     }
-                    if(this.existsEntity.verifyAccount(personaDatabase.getBankAccounts(), persona.getBankAccounts())
+                    if(this.existsEntity.verifyAccount( persona.getBankAccounts(), personaDatabase.getId())
                             .equals(Boolean.FALSE)){
 
                         System.out.println("-----------ACCOUT DIFERENTE ADICIONADO-----------");
                         personaDatabase.getBankAccounts().addAll(persona.getBankAccounts());
                     }
-                    if(this.existsEntity.verifyAddress(personaDatabase.getAddresses(), persona.getAddresses())
+                    if(this.existsEntity.verifyAddress(persona.getAddresses(), personaDatabase.getId())
                             .equals(Boolean.FALSE)){
 
                         System.out.println("-----------ADDRESS DIFERENTE ADICIONADO-----------");
                         personaDatabase.getAddresses().addAll(persona.getAddresses());
                     }
-                    if(this.existsEntity.verifyEmail(personaDatabase.getContacts(), persona.getContacts())
+                    if(this.existsEntity.verifyEmail(persona.getContacts(), personaDatabase.getId())
                             .equals(Boolean.FALSE)){
 
                         System.out.println("-----------EMAIL DIFERENTE ADICIONADO-----------");
                         personaDatabase.getContacts().addAll(persona.getContacts());
                     }
 
-                    if(this.existsEntity.verifyPhone(personaDatabase.getPhones(),persona.getPhones() )
+                    if(this.existsEntity.verifyPhone(persona.getPhones(), personaDatabase.getId())
                             .equals(Boolean.FALSE)){
                         System.out.println("-----------PHONE DIFERENTE ADICIONADO-----------");
                         personaDatabase.getPhones().addAll(persona.getPhones());
