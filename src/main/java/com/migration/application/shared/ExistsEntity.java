@@ -23,7 +23,7 @@ public class ExistsEntity{
                         && account.getAccount().getAccountBranch() != null)
                 .anyMatch(account-> personaAccounts
                         .stream()
-                        .anyMatch(newAccount-> newAccount.getAccount().getFinancialInstitutionCode()
+                        .allMatch(newAccount-> newAccount.getAccount().getFinancialInstitutionCode()
                         .equals(account.getAccount().getFinancialInstitutionCode())
                         && newAccount.getAccount().getAccountNumber().equals(account.getAccount().getAccountNumber())
                         && newAccount.getAccount().getAccountBranch().equals(account.getAccount().getAccountBranch())));
@@ -35,7 +35,7 @@ public class ExistsEntity{
                 .stream()
                 .anyMatch(address-> personaAddresses
                 .stream()
-                .anyMatch(newAddress-> newAddress.getData().getCep().equals(address.getData().getCep())));
+                .allMatch(newAddress-> newAddress.getData().getCep().equals(address.getData().getCep())));
     }
 
     public Boolean verifyEmail(List<ContactEmail> contactEmailsDatabase, List<ContactEmail> contactEmails) {

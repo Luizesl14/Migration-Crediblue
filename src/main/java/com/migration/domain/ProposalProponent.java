@@ -27,7 +27,7 @@ public class ProposalProponent{
     @OneToOne(cascade = CascadeType.ALL)
     private Proposal proposal;
 
-    @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH})
+    @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "persona_id")
     private Persona persona;
 

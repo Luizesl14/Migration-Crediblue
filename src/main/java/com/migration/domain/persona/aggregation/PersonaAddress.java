@@ -8,6 +8,7 @@ import lombok.Setter;
 import lombok.ToString;
 
 import java.util.Date;
+import java.util.Objects;
 
 @Getter
 @Setter
@@ -34,5 +35,13 @@ public class PersonaAddress {
     private Boolean principal;
     private Date createdAt;
 
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        PersonaAddress that = (PersonaAddress) o;
+        return Objects.equals(persona, that.persona) && Objects.equals(data, that.data);
+    }
 
 }

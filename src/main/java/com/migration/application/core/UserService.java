@@ -162,7 +162,7 @@ public class UserService {
                     }
                     if(!contactEmailList.isEmpty()
                             && this.existsEntity.verifyEmail(partnerDatabase.getPersona().getContacts(), contactEmailList)
-                            .equals(Boolean.TRUE)){
+                            .equals(Boolean.FALSE)){
 
                         System.out.println("-----------EMAIL DIFERENTE ADICIONADO-----------");
                         partnerDatabase.getPersona().getContacts().addAll(contactEmailList);
@@ -170,7 +170,7 @@ public class UserService {
 
                     if(!personaPhoneList.isEmpty()
                             && this.existsEntity.verifyPhone(partnerDatabase.getPersona().getPhones(),personaPhoneList )
-                            .equals(Boolean.TRUE))
+                            .equals(Boolean.FALSE))
 
                         System.out.println("-----------PHONE DIFERENTE ADICIONADO-----------");
                     partnerDatabase.getPersona().getPhones().addAll(personaPhoneList);

@@ -79,18 +79,18 @@ public class PersonaNormalizationService {
 
 
     public void findAll() {
-        List<Persona> oldPersonas = this.personaRepository.findAll();
-        System.out.println("Quantidade de Old - Personas do banco: " + oldPersonas.size());
-
-        this.createProponent(oldPersonas);
-//        this.documentService.findAll();
-        this.leadProposalService.findAll();
-//        this.leadProposalDocumentService.findAll();
-        this.normalization(oldPersonas);
-        this.updatePersonaType();
-        this.normalizedProponent();
-        this.companionService.createCompanion();
-        this.leadService.findAll();
+//        List<Persona> oldPersonas = this.personaRepository.findAll();
+//        System.out.println("Quantidade de Old - Personas do banco: " + oldPersonas.size());
+//
+//        this.createProponent(oldPersonas);
+////        this.documentService.findAll();
+//        this.leadProposalService.findAll();
+////        this.leadProposalDocumentService.findAll();
+//        this.normalization(oldPersonas);
+//        this.updatePersonaType();
+//        this.normalizedProponent();
+//        this.companionService.createCompanion();
+//        this.leadService.findAll();
         this.simulationService.findAll();
         this.partnerService.findAll();
         this.finderService.findAll();
@@ -100,29 +100,37 @@ public class PersonaNormalizationService {
 
     }
 
-
     public void createProponent(List<Persona> proponents){
         int index = 0;
+        List<ProposalProponent> proposalProponents = new ArrayList<>();
         for (Persona persona: proponents) {
-            ProposalProponent proponent = this.create.createProponent(persona, persona.getCreatedAt(), persona.getProponentType());
-            if(persona.getComposeIncome() != null){
-                if (persona.getComposeIncome().equals(Boolean.TRUE)) {
-                    proponent.setComposeIncome(Boolean.TRUE);
-                    proponent.setMonthlyIncome(persona.getMonthlyIncome() != null ? persona.getMonthlyIncome() : BigDecimal.ZERO);
-                }
+            ProposalProponent verifyProponent = null;
+            if(persona.getProposal() != null){
+               verifyProponent = this.proposalProponentRepository
+                       .virifyProponent(persona.getCpfCnpj(),persona.getProposal().getId(), persona.getProponentType());
             }
-            if (persona.getParticipationPercentage() != null) {
-                if (persona.getParticipationPercentage() != 0) {
-                    proponent.setPercentageOfCommitment(
-                            persona.getParticipationPercentage() == null ? 0 : persona.getParticipationPercentage());
-                }
-            }
-            ProposalProponent proposalProponentSaved = this.proposalProponentRepository.save(proponent);
-            proposalProponentSaved.setPersona(persona);
-            proposalProponentSaved.setProposal(persona.getProposal());
-            this.proposalProponentRepository.save(proposalProponentSaved);
-            System.out.println("INDEX PROPONENTE SECUNDARIO CRIADO: " + index++);
+
+           if(verifyProponent == null){
+               ProposalProponent proponent = this.create.createProponent(persona, persona.getCreatedAt(), persona.getProponentType());
+               if(persona.getComposeIncome() != null){
+                   if (persona.getComposeIncome().equals(Boolean.TRUE)) {
+                       proponent.setComposeIncome(Boolean.TRUE);
+                       proponent.setMonthlyIncome(persona.getMonthlyIncome() != null ? persona.getMonthlyIncome() : BigDecimal.ZERO);
+                   }
+               }
+               if (persona.getParticipationPercentage() != null) {
+                   if (persona.getParticipationPercentage() != 0) {
+                       proponent.setPercentageOfCommitment(
+                               persona.getParticipationPercentage() == null ? 0 : persona.getParticipationPercentage());
+                   }
+               }
+               proponent.setPersona(persona);
+               proponent.setProposal(persona.getProposal());
+               proposalProponents.add(proponent);
+               System.out.println("INDEX PROPONENTE SECUNDARIO CRIADO: " + index++);
+           }
         }
+        this.proposalProponentRepository.saveAll(proposalProponents);
     }
 
     public  Boolean normalization(List<Persona> oldPersonas){
@@ -134,6 +142,7 @@ public class PersonaNormalizationService {
     public Boolean updatePersonas (List<Persona> oldPersonas) {
         System.out.println(" ## QUANTIDADE DE PERSONAS NORMALIZADOS ##: " + oldPersonas.size());
 
+        List<Persona> personas = new ArrayList<>();
         int index = 0;
         for (Persona oldPersona: oldPersonas) {
               if(oldPersona.getTaxId() == null){
@@ -204,10 +213,11 @@ public class PersonaNormalizationService {
 
                       oldPersona.setCompanyData(company);
                   }
-                  this.personaRepository.save(oldPersona);
+                  personas.add(oldPersona);
                   System.out.println("QUANTIDADE DE PERSONAS NORMALIZADOS: " + index++);
               }
         }
+        this.personaRepository.saveAll(personas);
 
         return  Boolean.TRUE;
     }
@@ -231,6 +241,7 @@ public class PersonaNormalizationService {
     public void normalizedProponent(){
         List<ProposalProponent> proponents = this.proposalProponentRepository.findAll();
         System.out.println("TOTALDE PROPONENTS NO BANCO: " + proponents.size());
+        List<ProposalProponent> proposalProponentList = new ArrayList<>();
         int index = 0;
         for (ProposalProponent proponent: proponents) {
             System.out.println();
@@ -238,11 +249,12 @@ public class PersonaNormalizationService {
                 Persona personaSave = this.personaRepository.findByTaxId(proponent.getPersona().getCpfCnpj());
                 if(personaSave != null){
                     proponent.setPersona(personaSave);
-                    this.proposalProponentRepository.save(proponent);
+                    proposalProponentList.add(proponent);
                 }
                 index ++;
                 System.out.println("TOTAL DE PROPONENTS NORMALIZADOS: " + index);
             }
         }
+        this.proposalProponentRepository.saveAll(proposalProponentList);
     }
 }

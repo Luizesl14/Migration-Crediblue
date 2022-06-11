@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Transactional
 @Service
@@ -47,12 +48,13 @@ public class LeadProposalService {
     }
 
     public Boolean createPersona (List<Proposal> proposals) {
-        int index = 0;
-        for (Proposal proposal : proposals) {
+
+        proposals.parallelStream().forEach(proposal-> {
             Persona persona = this.create.createPersonaByLeadProposal(proposal.getLeadProposal());
             this.personaRepository.save(persona);
-            System.out.println("### INDEX PROPONENTE PRINCIPAL CRIADO: " + index++);
-        }
+            long index = proposals.stream().collect(Collectors.counting());
+            System.out.println("### INDEX PROPONENTE PRINCIPAL CRIADO"  + index);
+        });
         return  Boolean.TRUE;
     }
 

@@ -22,6 +22,10 @@ public interface IProposalProponentRepository extends JpaRepository<ProposalProp
     @Query("FROM ProposalProponent pp WHERE pp.persona.leadProposal.id =:leadId AND pp.proposal.id = :proposalId ")
     ProposalProponent findAllByProposalByLeadProposal(Integer leadId, Integer proposalId );
 
+    @Query("SELECT pp FROM ProposalProponent pp WHERE pp.persona.cpfCnpj =:cpfCnpj " +
+            "AND pp.proposal.id = :proposalId  AND pp.type = :proponentType")
+    ProposalProponent virifyProponent(String cpfCnpj, Integer proposalId, ProponentType proponentType);
+
 
 
     @Query("FROM ProposalProponent pp JOIN FETCH  pp.persona.address  JOIN FETCH  pp.persona.proposal JOIN FETCH  pp.persona.leadProposal")
