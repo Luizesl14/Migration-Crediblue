@@ -44,4 +44,7 @@ public interface IPersonaRepository extends JpaRepository<Persona, Integer> {
     @Query(value = "SELECT  p FROM Persona p WHERE p.leadProposal is not null ")
     List<Persona> personaLeadProposal();
 
+    @Query(value = "SELECT  p FROM Persona p WHERE p.proponentType is null  AND p.taxId is not null")
+    List<Persona> personaType();
+
 }

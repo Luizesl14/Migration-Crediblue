@@ -34,15 +34,12 @@ public class CompanionService {
         List<ProposalProponent> proponentsNomalized = this.proposalProponentRepository.findAll();
         System.out.println("################## TOTAL DE PROPONENTS NORMALIZADOS " + proponentsNomalized.size());
 
-        int index = 0;
+        int indexDatabase = 0, indexNew = 0;
         for (ProposalProponent proponent: proponentsNomalized) {
             if(proponent.getPersona().getCompanion() != null){
                 Companion companion = proponent.getPersona().getCompanion();
-
                 if (companion != null && companion.getCpf() != null) {
                     Persona personaDatabase = this.personaRepository.findByTaxId(companion.getCpf());
-
-
                     PersonaCompanion personaCompanion = new PersonaCompanion();
                     Persona newPerson = new Persona();
 
@@ -71,27 +68,21 @@ public class CompanionService {
                         personaCompanion.setData(newPerson);
                         this.personaRepository.save(newPerson);
                         proponent.getPersona().setPersonaCompanionId(personaCompanion);
-
-                        System.out.println("################## Companio salvo " + companion.getName());
-                        System.out.println();
-                        System.out.println("<<< TOTAL DE COMPANION NORMALIZADOS: >>> " +  index++);
+                        System.out.println("COMPANION JA EXISTENTE NO BANCO: " +  indexDatabase++);
 
                     } else{
-                        System.out.println("################## PERSONA JÁ EXISTE NO BANCO " + personaDatabase.getName());
                         personaCompanion.setData(personaDatabase);
                         personaCompanion.setType(this.createType(personaDatabase));
                         proponent.getPersona().setPersonaCompanionId(personaCompanion);
                         this.personaRepository.save(proponent.getPersona());
-                        System.out.println("################## Companion salvo " + companion.getName());
                         System.out.println();
-                        System.out.println("<<< TOTAL DE COMPANION NORMALIZADOS: >>> " +  index++);
+                        System.out.println("NOVO COMPANION:  " +  indexNew++);
                     }
                 }
             }
         }
         return Boolean.TRUE;
     }
-
 
     public TypeRegimeCompanion createType(Persona persona){
         if(persona.getPropertySystem() != null){

@@ -7,6 +7,7 @@ import com.migration.domain.persona.aggregation.PersonaPhone;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 @Component
@@ -50,7 +51,50 @@ public class ExistsEntity{
                 .stream()
                 .anyMatch(phone-> personaPhones
                 .stream()
-                .anyMatch(newPhone-> newPhone.getPhone().getNumber().equals(phone.getPhone().getNumber())));
+                .noneMatch(newPhone-> newPhone.getPhone().getNumber().equals(phone.getPhone().getNumber())));
+    }
+
+
+
+
+    public Boolean existAccount(List<PersonaAccounts> personaAccountsDatabase, List<PersonaAccounts> personaAccounts) {
+        return personaAccountsDatabase
+                .stream()
+                .filter(account->
+                        account.getAccount().getFinancialInstitutionCode() != null
+                                && account.getAccount().getAccountNumber() != null
+                                && account.getAccount().getAccountBranch() != null)
+                .noneMatch(account-> personaAccounts
+                        .stream()
+                        .noneMatch(newAccount-> newAccount.getAccount().getFinancialInstitutionCode()
+                                .equals(account.getAccount().getFinancialInstitutionCode())
+                                && newAccount.getAccount().getAccountNumber().equals(account.getAccount().getAccountNumber())
+                                && newAccount.getAccount().getAccountBranch().equals(account.getAccount().getAccountBranch())));
+
+    }
+
+    public Boolean existAddres(List<PersonaAddress> personaAddressesDatabase, List<PersonaAddress> personaAddresses) {
+        return personaAddressesDatabase
+                .stream()
+                .noneMatch(address-> personaAddresses
+                        .stream()
+                        .anyMatch(newAddress-> newAddress.getData().getCep().equals(address.getData().getCep())));
+    }
+
+    public Boolean existEmail(List<ContactEmail> contactEmailsDatabase, List<ContactEmail> contactEmails) {
+        return contactEmailsDatabase
+                .stream()
+                .noneMatch(email-> contactEmails
+                        .stream()
+                        .anyMatch(newEmail-> newEmail.getEmail().equals(email.getEmail())));
+    }
+
+    public Boolean existPhone(List<PersonaPhone> personaPhonesDatabase, List<PersonaPhone> personaPhones) {
+        return personaPhonesDatabase
+                .stream()
+                .noneMatch(phone-> personaPhones
+                        .stream()
+                        .anyMatch(newPhone-> newPhone.getPhone().getNumber().equals(phone.getPhone().getNumber())));
     }
 
 }

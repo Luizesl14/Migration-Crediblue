@@ -23,6 +23,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 
@@ -78,38 +79,39 @@ public class PersonaNormalizationService {
 
 
     public void findAll() {
-        List<Persona> oldPersonas = this.personaRepository.findAll();
-        System.out.println("Quantidade de Old - Personas do banco: " + oldPersonas.size());
-
-        this.createProponent(oldPersonas);
-        this.documentService.findAll();
-        this.leadProposalService.findAll();
-        this.leadProposalDocumentService.findAll();
-        this.normalization(oldPersonas);
-        this.normalizedProponent();
-        this.companionService.createCompanion();
-        this.userService.findAll();
-        this.simulationService.findAll();
-        this.partnerService.findAll();
-        this.finderService.findAll();
-        this.investorService.findAll();
-        this.leadService.findAll();
+//        List<Persona> oldPersonas = this.personaRepository.findAll();
+//        System.out.println("Quantidade de Old - Personas do banco: " + oldPersonas.size());
+//
+//        this.createProponent(oldPersonas);
+//        this.documentService.findAll();
+//        this.leadProposalService.findAll();
+//        this.leadProposalDocumentService.findAll();
+//        this.normalization(oldPersonas);
+//        this.updatePersonaType();
+//        this.normalizedProponent();
+//        this.companionService.createCompanion();
+//        this.leadService.findAll();
+//        this.simulationService.findAll();
+//        this.partnerService.findAll();
+//        this.finderService.findAll();
+//        this.investorService.findAll();
+//        this.userService.findAll();
+        this.repededProponent();
 
 
     }
 
 
     public void createProponent(List<Persona> proponents){
+        int index = 0;
         for (Persona persona: proponents) {
             ProposalProponent proponent = this.create.createProponent(persona, persona.getCreatedAt(), persona.getProponentType());
-
-                if(persona.getComposeIncome() != null){
-                    if (persona.getComposeIncome().equals(Boolean.TRUE)) {
-                        proponent.setComposeIncome(Boolean.TRUE);
-                        proponent.setMonthlyIncome(persona.getMonthlyIncome() != null ? persona.getMonthlyIncome() : BigDecimal.ZERO);
-                    }
+            if(persona.getComposeIncome() != null){
+                if (persona.getComposeIncome().equals(Boolean.TRUE)) {
+                    proponent.setComposeIncome(Boolean.TRUE);
+                    proponent.setMonthlyIncome(persona.getMonthlyIncome() != null ? persona.getMonthlyIncome() : BigDecimal.ZERO);
                 }
-
+            }
             if (persona.getParticipationPercentage() != null) {
                 if (persona.getParticipationPercentage() != 0) {
                     proponent.setPercentageOfCommitment(
@@ -120,7 +122,7 @@ public class PersonaNormalizationService {
             proposalProponentSaved.setPersona(persona);
             proposalProponentSaved.setProposal(persona.getProposal());
             this.proposalProponentRepository.save(proposalProponentSaved);
-            System.out.println(" ## ID ##: " + persona.getId() + " Proponent Salvo ** PF ** : " + persona.getId());
+            System.out.println("INDEX PROPONENTE SECUNDARIO CRIADO: " + index++);
         }
     }
 
@@ -133,10 +135,9 @@ public class PersonaNormalizationService {
     public Boolean updatePersonas (List<Persona> oldPersonas) {
         System.out.println(" ## QUANTIDADE DE PERSONAS NORMALIZADOS ##: " + oldPersonas.size());
 
+        int index = 0;
         for (Persona oldPersona: oldPersonas) {
-
               if(oldPersona.getTaxId() == null){
-                  Persona personaDatabase = this.personaRepository.findByTaxId(oldPersona.getCpfCnpj());
                   if(oldPersona.getProponentType() ==  null)
                       oldPersona.setProponentType(ProponentType.COMPANY_PARTNER);
 
@@ -164,7 +165,8 @@ public class PersonaNormalizationService {
                   }
                   if(oldPersona.getAddress() != null){
                       List<PersonaAddress> personaAddressList = new ArrayList<>();
-                      PersonaAddress personaAddress = this.create.createAddress(oldPersona.getAddress(), oldPersona.getAddress().getCreatedAt(), oldPersona);
+                      PersonaAddress personaAddress =
+                              this.create.createAddress(oldPersona.getAddress(), oldPersona.getAddress().getCreatedAt(), oldPersona);
                       personaAddressList.add(personaAddress);
                       oldPersona.setAddresses(personaAddressList);
 
@@ -203,41 +205,60 @@ public class PersonaNormalizationService {
 
                       oldPersona.setCompanyData(company);
                   }
-                  if(personaDatabase != null){
-                      System.out.println(" ## ID ## PERSONA JA EXISTENTE NO BANCO: " + personaDatabase.getId());
-                  }else {
-                      Persona personaSaved = this.personaRepository.save(oldPersona);
-
-                      if(personaSaved.getPersonaType().equals(PersonaType.NATURAL_PERSON)){
-                          System.out.println(" ## ID ##: " + personaSaved.getId()
-                                  + " Persona Atualizado ** PF ** : "+ personaSaved.getName());
-                      }else{
-                          System.out.println(" ## ID ##: " + personaSaved.getId()
-                                  + " Persona Atualizado ** PJ ** : " + personaSaved.getCompanyData().getCorporateName());
-                      }
-                  }
+                  this.personaRepository.save(oldPersona);
+                  System.out.println("QUANTIDADE DE PERSONAS NORMALIZADOS: " + index++);
               }
         }
+
         return  Boolean.TRUE;
+    }
+
+    public void updatePersonaType() {
+        List<Persona> personasDatabase = this.personaRepository.personaType();
+        int index = 0;
+        for (Persona personaDatabase: personasDatabase) {
+            if(personaDatabase.getTaxId() != null){
+                if(personaDatabase.getPersonaType() != null && personaDatabase.getTaxId().length() <= 11)
+                    personaDatabase.setPersonaType(PersonaType.NATURAL_PERSON);
+                if(personaDatabase.getPersonaType() != null && personaDatabase.getTaxId().length() > 11)
+                    personaDatabase.setPersonaType(PersonaType.LEGAL_PERSON);
+                this.personaRepository.save(personaDatabase);
+                System.out.println("QUANTIDADE DE PERSONATYPE NORMALIZADOS: " + index++);
+            }
+        }
     }
 
 
     public void normalizedProponent(){
         List<ProposalProponent> proponents = this.proposalProponentRepository.findAll();
-        System.out.println("Numero total de proponentes: " + proponents.size());
+        System.out.println("TOTALDE PROPONENTS NO BANCO: " + proponents.size());
         int index = 0;
         for (ProposalProponent proponent: proponents) {
             System.out.println();
             if(proponent.getPersona().getCpfCnpj() != null){
-                System.out.println("Proponent a ser normalizado:  " + proponent.getPersona().getName());
                 Persona personaSave = this.personaRepository.findByTaxId(proponent.getPersona().getCpfCnpj());
                 if(personaSave != null){
                     proponent.setPersona(personaSave);
                     this.proposalProponentRepository.save(proponent);
                 }
                 index ++;
-                System.out.println("Total de proponents Normalizados: " + index);
+                System.out.println("TOTAL DE PROPONENTS NORMALIZADOS: " + index);
             }
+        }
+    }
+
+    public void repededProponent(){
+        List<ProposalProponent> proponents = this.proposalProponentRepository.findAll();
+        System.out.println("TOTALDE PROPONENTS NO BANCO: " + proponents.size());
+
+        List<ProposalProponent> proposalProponentList = proponents.stream().distinct().toList();
+        System.out.println("NÃO REPEDITOS: " + proposalProponentList.size());
+
+        List<ProposalProponent> repeteds = proposalProponentList.stream()
+                .filter(p -> !proponents.contains(p)).toList();
+
+        for (ProposalProponent prop: repeteds) {
+            System.out.println("PERSONAS REPETIDOS ID: " + prop.getId() + " PROPOSAL: "  + prop.getProposal().getId());
         }
     }
 

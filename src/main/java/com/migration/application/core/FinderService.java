@@ -59,7 +59,7 @@ public class FinderService {
 
 
     public Boolean createPersona (List<Finder> finderNormalized){
-        int index = 0;
+        int indexDatabase = 0, indexNew = 0;
         for (Finder finder: finderNormalized) {
             Persona persona = new Persona();
             if(finder != null){
@@ -110,14 +110,14 @@ public class FinderService {
 
                     if(!personaAddressList.isEmpty()
                             && this.existsEntity.verifyAddress(personaDatabase.getAddresses(), personaAddressList)
-                            .equals(Boolean.FALSE)){
+                            .equals(Boolean.TRUE)){
 
                         System.out.println("-----------ADDRESS DIFERENTE ADICIONADO-----------");
                         personaDatabase.getAddresses().addAll(personaAddressList);
                     }
                     if(!contactEmailList.isEmpty()
                             && this.existsEntity.verifyEmail(personaDatabase.getContacts(), contactEmailList)
-                            .equals(Boolean.FALSE)){
+                            .equals(Boolean.TRUE)){
 
                         System.out.println("-----------EMAIL DIFERENTE ADICIONADO-----------");
                         personaDatabase.getContacts().addAll(contactEmailList);
@@ -125,27 +125,22 @@ public class FinderService {
 
                     if(!personaPhoneList.isEmpty()
                             && this.existsEntity.verifyPhone(personaDatabase.getPhones(),personaPhoneList )
-                            .equals(Boolean.FALSE))
-
+                            .equals(Boolean.TRUE)){
                         System.out.println("-----------PHONE DIFERENTE ADICIONADO-----------");
-                    personaDatabase.getPhones().addAll(personaPhoneList);
-
+                        personaDatabase.getPhones().addAll(personaPhoneList);
+                    }
                     finder.setPersona(personaDatabase);
-                    this.save(finder);
+                    this.finderRespository.save(finder);
+                    System.out.println("##### FINDER JA EXISTENTE : " + indexDatabase++);
                 }else{
                     finder.setPersona(persona);
-                    this.save(finder);
+                    this.finderRespository.save(finder);
+                    System.out.println("##### NOVA PERSONA FINDER  : " + indexNew++);
                 }
-                System.out.println("##### Finder  : " + index++);
+
             }
         }
         return Boolean.TRUE;
     }
 
-
-    public void save (Finder finder) {
-            Persona persona = this.finderRespository.save(finder).getPersona();
-            System.out.println("Persona salva  : " + persona.getName());
-            System.out.println();
-    }
 }

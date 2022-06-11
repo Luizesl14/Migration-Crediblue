@@ -43,143 +43,62 @@ public class LeadService {
 
     public Boolean findAll() {
         List<Lead> leads = this.leadRepository.findAll();
-        System.out.println("Quantidade de Lead do banco: " + leads.size());
+        System.out.println("QUANTIDADE DE LEADS : " + leads.size());
         this.createPersona(leads);
         return Boolean.TRUE ;
     }
 
-
-
     public Boolean createPersona (List<Lead> leadNormalized){
 
+        int indexDatabase = 0 , indexNewPersona = 0;
         for (Lead lead: leadNormalized) {
-            Persona persona = new Persona();
-            if(lead != null){
-                Persona personaDatabase = null;
-                if(lead.getCpfCnpj()!= null){
-                    personaDatabase  = this.personaRepository.findByTaxId(lead.getCpfCnpj());
-                    if(personaDatabase != null)
-                        if (personaDatabase.getPersonaType().equals(PersonaType.NATURAL_PERSON)) {
-                            System.out.println("Persona Existe no banco ** PF ** : " + personaDatabase.getName());
-                        } else {
-                            System.out.println("Persona Existe no banco  ** PJ ** : " + personaDatabase.getCompanyData().getCorporateName());
-                        }
-                }
-                persona.setPersonaType(
-                        lead.getCpfCnpj()
-                                .length() == 11 ? PersonaType.NATURAL_PERSON: PersonaType.LEGAL_PERSON);
-                   persona.setTaxId(lead.getCpfCnpj());
+            Persona persona = this.create.createPersonaLead(lead);
+            Persona personaDatabase = this.personaRepository.findByTaxId(lead.getCpfCnpj());
 
-                if(persona.getPersonaType().equals(PersonaType.NATURAL_PERSON)){
-                    persona.setName(lead.getName().toUpperCase());
-                    persona.setMaritalStatus(lead.getMaritalStatus());
-                    persona.setBirthDate(lead.getBirthDate());
-                }else{
-                    Company company = new Company();
-                    company.setFantasyName(lead.getName().toUpperCase());
-                    company.setCorporateName(lead.getName().toUpperCase());
-                    persona.setCompanyData(company);
-                }
+            if (personaDatabase != null)
+                System.out.println("QUANTIDADE DE PERSONAS:  : " + personaDatabase.getName());
 
-                PersonaComposeIncome personaComposeIncome = new PersonaComposeIncome();
-                if(lead.getFamilyIncome() != null){
-                    ComposeIncome composeIncome = new ComposeIncome();
-                    personaComposeIncome.setType(IncomeType.FIXED_INCOME);
-                    personaComposeIncome.setComposeIncome(composeIncome);
-                    personaComposeIncome.getComposeIncome().setAmount(lead.getFamilyIncome());
-                    personaComposeIncome.getComposeIncome().setDescription("Renda Familiar");
-                    persona.getComposeIncomes().add(personaComposeIncome);
-                }
+            if(personaDatabase != null){
 
-                List<PersonaAddress> personaAddressList = new ArrayList<>();
-                if(lead.getAddress() != null){
-                    PersonaAddress personaAddress = this.create.createAddress(lead.getAddress(), lead.getAddress().getCreatedAt(), persona);
-                    personaAddressList.add(personaAddress);
-                    persona.setAddresses(personaAddressList);
+            if (personaDatabase.getPersonaType().equals(PersonaType.NATURAL_PERSON))
+                personaDatabase.setName(lead.getName().toUpperCase());
 
-                }
+            if (personaDatabase.getPersonaType().equals(PersonaType.LEGAL_PERSON)) {
+                personaDatabase.getCompanyData().setFantasyName(lead.getName().toUpperCase());
+                personaDatabase.getCompanyData().setCorporateName(lead.getName().toUpperCase());
+            }
+            if(this.existsEntity.verifyAddress(personaDatabase.getAddresses(), persona.getAddresses())
+                    .equals(Boolean.TRUE)){
 
-                List<ContactEmail> contactEmailList = new ArrayList<>();
-                if(lead.getEmail() != null){
-                    ContactEmail contactEmail = this.create.createEmail(lead.getEmail(), this.convert.covertLocalDataTimeToDate(lead.getCreatedAt()));
-                    contactEmailList.add(contactEmail);
-                    persona.setContacts(contactEmailList);
-                }
+                System.out.println("-----------ADDRESS DIFERENTE ADICIONADO-----------");
+                personaDatabase.getAddresses().addAll(persona.getAddresses());
+            }
 
-                List<PersonaPhone> personaPhoneList = new ArrayList<>();
-                if(lead.getTelephone() != null){
-                    Phone phone = new Phone();
-                    phone.setNumber(lead.getTelephone());
-                    phone.setIsWhatsApp(Boolean.FALSE);
-                    PersonaPhone personaPhone = this.create.createPhone(phone, this.convert.covertLocalDataTimeToDate(lead.getCreatedAt()));
-                    personaPhoneList.add(personaPhone);
-                    persona.setPhones(personaPhoneList);
-                }
-                if(personaDatabase != null){
+            if(this.existsEntity.verifyEmail(personaDatabase.getContacts(), persona.getContacts())
+                    .equals(Boolean.TRUE)){
 
-                    if (personaDatabase.getPersonaType().equals(PersonaType.NATURAL_PERSON)) {
-                        personaDatabase.setName(lead.getName().toUpperCase());
-                    }
-                    if (personaDatabase.getPersonaType().equals(PersonaType.LEGAL_PERSON)) {
-                        personaDatabase.getCompanyData().setFantasyName(lead.getName().toUpperCase());
-                        personaDatabase.getCompanyData().setCorporateName(lead.getName().toUpperCase());
-                    }
-                    if(!personaAddressList.isEmpty()
-                            && this.existsEntity.verifyAddress(personaDatabase.getAddresses(), personaAddressList)
-                            .equals(Boolean.FALSE)){
+                System.out.println("-----------EMAIL DIFERENTE ADICIONADO-----------");
+                personaDatabase.getContacts().addAll(persona.getContacts());
+            }
 
-                        System.out.println("-----------ADDRESS DIFERENTE ADICIONADO-----------");
-                        personaDatabase.getAddresses().addAll(personaAddressList);
-                    }
-                    if(!contactEmailList.isEmpty()
-                            && this.existsEntity.verifyEmail(personaDatabase.getContacts(), contactEmailList)
-                            .equals(Boolean.FALSE)){
+                if(this.existsEntity.verifyPhone(personaDatabase.getPhones(), persona.getPhones())
+                        .equals(Boolean.TRUE))
 
-                        System.out.println("-----------EMAIL DIFERENTE ADICIONADO-----------");
-                        personaDatabase.getContacts().addAll(contactEmailList);
-                    }
+                    System.out.println("-----------PHONE DIFERENTE ADICIONADO-----------");
+                personaDatabase.getPhones().addAll(persona.getPhones());
 
-                    if(!personaPhoneList.isEmpty()
-                            && this.existsEntity.verifyPhone(personaDatabase.getPhones(),personaPhoneList )
-                            .equals(Boolean.FALSE))
+                lead.setPersona(personaDatabase);
+                this.leadRepository.save(lead);
+                System.out.println("INDEX PERSONA JÁ EXISTENTE " + indexDatabase++);
 
-                        System.out.println("-----------PHONE DIFERENTE ADICIONADO-----------");
-                    personaDatabase.getPhones().addAll(personaPhoneList);
-
-                    lead.setPersona(personaDatabase);
-                    this.leadRepository.save(lead);
-                    this.printUpdated(persona);
-                }else{
-                    lead.setPersona(persona);
-                    this.leadRepository.save(lead);
-                    this.printSaved(persona);
-                }
+            }else{
+                lead.setPersona(persona);
+                this.leadRepository.save(lead);
+                System.out.println("INDEX NOVA PERSONA " + indexNewPersona++);
             }
         }
         return Boolean.TRUE;
     }
 
-    public void save(Lead lead){
-        this.leadRepository.save(lead);
-
-    }
-
-    public void printUpdated(Persona persona){
-        if (persona.getPersonaType().equals(PersonaType.NATURAL_PERSON)) {
-            System.out.println("UPDATED PERSONA  ** PF ** : " + persona.getName());
-        } else {
-            System.out.println("UPDATED PERSONA   ** PJ ** : " + persona.getCompanyData().getCorporateName());
-        }
-        System.out.println();
-    }
-
-    public void printSaved(Persona persona){
-        if (persona.getPersonaType().equals(PersonaType.NATURAL_PERSON)) {
-            System.out.println("SAVED PERSONA  ** PF ** : " + persona.getName());
-        } else {
-            System.out.println("SAVED PERSONA   ** PJ ** : " + persona.getCompanyData().getCorporateName());
-        }
-        System.out.println();
-    }
 
 }

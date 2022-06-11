@@ -47,116 +47,36 @@ public class LeadProposalService {
     }
 
     public Boolean createPersona (List<Proposal> proposals) {
-
         int index = 0;
         for (Proposal proposal : proposals) {
-            Persona persona = new Persona();
-            persona.setCpfCnpj(proposal.getLeadProposal().getCpfCnpj());
-
-            persona.setPersonaType(
-                    proposal.getLeadProposal().getCpfCnpj()
-                            .length() == 11 ? PersonaType.NATURAL_PERSON : PersonaType.LEGAL_PERSON);
-
-            if (persona.getPersonaType().equals(PersonaType.NATURAL_PERSON)) {
-                persona.setName(proposal.getLeadProposal().getName().toUpperCase());
-            } else {
-                Company company = new Company();
-                company.setFantasyName(proposal.getLeadProposal().getName().toUpperCase());
-                company.setCorporateName(proposal.getLeadProposal().getName().toUpperCase());
-                company.setType(proposal.getLeadProposal().getCompanyType());
-                company.setCnae(proposal.getLeadProposal().getCnaeCode());
-
-                if (proposal.getLeadProposal().getCompanyFoundingDate() != null) {
-                    company.setFoundationDate(
-                            this.convert.convertToLocalDate(proposal.getLeadProposal().getCompanyFoundingDate()));
-                }
-                persona.setCompanyData(company);
-            }
-            persona.setMaritalStatus(proposal.getLeadProposal().getMaritalStatus());
-            persona.setBirthDate(proposal.getLeadProposal().getBirthDate());
-            persona.setMaritalStatus(proposal.getLeadProposal().getMaritalStatus());
-            persona.setRg(proposal.getLeadProposal().getRg());
-            persona.setOrgaoEmissor(proposal.getLeadProposal().getOrgaoEmissor());
-            persona.setNationality(proposal.getLeadProposal().getNationality());
-            persona.setMotherName(proposal.getLeadProposal().getMother());
-            persona.setCitizenship(proposal.getLeadProposal().getCitizenship());
-            persona.setPep(proposal.getLeadProposal().getPep());
-            persona.setOccupation(proposal.getLeadProposal().getOccupation());
-
-            if (proposal.getLeadProposal().getSpouseName() != null) {
-                PersonaCompanion personaCompanion = new PersonaCompanion();
-                Persona companion = new Persona();
-                companion.setName(proposal.getLeadProposal().getSpouseName());
-                personaCompanion.setType(proposal.getLeadProposal().getTypeRegimeCompanion());
-                personaCompanion.setData(companion);
-            }
-            if(proposal.getLeadProposal().getCreatedAt() != null){
-                persona.setCreatedAt(this.convert.covertLocalDataTimeToDate(proposal.getLeadProposal().getCreatedAt()));
-            }
-
-            if (proposal.getLeadProposal().getFinancialInstitutionCode() != null) {
-                persona.getBankAccounts().add(
-                        this.create.createAccount(
-                                proposal.getLeadProposal().getFinancialInstitutionCode(), proposal.getLeadProposal().getAccountBranch(),
-                                proposal.getLeadProposal().getAccountNumber(), proposal.getLeadProposal().getAccountDigit(),
-                                this.convert.covertLocalDataTimeToDate(proposal.getLeadProposal().getCreatedAt())));
-            }
-            if (proposal.getLeadProposal().getAddress() != null) {
-                persona.getAddresses().add(
-                        this.create.createAddress(proposal.getLeadProposal().getAddress(), proposal.getLeadProposal().getAddress().getCreatedAt(), persona));
-            }
-            if (proposal.getLeadProposal().getEmail() != null) {
-                persona.getContacts().add(
-                        this.create.createEmail(proposal.getLeadProposal().getEmail(),
-                                this.convert.covertLocalDataTimeToDate(proposal.getLeadProposal().getCreatedAt())));
-            }
-            if (proposal.getLeadProposal().getTelephone() != null) {
-                Phone phone = new Phone();
-                phone.setNumber(proposal.getLeadProposal().getTelephone());
-                phone.setIsWhatsApp(Boolean.FALSE);
-                persona.getPhones().add(this.create.createPhone(phone, null));
-            }
-                persona.setLeadProposal(proposal.getLeadProposal());
-                this.personaRepository.save(persona);
-                if (persona.getPersonaType().equals(PersonaType.NATURAL_PERSON)) {
-                    System.out.println("New Person ** PF ** : " + persona.getName());
-                } else {
-                    System.out.println("New Person ** PJ ** : " + persona.getCompanyData().getCorporateName());
-                System.out.println();
-            }
-            System.out.println("### Index persona criado: " + index++);
+            Persona persona = this.create.createPersonaByLeadProposal(proposal.getLeadProposal());
+            this.personaRepository.save(persona);
+            System.out.println("### INDEX PROPONENTE PRINCIPAL CRIADO: " + index++);
         }
         return  Boolean.TRUE;
     }
 
     public  Boolean saveProponent(){
         List<Persona> personas = this.personaRepository.personaLeadProposal();
-        System.out.println("### numero de leadProposal: " + personas.size());
-
+        int index = 0;
         for (Persona personaDatabase: personas) {
-
             ProposalProponent proponent = this.create.createProponentPrincipal(personaDatabase.getCreatedAt(), ProponentType.PRINCIPAL);
-
             proponent.setComposeIncome(Boolean.FALSE);
+            proponent.setPercentageOfCommitment(0.0);
 
             if(personaDatabase.getLeadProposal() != null)
                 proponent.setMonthlyIncome(personaDatabase.getLeadProposal().getFamilyIncome());
 
             if(personaDatabase.getProponentType() != null){
-                if(personaDatabase.getProponentType().equals(ProponentType.PRINCIPAL)){
+                if(personaDatabase.getProponentType().equals(ProponentType.PRINCIPAL))
                     proponent.setScrConsulted(personaDatabase.getProposal().getLeadProposal().getScrConsulted());
-                }
-            }else{
-                proponent.setScrConsulted(Boolean.FALSE);
             }
-            proponent.setPercentageOfCommitment(0.0);
-
             ProposalProponent proposalProponentSaved = this.proposalProponentRepository.save(proponent);
             proposalProponentSaved.setPersona(personaDatabase);
             proposalProponentSaved.setProposal(personaDatabase.getLeadProposal().getProposal());
             this.proposalProponentRepository.save(proposalProponentSaved);
 
-            System.out.println(" ## ID ##: " + personaDatabase.getId() + " Proponent Salvo ** PF ** : "+ personaDatabase.getName());
+            System.out.println("QUANTIDADE DE PROPONENTE DE PRINCIPAL: " +  index++);
         }
         return Boolean.TRUE;
     }
