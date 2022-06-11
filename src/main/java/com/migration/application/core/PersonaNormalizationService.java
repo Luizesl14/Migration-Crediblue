@@ -79,24 +79,23 @@ public class PersonaNormalizationService {
 
 
     public void findAll() {
-//        List<Persona> oldPersonas = this.personaRepository.findAll();
-//        System.out.println("Quantidade de Old - Personas do banco: " + oldPersonas.size());
-//
-//        this.createProponent(oldPersonas);
+        List<Persona> oldPersonas = this.personaRepository.findAll();
+        System.out.println("Quantidade de Old - Personas do banco: " + oldPersonas.size());
+
+        this.createProponent(oldPersonas);
 //        this.documentService.findAll();
-//        this.leadProposalService.findAll();
+        this.leadProposalService.findAll();
 //        this.leadProposalDocumentService.findAll();
-//        this.normalization(oldPersonas);
-//        this.updatePersonaType();
-//        this.normalizedProponent();
-//        this.companionService.createCompanion();
-//        this.leadService.findAll();
-//        this.simulationService.findAll();
-//        this.partnerService.findAll();
-//        this.finderService.findAll();
-//        this.investorService.findAll();
-//        this.userService.findAll();
-        this.repededProponent();
+        this.normalization(oldPersonas);
+        this.updatePersonaType();
+        this.normalizedProponent();
+        this.companionService.createCompanion();
+        this.leadService.findAll();
+        this.simulationService.findAll();
+        this.partnerService.findAll();
+        this.finderService.findAll();
+        this.investorService.findAll();
+        this.userService.findAll();
 
 
     }
@@ -246,20 +245,4 @@ public class PersonaNormalizationService {
             }
         }
     }
-
-    public void repededProponent(){
-        List<ProposalProponent> proponents = this.proposalProponentRepository.findAll();
-        System.out.println("TOTALDE PROPONENTS NO BANCO: " + proponents.size());
-
-        List<ProposalProponent> proposalProponentList = proponents.stream().distinct().toList();
-        System.out.println("NÃO REPEDITOS: " + proposalProponentList.size());
-
-        List<ProposalProponent> repeteds = proposalProponentList.stream()
-                .filter(p -> !proponents.contains(p)).toList();
-
-        for (ProposalProponent prop: repeteds) {
-            System.out.println("PERSONAS REPETIDOS ID: " + prop.getId() + " PROPOSAL: "  + prop.getProposal().getId());
-        }
-    }
-
 }
