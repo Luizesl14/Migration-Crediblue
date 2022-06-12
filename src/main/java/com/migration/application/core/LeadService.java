@@ -55,42 +55,17 @@ public class LeadService {
             Persona persona = this.create.createPersonaLead(lead);
             Persona personaDatabase = this.personaRepository.findByTaxId(lead.getCpfCnpj());
 
-            if (personaDatabase != null)
-                System.out.println("QUANTIDADE DE PERSONAS:  : " + personaDatabase.getName());
-
             if(personaDatabase != null){
+            System.out.println("QUANTIDADE DE PERSONAS:  : " + personaDatabase.getName());
 
-            if (personaDatabase.getPersonaType().equals(PersonaType.NATURAL_PERSON))
-                personaDatabase.setName(lead.getName().toUpperCase());
+            persona.getAddresses().forEach(adr-> adr.setPersona(personaDatabase));
+            persona.getContacts().forEach(mail-> mail.setPersona(personaDatabase));
+            persona.getPhones().forEach(ph-> ph.setPersona(personaDatabase));
 
-            if (personaDatabase.getPersonaType().equals(PersonaType.LEGAL_PERSON)) {
-                personaDatabase.getCompanyData().setFantasyName(lead.getName().toUpperCase());
-                personaDatabase.getCompanyData().setCorporateName(lead.getName().toUpperCase());
-            }
-            if(this.existsEntity.verifyAddress(persona.getAddresses(), personaDatabase.getId())
-                    .equals(Boolean.FALSE)){
-
-                System.out.println("-----------ADDRESS DIFERENTE ADICIONADO-----------");
-                personaDatabase.getAddresses().addAll(persona.getAddresses());
-            }
-
-            if(this.existsEntity.verifyEmail(persona.getContacts(), personaDatabase.getId())
-                    .equals(Boolean.FALSE)){
-
-                System.out.println("-----------EMAIL DIFERENTE ADICIONADO-----------");
-                personaDatabase.getContacts().addAll(persona.getContacts());
-            }
-
-            if(this.existsEntity.verifyPhone(persona.getPhones(), personaDatabase.getId())
-                    .equals(Boolean.FALSE)){
-                System.out.println("-----------PHONE DIFERENTE ADICIONADO-----------");
-                personaDatabase.getPhones().addAll(persona.getPhones());
-            }
-
-
-                lead.setPersona(personaDatabase);
-                this.leadRepository.save(lead);
-                System.out.println("INDEX PERSONA JÁ EXISTENTE " + indexDatabase++);
+            BeanUtils.copyProperties(persona, personaDatabase, "id", "createdAt");
+            lead.setPersona(personaDatabase);
+            this.leadRepository.save(lead);
+            System.out.println("INDEX PERSONA JÁ EXISTENTE " + indexDatabase++);
 
             }else{
                 lead.setPersona(persona);

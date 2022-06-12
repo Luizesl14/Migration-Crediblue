@@ -9,6 +9,7 @@ import com.migration.domain.persona.aggregation.Company;
 import com.migration.domain.persona.aggregation.Phone;
 import com.migration.infrastructure.IPersonaRepository;
 import com.migration.infrastructure.ISimulatonRepository;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -61,9 +62,6 @@ public class SimulationService {
                         company.setFantasyName(simulation.getLead().getName().toUpperCase());
                         company.setCorporateName(simulation.getLead().getName().toUpperCase());
                     }
-
-
-
                     persona.setCompanyData(company);
                 }
 
@@ -79,7 +77,7 @@ public class SimulationService {
                     persona.getAddresses().add(this.create.createAddress( simulation.getLead().getAddress(),
                             simulation.getLead().getAddress().getCreatedAt(), persona));
                 }
-                if( simulation.getLead().getEmail() != null){
+                if(simulation.getLead().getEmail() != null){
                     persona.getContacts().add(this.create.createEmail( simulation.getLead().getEmail(), null));
                 }
 
@@ -90,8 +88,8 @@ public class SimulationService {
                     persona.getPhones().add(this.create.createPhone(phone, null));
                 }
                 if(personaDatabase != null){
-                        simulation.setPersona(personaDatabase);
-                        this.saveSimulation(simulation);
+                    simulation.setPersona(personaDatabase);
+                    this.saveSimulation(simulation);
                     }else {
                     Persona personaUpdated = this.personaRepository.save(persona);
                     simulation.setPersona(personaUpdated);

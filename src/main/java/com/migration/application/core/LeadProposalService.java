@@ -52,8 +52,7 @@ public class LeadProposalService {
         proposals.parallelStream().forEach(proposal-> {
             Persona persona = this.create.createPersonaByLeadProposal(proposal.getLeadProposal());
             this.personaRepository.save(persona);
-            long index = proposals.stream().collect(Collectors.counting());
-            System.out.println("### INDEX PROPONENTE PRINCIPAL CRIADO"  + index);
+            System.out.println("### INDEX PROPONENTE PRINCIPAL CRIADO");
         });
         return  Boolean.TRUE;
     }

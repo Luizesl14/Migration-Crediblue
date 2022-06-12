@@ -83,15 +83,15 @@ public class PersonaNormalizationService {
 //        System.out.println("Quantidade de Old - Personas do banco: " + oldPersonas.size());
 //
 //        this.createProponent(oldPersonas);
-////        this.documentService.findAll();
+//        this.documentService.findAll();
 //        this.leadProposalService.findAll();
-////        this.leadProposalDocumentService.findAll();
+//        this.leadProposalDocumentService.findAll();
 //        this.normalization(oldPersonas);
 //        this.updatePersonaType();
 //        this.normalizedProponent();
-//        this.companionService.createCompanion();
-//        this.leadService.findAll();
-//        this.simulationService.findAll();
+        this.companionService.createCompanion();
+        this.leadService.findAll();
+        this.simulationService.findAll();
         this.partnerService.findAll();
         this.finderService.findAll();
         this.investorService.findAll();
@@ -134,7 +134,7 @@ public class PersonaNormalizationService {
     }
 
     public  Boolean normalization(List<Persona> oldPersonas){
-        List<Persona> notRepeatedPersonas = oldPersonas.stream().distinct().toList();
+        List<Persona> notRepeatedPersonas = oldPersonas.stream().distinct().collect(Collectors.toList());
         this.updatePersonas(notRepeatedPersonas);
         return  Boolean.TRUE;
     }

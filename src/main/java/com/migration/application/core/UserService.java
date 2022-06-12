@@ -13,6 +13,7 @@ import com.migration.domain.persona.aggregation.ContactEmail;
 import com.migration.domain.persona.aggregation.PersonaPhone;
 import com.migration.domain.persona.aggregation.Phone;
 import com.migration.infrastructure.*;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -73,11 +74,9 @@ public class UserService {
     public Boolean createPersona(User user) {
         Persona persona = new Persona();
 
-        Persona personaDatabase = null;
+        if(user.getCpf() != null) {
+            Persona personaDatabase = this.personaRepository.findByTaxId(user.getCpf());
 
-        if(user.getCpf() != null){
-            personaDatabase = this.personaRepository.findByTaxId(user.getCpf());
-        }
             if (user.getCpf() != null) {
                 persona.setPersonaType(
                         user.getCpf()
@@ -85,14 +84,14 @@ public class UserService {
                 persona.setTaxId(user.getCpf());
             }
 
-            if(persona.getPersonaType() != null){
+            if (persona.getPersonaType() != null) {
                 if (persona.getPersonaType().equals(PersonaType.NATURAL_PERSON)) {
                     persona.setName(user.getName().toUpperCase());
                 } else {
                     Company company = new Company();
-                    if(user.getName() != null)
+                    if (user.getName() != null)
                         company.setFantasyName(user.getName().toUpperCase());
-                        company.setCorporateName(user.getName().toUpperCase());
+                    company.setCorporateName(user.getName().toUpperCase());
 
                     persona.setCompanyData(company);
                 }
@@ -109,25 +108,31 @@ public class UserService {
                 persona.getPhones().add(this.create.createPhone(phone, null));
             }
             if (personaDatabase != null) {
-                    user.setPersona(personaDatabase);
-                    this.save(user);
-                    System.out.println("Persona Atualizada ******* : " + persona.getName());
 
-            }else {
+                persona.getContacts().forEach(mail -> mail.setPersona(personaDatabase));
+                persona.getPhones().forEach(ph -> ph.setPersona(personaDatabase));
+                BeanUtils.copyProperties(persona, personaDatabase, "id", "createdAt");
+
+                Persona personaSave = this.personaRepository.save(personaDatabase);
+                user.setPersona(personaSave);
+                this.save(user);
+                System.out.println("Persona Atualizada ******* : " + persona.getName());
+
+            } else {
                 user.setPersona(persona);
                 this.save(user);
                 System.out.println("NOVA PERSONA ********** : " + persona.getName());
-
             }
+        }
         return Boolean.TRUE;
     }
 
     public Boolean createPersonaByPartner(User user) {
 
             Persona persona = new Persona();
-            Partner partnerDatabase = null;
+
             if (user.getPartner().getId() != null) {
-                partnerDatabase = this.partnerRepository.findByPartnerId(user.getId());
+                Partner partnerDatabase = this.partnerRepository.findByPartnerId(user.getId());
 
              if(user.getCpf() != null){
                  persona.setPersonaType(
@@ -135,10 +140,10 @@ public class UserService {
                                  .length() == 11 ? PersonaType.NATURAL_PERSON: PersonaType.LEGAL_PERSON);
                  persona.setTaxId(user.getCpf());
              }
-
                 List<ContactEmail> contactEmailList = new ArrayList<>();
                 if(user.getEmail() != null){
-                    ContactEmail contactEmail = this.create.createEmail(user.getEmail(), this.convert.covertLocalDataTimeToDate(user.getCreatedAt()));
+                    ContactEmail contactEmail = this.create.createEmail(
+                            user.getEmail(), this.convert.covertLocalDataTimeToDate(user.getCreatedAt()));
                     contactEmailList.add(contactEmail);
                     persona.setContacts(contactEmailList);
                 }
@@ -148,33 +153,21 @@ public class UserService {
                     Phone phone = new Phone();
                     phone.setNumber(user.getTelephone());
                     phone.setIsWhatsApp(Boolean.FALSE);
-                    PersonaPhone personaPhone = this.create.createPhone(phone, this.convert.covertLocalDataTimeToDate(user.getCreatedAt()));
+                    PersonaPhone personaPhone = this.create.createPhone(
+                            phone, this.convert.covertLocalDataTimeToDate(user.getCreatedAt()));
                     personaPhoneList.add(personaPhone);
                     persona.setPhones(personaPhoneList);
                 }
                 if(partnerDatabase != null){
-                    if (partnerDatabase.getPersona().getPersonaType().equals(PersonaType.NATURAL_PERSON)) {
-                        partnerDatabase.getPersona().setName(user.getName().toUpperCase());
-                    }
-                    if (partnerDatabase.getPersona().getPersonaType().equals(PersonaType.LEGAL_PERSON)) {
-                        partnerDatabase.getPersona().getCompanyData().setFantasyName(user.getName().toUpperCase());
-                        partnerDatabase.getPersona().getCompanyData().setCorporateName(user.getName().toUpperCase());
-                    }
-                    if(!contactEmailList.isEmpty()
-                            && this.existsEntity.verifyEmail(contactEmailList, partnerDatabase.getPersona().getId())
-                            .equals(Boolean.FALSE)){
 
-                        System.out.println("-----------EMAIL DIFERENTE ADICIONADO-----------");
-                        partnerDatabase.getPersona().getContacts().addAll(contactEmailList);
-                    }
+                    persona.getContacts().forEach(mail -> mail.setPersona(partnerDatabase.getPersona()));
+                    persona.getPhones().forEach(ph -> ph.setPersona(partnerDatabase.getPersona()));
+                    BeanUtils.copyProperties(persona, partnerDatabase.getPersona(), "id", "createdAt");
 
-                    if(!personaPhoneList.isEmpty()
-                            && this.existsEntity.verifyPhone(personaPhoneList, partnerDatabase.getPersona().getId())
-                            .equals(Boolean.FALSE)){
-                        System.out.println("-----------PHONE DIFERENTE ADICIONADO-----------");
-                        partnerDatabase.getPersona().getPhones().addAll(personaPhoneList);
-                    }
-
+                    Persona personaSave = this.personaRepository.save(partnerDatabase.getPersona());
+                    user.setPersona(personaSave);
+                    this.save(user);
+                    System.out.println("Persona Atualizada ******* : " + persona.getName());
 
                     user.setPersona(partnerDatabase.getPersona());
                     this.save(user);
@@ -190,13 +183,13 @@ public class UserService {
     public Boolean createPersonaByInvestor(User user) {
 
         Persona persona = new Persona();
-        Investor investDatabase = null;
         if (user.getInvestor().getId() != null) {
-            investDatabase = this.investorRepository.findByInvestorId(user.getId());
+            Investor investDatabase = this.investorRepository.findByInvestorId(user.getId());
 
             List<ContactEmail> contactEmailList = new ArrayList<>();
             if(user.getEmail() != null){
-                ContactEmail contactEmail = this.create.createEmail(user.getEmail(), this.convert.covertLocalDataTimeToDate(user.getCreatedAt()));
+                ContactEmail contactEmail = this.create.createEmail(
+                        user.getEmail(), this.convert.covertLocalDataTimeToDate(user.getCreatedAt()));
                 contactEmailList.add(contactEmail);
                 persona.setContacts(contactEmailList);
             }
@@ -206,32 +199,20 @@ public class UserService {
                 Phone phone = new Phone();
                 phone.setNumber(user.getTelephone());
                 phone.setIsWhatsApp(Boolean.FALSE);
-                PersonaPhone personaPhone = this.create.createPhone(phone, this.convert.covertLocalDataTimeToDate(user.getCreatedAt()));
+                PersonaPhone personaPhone = this.create.createPhone(
+                        phone, this.convert.covertLocalDataTimeToDate(user.getCreatedAt()));
                 personaPhoneList.add(personaPhone);
                 persona.setPhones(personaPhoneList);
             }
             if(investDatabase != null){
 
-                if (investDatabase.getPersona().getPersonaType().equals(PersonaType.LEGAL_PERSON)) {
-                    investDatabase.getPersona().getCompanyData().setFantasyName(user.getName().toUpperCase());
-                    investDatabase.getPersona().getCompanyData().setCorporateName(user.getName().toUpperCase());
-                }
+                persona.getContacts().forEach(mail -> mail.setPersona(investDatabase.getPersona()));
+                persona.getPhones().forEach(ph -> ph.setPersona(investDatabase.getPersona()));
+                BeanUtils.copyProperties(persona, investDatabase.getPersona(), "id", "createdAt");
 
-                if(this.existsEntity.verifyEmail(persona.getContacts(), investDatabase.getPersona().getId())
-                        .equals(Boolean.FALSE)){
+                Persona personaSave = this.personaRepository.save(investDatabase.getPersona());
 
-                    System.out.println("-----------EMAIL DIFERENTE ADICIONADO-----------");
-                    investDatabase.getPersona().getContacts().addAll(persona.getContacts());
-                }
-
-                if(this.existsEntity.verifyPhone(persona.getPhones(), investDatabase.getPersona().getId())
-                        .equals(Boolean.FALSE)){
-                    System.out.println("-----------PHONE DIFERENTE ADICIONADO-----------");
-                    investDatabase.getPersona().getPhones().addAll(persona.getPhones());
-
-                }
-
-                user.setPersona( investDatabase.getPersona());
+                user.setPersona(personaSave);
                 this.save(user);
             }else{
                 System.out.println("CREATE NEW PERSONA ** : " + persona.getName());

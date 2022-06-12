@@ -41,9 +41,9 @@ public class LeadProposalDocumentService {
             if(document.getLeadProposal()  != null && document.getLeadProposal().getProposal() != null){
 
                 ProposalProponent proposalProponent  =
-                        this.proposalProponentRepository.findAllByProposalByLeadProposal(
-                                document.getLeadProposal().getId(),
-                                document.getLeadProposal().getProposal().getId());
+                    this.proposalProponentRepository.findAllByProposalByLeadProposal(
+                    document.getLeadProposal().getId(),
+                    document.getLeadProposal().getProposal().getId());
 
                 if(proposalProponent != null){
                     document.setProponent(proposalProponent);
@@ -51,7 +51,6 @@ public class LeadProposalDocumentService {
                     System.out.println("## ID ## " + document.getLeadProposal().getId()
                             + " ### DOCUMENT UPDATED " + document.getProponent().getPersona().getName());
                     System.out.println();
-
                 }else{
                     System.out.println("### Documento não referenciado " + index++);
                 }
