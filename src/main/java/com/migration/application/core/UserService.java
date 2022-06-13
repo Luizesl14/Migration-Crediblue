@@ -108,11 +108,15 @@ public class UserService {
             if (personaDatabase != null) {
 
                 if (personaDatabase.getPersonaType().equals(PersonaType.NATURAL_PERSON)) {
+                    if(persona.getName() != null)
                     personaDatabase.setName(persona.getName().toUpperCase());
                 }
                 if (personaDatabase.getPersonaType().equals(PersonaType.LEGAL_PERSON)) {
-                    personaDatabase.getCompanyData().setFantasyName(persona.getName().toUpperCase());
-                    personaDatabase.getCompanyData().setCorporateName(persona.getName().toUpperCase());
+                    if(persona.getName() != null){
+                        personaDatabase.getCompanyData().setFantasyName(persona.getName().toUpperCase());
+                        personaDatabase.getCompanyData().setCorporateName(persona.getName().toUpperCase());
+                    }
+
                 }
 
                 if( this.existsEntity.verifyEmail(personaDatabase.getContacts(), persona.getContacts())
@@ -178,8 +182,11 @@ public class UserService {
                         partnerDatabase.getPersona().setName(persona.getName().toUpperCase());
                     }
                     if (partnerDatabase.getPersona().getPersonaType().equals(PersonaType.LEGAL_PERSON)) {
-                        partnerDatabase.getPersona().getCompanyData().setFantasyName(persona.getName().toUpperCase());
-                        partnerDatabase.getPersona().getCompanyData().setCorporateName(persona.getName().toUpperCase());
+                        if(persona.getName() != null){
+                            partnerDatabase.getPersona().getCompanyData().setFantasyName(persona.getName().toUpperCase());
+                            partnerDatabase.getPersona().getCompanyData().setCorporateName(persona.getName().toUpperCase());
+                        }
+
                     }
 
                     if( this.existsEntity.verifyEmail(partnerDatabase.getPersona().getContacts(), persona.getContacts())
