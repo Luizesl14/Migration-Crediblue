@@ -96,13 +96,34 @@ public class FinderService {
                 }
                 if(personaDatabase != null){
 
-                    persona.getBankAccounts().forEach(bk-> bk.setPersona(personaDatabase));
-                    persona.getAddresses().forEach(adr-> adr.setPersona(personaDatabase));
-                    persona.getContacts().forEach(mail-> mail.setPersona(personaDatabase));
-                    persona.getPhones().forEach(ph-> ph.setPersona(personaDatabase));
+                    if (personaDatabase.getPersonaType().equals(PersonaType.NATURAL_PERSON)) {
+                        personaDatabase.setName(finder.getName().toUpperCase());
+                    }
+                    if (personaDatabase.getPersonaType().equals(PersonaType.LEGAL_PERSON)) {
+                        personaDatabase.getCompanyData().setFantasyName(finder.getName().toUpperCase());
+                        personaDatabase.getCompanyData().setCorporateName(finder.getName().toUpperCase());
+                    }
 
-                    BeanUtils.copyProperties(persona, personaDatabase, "id", "createdAt");
+                    if(!personaAddressList.isEmpty()
+                            && this.existsEntity.verifyAddress(personaDatabase.getAddresses(), personaAddressList)
+                            .equals(Boolean.FALSE)){
+                        System.out.println("-----------ADDRESS DIFERENTE ADICIONADO-----------");
+                        personaDatabase.getAddresses().addAll(personaAddressList);
+                    }
+                    if(!contactEmailList.isEmpty()
+                            && this.existsEntity.verifyEmail(personaDatabase.getContacts(), contactEmailList)
+                            .equals(Boolean.FALSE)){
 
+                        System.out.println("-----------EMAIL DIFERENTE ADICIONADO-----------");
+                        personaDatabase.getContacts().addAll(contactEmailList);
+                    }
+
+                    if(!personaPhoneList.isEmpty()
+                            && this.existsEntity.verifyPhone(personaDatabase.getPhones(),personaPhoneList )
+                            .equals(Boolean.FALSE)){
+                        System.out.println("-----------PHONE DIFERENTE ADICIONADO-----------");
+                        personaDatabase.getPhones().addAll(personaPhoneList);
+                    }
                     finder.setPersona(personaDatabase);
                     this.finderRespository.save(finder);
                     System.out.println("##### FINDER JA EXISTENTE : " + indexDatabase++);

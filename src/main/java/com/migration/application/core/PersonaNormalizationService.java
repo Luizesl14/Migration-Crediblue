@@ -2,19 +2,13 @@ package com.migration.application.core;
 
 import com.migration.application.shared.ConvertLocalDataTime;
 import com.migration.application.shared.CreateObject;
-import com.migration.domain.LeadProposal;
-import com.migration.domain.Proposal;
 import com.migration.domain.ProposalProponent;
-import com.migration.domain.enums.MaritalStatus;
 import com.migration.domain.enums.PersonaType;
 import com.migration.domain.enums.ProponentType;
-import com.migration.domain.enums.TypeRegimeCompanion;
 import com.migration.domain.persona.Persona;
 import com.migration.domain.persona.aggregation.*;
-import com.migration.infrastructure.IPersonaDocumentRepository;
 import com.migration.infrastructure.IPersonaRepository;
 import com.migration.infrastructure.IProposalProponentRepository;
-import com.migration.infrastructure.IProposalRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,8 +16,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 
@@ -78,21 +70,18 @@ public class PersonaNormalizationService {
 
 
 
-    public void findAll() {
-//        List<Persona> oldPersonas = this.personaRepository.findAll();
-//        System.out.println("Quantidade de Old - Personas do banco: " + oldPersonas.size());
-//
-//        this.createProponent(oldPersonas);
+    public void start() {
+//        this.createProponent();
 //        this.documentService.findAll();
 //        this.leadProposalService.findAll();
 //        this.leadProposalDocumentService.findAll();
-//        this.normalization(oldPersonas);
+//        this.updatePersonas();
 //        this.updatePersonaType();
 //        this.normalizedProponent();
-        this.companionService.createCompanion();
-        this.leadService.findAll();
-        this.simulationService.findAll();
-        this.partnerService.findAll();
+//        this.companionService.createCompanion();
+//        this.leadService.findAll();
+//        this.simulationService.findAll();
+//        this.partnerService.findAll();
         this.finderService.findAll();
         this.investorService.findAll();
         this.userService.findAll();
@@ -100,7 +89,9 @@ public class PersonaNormalizationService {
 
     }
 
-    public void createProponent(List<Persona> proponents){
+    public void createProponent(){
+        List<Persona> proponents = this.personaRepository.findAll();
+        System.out.println("Quantidade de Old - Personas do banco: " + proponents.size());
         int index = 0;
         List<ProposalProponent> proposalProponents = new ArrayList<>();
         for (Persona persona: proponents) {
@@ -133,18 +124,15 @@ public class PersonaNormalizationService {
         this.proposalProponentRepository.saveAll(proposalProponents);
     }
 
-    public  Boolean normalization(List<Persona> oldPersonas){
-        List<Persona> notRepeatedPersonas = oldPersonas.stream().distinct().collect(Collectors.toList());
-        this.updatePersonas(notRepeatedPersonas);
-        return  Boolean.TRUE;
-    }
 
-    public Boolean updatePersonas (List<Persona> oldPersonas) {
-        System.out.println(" ## QUANTIDADE DE PERSONAS NORMALIZADOS ##: " + oldPersonas.size());
+    public Boolean updatePersonas() {
+        List<Persona> oldPersonas = this.personaRepository.findAll();
+        List<Persona> notRepeatedPersonas = oldPersonas.stream().distinct().collect(Collectors.toList());
+        System.out.println(" ## QUANTIDADE DE PERSONAS NORMALIZADOS ##: " + notRepeatedPersonas.size());
 
         List<Persona> personas = new ArrayList<>();
         int index = 0;
-        for (Persona oldPersona: oldPersonas) {
+        for (Persona oldPersona: notRepeatedPersonas) {
               if(oldPersona.getTaxId() == null){
                   if(oldPersona.getProponentType() ==  null)
                       oldPersona.setProponentType(ProponentType.COMPANY_PARTNER);

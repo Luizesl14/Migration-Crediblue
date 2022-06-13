@@ -2,6 +2,7 @@ package com.migration.application.core;
 
 import com.migration.application.shared.ConvertLocalDataTime;
 import com.migration.application.shared.CreateObject;
+import com.migration.application.shared.ExistsEntity;
 import com.migration.domain.Finder;
 import com.migration.domain.Investor;
 import com.migration.domain.enums.PersonaType;
@@ -35,6 +36,9 @@ public class InvestorService {
 
     @Autowired
     private ConvertLocalDataTime convert;
+
+    @Autowired
+    private ExistsEntity existsEntity;
 
 
     public Boolean findAll() {
@@ -78,10 +82,19 @@ public class InvestorService {
                     persona.setPhones(personaPhoneList);
                 }
                 if(personaDatabase != null){
-                    persona.getContacts().forEach(mail-> mail.setPersona(personaDatabase));
-                    persona.getPhones().forEach(ph-> ph.setPersona(personaDatabase));
 
-                    BeanUtils.copyProperties(persona, personaDatabase, "id", "createdAt");
+                    if(this.existsEntity.verifyEmail(personaDatabase.getContacts(), persona.getContacts())
+                            .equals(Boolean.FALSE)){
+
+                        System.out.println("-----------EMAIL DIFERENTE ADICIONADO-----------");
+                        personaDatabase.getContacts().addAll(persona.getContacts());
+                    }
+
+                    if( this.existsEntity.verifyPhone(personaDatabase.getPhones(),persona.getPhones())
+                            .equals(Boolean.FALSE)){
+                        System.out.println("-----------PHONE DIFERENTE ADICIONADO-----------");
+                        personaDatabase.getPhones().addAll(persona.getPhones());
+                    }
                     investor.setPersona(personaDatabase);
                     this.save(investor);
                 }else{
