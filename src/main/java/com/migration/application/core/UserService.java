@@ -174,6 +174,7 @@ public class UserService {
                 if(partnerDatabase != null){
 
                     if(partnerDatabase.getPersona().getPersonaType().equals(PersonaType.NATURAL_PERSON)) {
+                        if(persona.getName() != null)
                         partnerDatabase.getPersona().setName(persona.getName().toUpperCase());
                     }
                     if (partnerDatabase.getPersona().getPersonaType().equals(PersonaType.LEGAL_PERSON)) {
