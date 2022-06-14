@@ -74,6 +74,7 @@ public class PartnerService {
     public Boolean createPersona (List<Partner> partnerNormalized){
 
         int indexDatabase = 0, indexNew = 0;
+        List<Partner> partnerList = new ArrayList<>();
         for (Partner partner: partnerNormalized) {
             Persona persona = this.create.createPersona(partner);
 
@@ -86,41 +87,39 @@ public class PartnerService {
                         personaDatabase.getCompanyData().setFantasyName(partner.getName().toUpperCase());
                         personaDatabase.getCompanyData().setCorporateName(partner.getName().toUpperCase());
                     }
-                    if(this.existsEntity.verifyAccount( persona.getBankAccounts(), personaDatabase.getId())
+                    if(this.existsEntity.verifyAccount(personaDatabase.getBankAccounts(), persona.getBankAccounts())
                             .equals(Boolean.FALSE)){
-
-                        System.out.println("-----------ACCOUT DIFERENTE ADICIONADO-----------");
                         personaDatabase.getBankAccounts().addAll(persona.getBankAccounts());
+                        System.out.println("-----------ACCOUNT DIFERENTE ADICIONADO PARTNER -----------");
                     }
-                    if(this.existsEntity.verifyAddress(persona.getAddresses(), personaDatabase.getId())
+                    if(this.existsEntity.verifyAddress(personaDatabase.getAddresses(), persona.getAddresses())
                             .equals(Boolean.FALSE)){
-
-                        System.out.println("-----------ADDRESS DIFERENTE ADICIONADO-----------");
                         personaDatabase.getAddresses().addAll(persona.getAddresses());
+                        System.out.println("-----------ADDRESS DIFERENTE ADICIONADO PARTNER -----------");
                     }
-                    if(this.existsEntity.verifyEmail(persona.getContacts(), personaDatabase.getId())
+                    if(this.existsEntity.verifyEmail(personaDatabase.getContacts(), persona.getContacts())
                             .equals(Boolean.FALSE)){
-
-                        System.out.println("-----------EMAIL DIFERENTE ADICIONADO-----------");
                         personaDatabase.getContacts().addAll(persona.getContacts());
+                        System.out.println("-----------EMAIL DIFERENTE ADICIONADO PARTNER -----------");
                     }
 
-                    if(this.existsEntity.verifyPhone(persona.getPhones(), personaDatabase.getId())
+                    if(this.existsEntity.verifyPhone(personaDatabase.getPhones(),persona.getPhones())
                             .equals(Boolean.FALSE)){
-                        System.out.println("-----------PHONE DIFERENTE ADICIONADO-----------");
                         personaDatabase.getPhones().addAll(persona.getPhones());
-                    }
+                        System.out.println("-----------PHONE DIFERENTE ADICIONADO PARTNER -----------");
 
+                    }
                     partner.setPersona(personaDatabase);
-                    this.partnerRepository.save(partner);
+                    partnerList.add(partner);
                     System.out.println("INDEX PERSONA JA EXISTENTE NO BANCO: " +  indexDatabase++);
                 }else{
                     partner.setPersona(persona);
-                    this.partnerRepository.save(partner);
+                    partnerList.add(partner);
                     System.out.println("INDEX PERSONA NOVO: " +  indexNew++);
                     System.out.println();
                 }
             }
+        this.partnerRepository.saveAll(partnerList);
         return Boolean.TRUE;
     }
 

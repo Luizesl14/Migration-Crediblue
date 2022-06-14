@@ -17,73 +17,54 @@ import java.util.List;
 @Component
 public class ExistsEntity {
 
-    @Autowired
-    private IPersonaAccountRepository personaAccountRepository;
 
-    @Autowired
-    private IPersonaAddressRepository personaAddressRepository;
+    public Boolean verifyAccount(List<PersonaAccounts> personaAccountsDatabase, List<PersonaAccounts> personaAccounts) {
+        boolean result;
+        result = personaAccountsDatabase
+                .stream()
+                .filter(account->
+                        account.getAccount().getFinancialInstitutionCode() != null
+                                && account.getAccount().getAccountNumber() != null
+                                && account.getAccount().getAccountBranch() != null)
+                .anyMatch(account-> personaAccounts
+                        .stream()
+                        .anyMatch(newAccount-> newAccount.getAccount().getFinancialInstitutionCode()
+                                .equals(account.getAccount().getFinancialInstitutionCode())
+                                && newAccount.getAccount().getAccountNumber().equals(account.getAccount().getAccountNumber())
+                                && newAccount.getAccount().getAccountBranch().equals(account.getAccount().getAccountBranch())));
 
-    @Autowired
-    private IContactEmailRepository contactEmailRepository;
+        return result;
 
-    @Autowired
-    private IPersonaPhoneRepository personaPhoneRepository;
-
-
-    public Boolean verifyAccount(List<PersonaAccounts> personaAccounts, Integer personaId) {
-        if(!personaAccounts.isEmpty()){
-            PersonaAccounts accounts =
-                    personaAccounts.stream().filter(a-> a.getAccount().getFinancialInstitutionCode() != null).findFirst().get();
-
-            List<PersonaAccounts>  personaDatabase = this.personaAccountRepository.existsAccount(
-                    accounts.getAccount().getFinancialInstitutionCode(), accounts.getAccount().getAccountBranch(),
-                    accounts.getAccount().getAccountNumber(), personaId);
-            if(!personaDatabase.isEmpty())
-                return Boolean.TRUE;
-        }
-
-
-
-      return Boolean.FALSE;
     }
 
-    public Boolean verifyAddress(List<PersonaAddress> personaAddresses, Integer personaId) {
-
-        if(!personaAddresses.isEmpty()){
-            PersonaAddress address =
-                    personaAddresses.stream().filter(a-> a.getData().getCep() != null).findFirst().get();
-            List<PersonaAddress> personaAddressDatabase = this.personaAddressRepository.existeAddress(
-                    address.getData().getCep(), address.getData().getStreet(), address.getData().getNumber(), personaId);
-            if(!personaAddressDatabase.isEmpty())
-                return Boolean.TRUE;
-        }
-
-        return Boolean.FALSE;
+    public Boolean verifyAddress(List<PersonaAddress> personaAddressesDatabase, List<PersonaAddress> personaAddresses) {
+        boolean result;
+        result = personaAddressesDatabase
+                .stream()
+                .anyMatch(address-> personaAddresses
+                        .stream()
+                        .anyMatch(newAddress-> newAddress.getData().getCep().equals(address.getData().getCep())));
+        return result;
     }
 
-    public Boolean verifyEmail(List<ContactEmail> contactEmails, Integer personaId) {
-        if(!contactEmails.isEmpty()){
-            ContactEmail contactEmail =
-                    contactEmails.stream().filter(c-> c.getEmail() != null).findFirst().get();
-            List<ContactEmail> contactEmailDatabase =
-                    this.contactEmailRepository.findContactEmailsByEmail(contactEmail.getEmail(),personaId);
-            if(!contactEmailDatabase.isEmpty())
-                return Boolean.TRUE;
-        }
-
-        return Boolean.FALSE;
+    public Boolean verifyEmail(List<ContactEmail> contactEmailsDatabase, List<ContactEmail> contactEmails) {
+        boolean result;
+        result = contactEmailsDatabase
+                .stream()
+                .anyMatch(email-> contactEmails
+                        .stream()
+                        .anyMatch(newEmail-> newEmail.getEmail().equals(email.getEmail())));
+        return result;
     }
 
-    public Boolean verifyPhone(List<PersonaPhone> personaPhones, Integer personaId) {
-
-        if(!personaPhones.isEmpty()){
-            PersonaPhone phone =
-                    personaPhones.stream().filter(p-> p.getPhone().getNumber() != null).findFirst().get();
-            List<PersonaPhone> personaPhoneDatabase = this.personaPhoneRepository.existsPhone(phone.getPhone().getNumber(), personaId);
-            if(!personaPhoneDatabase.isEmpty())
-                return Boolean.TRUE;
-        }
-
-        return Boolean.FALSE;
+    public Boolean verifyPhone(List<PersonaPhone> personaPhonesDatabase, List<PersonaPhone> personaPhones) {
+        boolean result;
+        result = personaPhonesDatabase
+                .stream()
+                .anyMatch(phone-> personaPhones
+                        .stream()
+                        .anyMatch(newPhone-> newPhone.getPhone().getNumber().equals(phone.getPhone().getNumber())));
+        return result;
     }
+
 }

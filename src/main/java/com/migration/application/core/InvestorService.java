@@ -2,6 +2,7 @@ package com.migration.application.core;
 
 import com.migration.application.shared.ConvertLocalDataTime;
 import com.migration.application.shared.CreateObject;
+import com.migration.application.shared.ExistsEntity;
 import com.migration.domain.Finder;
 import com.migration.domain.Investor;
 import com.migration.domain.enums.PersonaType;
@@ -36,6 +37,9 @@ public class InvestorService {
     @Autowired
     private ConvertLocalDataTime convert;
 
+    @Autowired
+    private ExistsEntity existsEntity;
+
 
     public Boolean findAll() {
         List<Investor> investors = this.investorRepository.findAll();
@@ -48,14 +52,8 @@ public class InvestorService {
     public Boolean createPersona (List<Investor> allInvestor){
         for (Investor investor: allInvestor) {
             Persona persona = new Persona();
-            if(investor != null){
-                Persona personaDatabase = null;
-                if(investor.getCnpj() != null){
-                    personaDatabase  = this.personaRepository.findByTaxId(investor.getCnpj());
-                    if(personaDatabase != null){
-                            System.out.println("Persona já existe no banco ** PJ ** : " + personaDatabase.getCompanyData().getCorporateName());
-                    }
-                }
+            if(investor.getCnpj() != null){
+                Persona personaDatabase  = this.personaRepository.findByTaxId(investor.getCnpj());
                 persona.setPersonaType(PersonaType.LEGAL_PERSON);
                 persona.setTaxId(investor.getCnpj());
 
@@ -67,16 +65,15 @@ public class InvestorService {
                     company.setCorporateName(investor.getName().toUpperCase());
                     persona.setCompanyData(company);
                 }
-
-                List<ContactEmail> contactEmailList = new ArrayList<>();
                 if(investor.getEmail() != null){
-                    ContactEmail contactEmail = this.create.createEmail(investor.getEmail(), this.convert.covertLocalDataTimeToDate(investor.getCreatedAt()));
+                    List<ContactEmail> contactEmailList = new ArrayList<>();
+                    ContactEmail contactEmail = this.create.createEmail(
+                            investor.getEmail(), this.convert.covertLocalDataTimeToDate(investor.getCreatedAt()));
                     contactEmailList.add(contactEmail);
                     persona.setContacts(contactEmailList);
                 }
-
-                List<PersonaPhone> personaPhoneList = new ArrayList<>();
                 if(investor.getTelephone() != null){
+                    List<PersonaPhone> personaPhoneList = new ArrayList<>();
                     Phone phone = new Phone();
                     phone.setNumber(investor.getTelephone());
                     phone.setIsWhatsApp(Boolean.FALSE);
@@ -85,12 +82,19 @@ public class InvestorService {
                     persona.setPhones(personaPhoneList);
                 }
                 if(personaDatabase != null){
-                    if(!contactEmailList.isEmpty())
-                        personaDatabase.getContacts().addAll(contactEmailList);
 
-                    if(!personaPhoneList.isEmpty())
-                        personaDatabase.getPhones().addAll(personaPhoneList);
+                    if(this.existsEntity.verifyEmail(personaDatabase.getContacts(), persona.getContacts())
+                            .equals(Boolean.FALSE)){
 
+                        System.out.println("-----------EMAIL DIFERENTE ADICIONADO-----------");
+                        personaDatabase.getContacts().addAll(persona.getContacts());
+                    }
+
+                    if( this.existsEntity.verifyPhone(personaDatabase.getPhones(),persona.getPhones())
+                            .equals(Boolean.FALSE)){
+                        System.out.println("-----------PHONE DIFERENTE ADICIONADO-----------");
+                        personaDatabase.getPhones().addAll(persona.getPhones());
+                    }
                     investor.setPersona(personaDatabase);
                     this.save(investor);
                 }else{
@@ -98,11 +102,9 @@ public class InvestorService {
                     this.save(investor);
                 }
             }
-
         }
         return Boolean.TRUE;
     }
-
 
     public void save (Investor investor) {
         Persona persona = this.investorRepository.save(investor).getPersona();

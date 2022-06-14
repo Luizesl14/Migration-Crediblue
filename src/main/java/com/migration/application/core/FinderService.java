@@ -62,29 +62,24 @@ public class FinderService {
         int indexDatabase = 0, indexNew = 0;
         for (Finder finder: finderNormalized) {
             Persona persona = new Persona();
-            if(finder != null){
-                Persona personaDatabase = null;
-                if(finder.getCpf() != null){
-                    personaDatabase  = this.personaRepository.findByTaxId(finder.getCpf());
-                    if(personaDatabase != null){
-                            System.out.println("Persona já existe no banco ** PF ** : " + personaDatabase.getName());
-                    }
-                }
+            if(finder.getCpf() != null){
+
+                Persona  personaDatabase  = this.personaRepository.findByTaxId(finder.getCpf());
                 persona.setPersonaType(PersonaType.NATURAL_PERSON);
                 persona.setTaxId(finder.getCpf());
                 persona.setName(finder.getName().toUpperCase());
 
                 List<PersonaAddress> personaAddressList = new ArrayList<>();
                 if(finder.getAddress() != null){
-                    PersonaAddress personaAddress = this.create.createAddress(finder.getAddress(), finder.getAddress().getCreatedAt(), persona);
+                    PersonaAddress personaAddress = this.create.createAddress(
+                            finder.getAddress(), finder.getAddress().getCreatedAt(), persona);
                     personaAddressList.add(personaAddress);
                     persona.setAddresses(personaAddressList);
-
                 }
-
                 List<ContactEmail> contactEmailList = new ArrayList<>();
                 if(finder.getEmail() != null){
-                    ContactEmail contactEmail = this.create.createEmail(finder.getEmail(), this.convert.covertLocalDataTimeToDate(finder.getCreatedAt()));
+                    ContactEmail contactEmail = this.create.createEmail(
+                            finder.getEmail(), this.convert.covertLocalDataTimeToDate(finder.getCreatedAt()));
                     contactEmailList.add(contactEmail);
                     persona.setContacts(contactEmailList);
                 }
@@ -94,7 +89,8 @@ public class FinderService {
                     Phone phone = new Phone();
                     phone.setNumber(finder.getTelephone());
                     phone.setIsWhatsApp(Boolean.FALSE);
-                    PersonaPhone personaPhone = this.create.createPhone(phone, this.convert.covertLocalDataTimeToDate(finder.getCreatedAt()));
+                    PersonaPhone personaPhone = this.create.createPhone(
+                            phone, this.convert.covertLocalDataTimeToDate(finder.getCreatedAt()));
                     personaPhoneList.add(personaPhone);
                     persona.setPhones(personaPhoneList);
                 }
@@ -109,23 +105,22 @@ public class FinderService {
                     }
 
                     if(!personaAddressList.isEmpty()
-                            && this.existsEntity.verifyAddress(personaAddressList, personaDatabase.getId())
-                            .equals(Boolean.TRUE)){
-
+                            && this.existsEntity.verifyAddress(personaDatabase.getAddresses(), personaAddressList)
+                            .equals(Boolean.FALSE)){
                         System.out.println("-----------ADDRESS DIFERENTE ADICIONADO-----------");
                         personaDatabase.getAddresses().addAll(personaAddressList);
                     }
                     if(!contactEmailList.isEmpty()
-                            && this.existsEntity.verifyEmail(contactEmailList, personaDatabase.getId())
-                            .equals(Boolean.TRUE)){
+                            && this.existsEntity.verifyEmail(personaDatabase.getContacts(), contactEmailList)
+                            .equals(Boolean.FALSE)){
 
                         System.out.println("-----------EMAIL DIFERENTE ADICIONADO-----------");
                         personaDatabase.getContacts().addAll(contactEmailList);
                     }
 
                     if(!personaPhoneList.isEmpty()
-                            && this.existsEntity.verifyPhone(personaPhoneList, personaDatabase.getId())
-                            .equals(Boolean.TRUE)){
+                            && this.existsEntity.verifyPhone(personaDatabase.getPhones(),personaPhoneList )
+                            .equals(Boolean.FALSE)){
                         System.out.println("-----------PHONE DIFERENTE ADICIONADO-----------");
                         personaDatabase.getPhones().addAll(personaPhoneList);
                     }
@@ -137,7 +132,6 @@ public class FinderService {
                     this.finderRespository.save(finder);
                     System.out.println("##### NOVA PERSONA FINDER  : " + indexNew++);
                 }
-
             }
         }
         return Boolean.TRUE;

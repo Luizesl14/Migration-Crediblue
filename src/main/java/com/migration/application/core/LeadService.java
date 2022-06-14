@@ -51,53 +51,48 @@ public class LeadService {
     public Boolean createPersona (List<Lead> leadNormalized){
 
         int indexDatabase = 0 , indexNewPersona = 0;
+        List<Lead> leadList = new ArrayList<>();
         for (Lead lead: leadNormalized) {
             Persona persona = this.create.createPersonaLead(lead);
             Persona personaDatabase = this.personaRepository.findByTaxId(lead.getCpfCnpj());
 
-            if (personaDatabase != null)
-                System.out.println("QUANTIDADE DE PERSONAS:  : " + personaDatabase.getName());
-
             if(personaDatabase != null){
+                if (personaDatabase.getPersonaType().equals(PersonaType.NATURAL_PERSON))
+                    personaDatabase.setName(lead.getName().toUpperCase());
 
-            if (personaDatabase.getPersonaType().equals(PersonaType.NATURAL_PERSON))
-                personaDatabase.setName(lead.getName().toUpperCase());
+                if (personaDatabase.getPersonaType().equals(PersonaType.LEGAL_PERSON)) {
+                    personaDatabase.getCompanyData().setFantasyName(lead.getName().toUpperCase());
+                    personaDatabase.getCompanyData().setCorporateName(lead.getName().toUpperCase());
+                }
+                if(this.existsEntity.verifyAddress(personaDatabase.getAddresses(), persona.getAddresses())
+                        .equals(Boolean.FALSE)){
+                    personaDatabase.getAddresses().addAll(persona.getAddresses());
+                    System.out.println("-----------ADDRESS DIFERENTE ADICIONADO LEAD -----------");
+                }
 
-            if (personaDatabase.getPersonaType().equals(PersonaType.LEGAL_PERSON)) {
-                personaDatabase.getCompanyData().setFantasyName(lead.getName().toUpperCase());
-                personaDatabase.getCompanyData().setCorporateName(lead.getName().toUpperCase());
-            }
-            if(this.existsEntity.verifyAddress(persona.getAddresses(), personaDatabase.getId())
-                    .equals(Boolean.FALSE)){
+                if(this.existsEntity.verifyEmail(personaDatabase.getContacts(), persona.getContacts())
+                        .equals(Boolean.FALSE)){
+                    personaDatabase.getContacts().addAll(persona.getContacts());
+                    System.out.println("-----------EMAIL DIFERENTE ADICIONADO LEAD -----------");
+                }
 
-                System.out.println("-----------ADDRESS DIFERENTE ADICIONADO-----------");
-                personaDatabase.getAddresses().addAll(persona.getAddresses());
-            }
-
-            if(this.existsEntity.verifyEmail(persona.getContacts(), personaDatabase.getId())
-                    .equals(Boolean.FALSE)){
-
-                System.out.println("-----------EMAIL DIFERENTE ADICIONADO-----------");
-                personaDatabase.getContacts().addAll(persona.getContacts());
-            }
-
-            if(this.existsEntity.verifyPhone(persona.getPhones(), personaDatabase.getId())
-                    .equals(Boolean.FALSE)){
-                System.out.println("-----------PHONE DIFERENTE ADICIONADO-----------");
-                personaDatabase.getPhones().addAll(persona.getPhones());
-            }
-
+                if(this.existsEntity.verifyPhone(personaDatabase.getPhones(), persona.getPhones())
+                        .equals(Boolean.FALSE)){
+                    personaDatabase.getPhones().addAll(persona.getPhones());
+                    System.out.println("-----------PHONE DIFERENTE ADICIONADO LEAD -----------");
+                }
 
                 lead.setPersona(personaDatabase);
-                this.leadRepository.save(lead);
-                System.out.println("INDEX PERSONA JÁ EXISTENTE " + indexDatabase++);
+                leadList.add(lead);
+            System.out.println("INDEX PERSONA JÁ EXISTENTE " + indexDatabase++);
 
             }else{
                 lead.setPersona(persona);
-                this.leadRepository.save(lead);
+                leadList.add(lead);
                 System.out.println("INDEX NOVA PERSONA " + indexNewPersona++);
             }
         }
+        this.leadRepository.saveAll(leadList);
         return Boolean.TRUE;
     }
 
