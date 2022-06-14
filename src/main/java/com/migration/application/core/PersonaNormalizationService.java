@@ -2,19 +2,13 @@ package com.migration.application.core;
 
 import com.migration.application.shared.ConvertLocalDataTime;
 import com.migration.application.shared.CreateObject;
-import com.migration.domain.LeadProposal;
-import com.migration.domain.Proposal;
 import com.migration.domain.ProposalProponent;
-import com.migration.domain.enums.MaritalStatus;
 import com.migration.domain.enums.PersonaType;
 import com.migration.domain.enums.ProponentType;
-import com.migration.domain.enums.TypeRegimeCompanion;
 import com.migration.domain.persona.Persona;
 import com.migration.domain.persona.aggregation.*;
-import com.migration.infrastructure.IPersonaDocumentRepository;
 import com.migration.infrastructure.IPersonaRepository;
 import com.migration.infrastructure.IProposalProponentRepository;
-import com.migration.infrastructure.IProposalRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,10 +16,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
-import java.util.Objects;
-import java.util.stream.Collectors;
-
 
 
 @Transactional
@@ -75,6 +65,9 @@ public class PersonaNormalizationService {
     @Autowired
     private PartnerService partnerService;
 
+    @Autowired
+    private Start start;
+
 
 
 
@@ -83,19 +76,20 @@ public class PersonaNormalizationService {
 //        System.out.println("Quantidade de Old - Personas do banco: " + oldPersonas.size());
 //
 //        this.createProponent(oldPersonas);
-////        this.documentService.findAll();
+//        this.documentService.findAll();
 //        this.leadProposalService.findAll();
-////        this.leadProposalDocumentService.findAll();
+//        this.leadProposalDocumentService.findAll();
 //        this.normalization(oldPersonas);
 //        this.updatePersonaType();
 //        this.normalizedProponent();
 //        this.companionService.createCompanion();
 //        this.leadService.findAll();
 //        this.simulationService.findAll();
-        this.partnerService.findAll();
-        this.finderService.findAll();
-        this.investorService.findAll();
-        this.userService.findAll();
+//        this.partnerService.findAll();
+//        this.finderService.findAll();
+//        this.investorService.findAll();
+//        this.userService.findAll();
+        this.start.goThroughProposal();
 
 
     }
