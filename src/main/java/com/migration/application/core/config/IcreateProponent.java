@@ -15,17 +15,11 @@ import java.util.List;
 public interface IcreateProponent {
 
 
-    Boolean notNullAddress(List<PersonaAddress> addresses);
-
-    Boolean notNullAccount(List<PersonaAccounts> accounts);
-
-    Boolean notNullEmail(List<ContactEmail> contactEmails);
-
-    Boolean notNullPhone(List<PersonaPhone> personaPhones);
-
     PersonaType isTaxId(String taxId);
 
     void goThroughProposal();
+
+    void goThroughSimulation();
 
     void checkedLead(Lead lead);
 
@@ -41,16 +35,19 @@ public interface IcreateProponent {
 
     void checkedPersona(Persona persona);
 
+    void normalizedEntityCpfAndCnpjIsNull();
 
-    void updateLeadProposal(LeadProposal leadProposal);
+    void normalizedEntityContainsPerson();
 
-    void updatePartner(Partner partner);
+    Partner updatePartner(Partner partner);
 
-    void updateFinder(Finder finder);
+    Lead updateLead(Lead lead);
 
-    void updateInvestor(Investor investor);
+    Finder updateFinder(Finder finder);
 
-    void updatekedUser(User user);
+    Investor updateInvestor(Investor investor);
+
+    User updatedUser(User user);
 
     void updatePersona(Persona persona);
 

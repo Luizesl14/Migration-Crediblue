@@ -15,10 +15,19 @@ public interface IUserRepository extends JpaRepository<User, Integer> {
     @Query("FROM User u WHERE u.cpf is null")
     List<User> findByUserTaxIdIsNull();
 
+    @Query("FROM User u WHERE u.cpf is null")
+    List<User> findByUserCpfAndCnpjNull();
+
+    @Query("FROM User u WHERE u.persona.taxId =:taxId")
+    User findByUserTaxId(String taxId);
 
 
-    @Query(value = "FROM User u WHERE u.name =:#{#name} AND u.email = :#{#email} " +
-            "AND u.telephone = :#{#telephone} AND (:#{#cpf} IS NULL OR :#{#cpf} = '' OR u.cpf =:#{#cpf}) ")
+
+
+    @Query(value = "FROM User u WHERE (:#{#name} IS NULL OR :#{#name} = '' OR u.name =:#{#name}) " +
+            "AND (:#{#email} IS NULL OR :#{#email} = '' OR u.email =:#{#email}) " +
+            "AND (:#{#telephone} IS NULL OR :#{#telephone} = '' OR u.telephone =:#{#telephone})" +
+            " AND (:#{#cpf} IS NULL OR :#{#cpf} = '' OR u.cpf =:#{#cpf}) ")
     User findPersonaUser(
             @Param("name") String name,
             @Param("email") String email,

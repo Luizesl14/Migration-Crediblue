@@ -9,4 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 public interface IInvestorRepository extends JpaRepository<Investor, Integer> {
     @Query("FROM Investor i WHERE i.id = :id")
     Investor findByInvestorId(Integer id);
+
+    @Query("FROM Investor i WHERE i.persona.taxId = :taxId")
+    Investor findByInvestorTaxId(String taxId);
 }

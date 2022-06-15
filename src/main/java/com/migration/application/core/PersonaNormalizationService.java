@@ -71,16 +71,9 @@ public class PersonaNormalizationService {
 
 
 
-    
+
     public void findAll() {
-//        List<Persona> oldPersonas = this.personaRepository.findAll();
-//        System.out.println("Quantidade de Old - Personas do banco: " + oldPersonas.size());
-//
-//        this.createProponent(oldPersonas);
-//        this.documentService.findAll();
-//        this.leadProposalService.findAll();
-//        this.leadProposalDocumentService.findAll();
-//        this.normalization(oldPersonas);
+
 //        this.createProponent();
 //        this.documentService.findAll();
 //        this.leadProposalService.findAll();

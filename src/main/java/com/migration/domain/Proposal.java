@@ -45,7 +45,6 @@ public class Proposal {
     private List<ProposalProponent> proponents;
 
     @OneToMany
-    @JoinColumn(name = "persona_id")
     private List<Persona> personas;
 
     private Boolean sameAddressWarrantyHome;
