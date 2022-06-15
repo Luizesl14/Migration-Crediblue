@@ -97,56 +97,6 @@ public class Start implements IcreateProponent {
 
 
     @Override
-    public void normalizedEntityCpfAndCnpjIsNull() {
-        List<User> users = this.userRepository.findByUserCpfAndCnpjNull();
-        List<User> usersNomalized = new ArrayList<>();
-        users.parallelStream().forEach(user -> {
-            User userExists = this.userRepository.
-                    findPersonaUser(user.getName(), user.getEmail(),user.getTelephone(),null);
-            if(userExists != null){
-                usersNomalized.add(this.updatedUser(user, null));
-            }
-            if(userExists == null){
-                String token = UUID.randomUUID().toString().toUpperCase(Locale.ROOT);
-                user.setCpf(token.substring(0,8));
-                usersNomalized.add(user);
-            }
-        });
-
-        List<Partner> partners = this.partnerRepository.findByPartnerCpfIsNull();
-        List<Partner> partnersNormalized = new ArrayList<>();
-        partners.parallelStream().forEach(partner -> {
-            Partner partnerExists = this.partnerRepository.
-                    findPersonaPartner(partner.getName(), partner.getEmail(),partner.getTelephone(),null);
-            if(partnerExists != null){
-                partnersNormalized.add(this.updatePartner(partnerExists, partnerExists));
-            }
-            if(partnerExists == null){
-                String token = UUID.randomUUID().toString().toUpperCase(Locale.ROOT);
-                partner.setCpfCnpj(token.substring(0,8));
-                partnersNormalized.add(partner);
-            }
-        });
-
-        this.userRepository.saveAll(usersNomalized);
-        this.partnerRepository.saveAll(partnersNormalized);
-
-        LOGGER.log(Level.INFO, "TOTAL DE USUARIOS NO BANCO {0}", users.size());
-        LOGGER.log(Level.INFO, "TOTAL DE USUARIOS SEM CPF NORMALIZADOS {0}", usersNomalized.size());
-
-        LOGGER.log(Level.INFO, "TOTAL DE PARCEIROS NO BANCO {0}", partners.size());
-        LOGGER.log(Level.INFO, "TOTAL DE PARCEIROS SEM CPF NORMALIZADOS {0}", partnersNormalized.size());
-    }
-
-
-    @Override
-    public PersonaType isTaxId(String taxId) {
-        if(taxId.length() <= 11)
-            return PersonaType.NATURAL_PERSON;
-        return PersonaType.LEGAL_PERSON;
-    }
-
-    @Override
     public void goThroughProposal() {
         List<Proposal> proposals = this.proposalRepository.findAll();
         List<ProposalProponent> proponents = new ArrayList<>();
@@ -176,6 +126,55 @@ public class Start implements IcreateProponent {
         this.normalizedEntityCpfAndCnpjIsNull();
         this.goThroughSimulation();
         this.normalizedEntityContainsPerson();
+    }
+
+    @Override
+    public void normalizedEntityCpfAndCnpjIsNull() {
+        List<User> users = this.userRepository.findByUserCpfAndCnpjNull();
+        List<User> usersNomalized = new ArrayList<>();
+        users.parallelStream().forEach(user -> {
+            User userExists = this.userRepository.
+                    findPersonaUser(user.getName(), user.getEmail(),user.getTelephone(),null);
+            if(userExists != null){
+                usersNomalized.add(this.updatedUser(user, userExists));
+            }
+            if(userExists == null){
+                String token = UUID.randomUUID().toString().toUpperCase(Locale.ROOT);
+                user.setCpf(token.substring(0,8));
+                usersNomalized.add(user);
+            }
+        });
+
+        List<Partner> partners = this.partnerRepository.findByPartnerCpfIsNull();
+        List<Partner> partnersNormalized = new ArrayList<>();
+        partners.parallelStream().forEach(partner -> {
+            Partner partnerExists = this.partnerRepository.
+                    findPersonaPartner(partner.getName(), partner.getEmail(),partner.getTelephone(),null);
+            if(partnerExists != null){
+                partnersNormalized.add(this.updatePartner(partner, partnerExists));
+            }
+            if(partnerExists == null){
+                String token = UUID.randomUUID().toString().toUpperCase(Locale.ROOT);
+                partner.setCpfCnpj(token.substring(0,8));
+                partnersNormalized.add(partner);
+            }
+        });
+
+        this.userRepository.saveAll(usersNomalized);
+        this.partnerRepository.saveAll(partnersNormalized);
+
+        LOGGER.log(Level.INFO, "TOTAL DE USUARIOS NO BANCO {0}", users.size());
+        LOGGER.log(Level.INFO, "TOTAL DE USUARIOS SEM CPF NORMALIZADOS {0}", usersNomalized.size());
+
+        LOGGER.log(Level.INFO, "TOTAL DE PARCEIROS NO BANCO {0}", partners.size());
+        LOGGER.log(Level.INFO, "TOTAL DE PARCEIROS SEM CPF NORMALIZADOS {0}", partnersNormalized.size());
+    }
+
+    @Override
+    public PersonaType isTaxId(String taxId) {
+        if(taxId.length() <= 11)
+            return PersonaType.NATURAL_PERSON;
+        return PersonaType.LEGAL_PERSON;
     }
 
     @Override
