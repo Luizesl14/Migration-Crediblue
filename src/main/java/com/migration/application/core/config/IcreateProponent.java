@@ -39,7 +39,7 @@ public interface IcreateProponent {
 
     void normalizedEntityContainsPerson();
 
-    Partner updatePartner(Partner partner);
+    Partner updatePartner(Partner partner, Partner partnerDatabase);
 
     Lead updateLead(Lead lead);
 
@@ -47,7 +47,7 @@ public interface IcreateProponent {
 
     Investor updateInvestor(Investor investor);
 
-    User updatedUser(User user);
+    User updatedUser(User user, User userDatabse);
 
     void updatePersona(Persona persona);
 

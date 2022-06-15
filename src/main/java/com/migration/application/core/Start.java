@@ -104,7 +104,7 @@ public class Start implements IcreateProponent {
             User userExists = this.userRepository.
                     findPersonaUser(user.getName(), user.getEmail(),user.getTelephone(),null);
             if(userExists != null){
-                usersNomalized.add(this.updatedUser(user));
+                usersNomalized.add(this.updatedUser(user, null));
             }
             if(userExists == null){
                 String token = UUID.randomUUID().toString().toUpperCase(Locale.ROOT);
@@ -119,7 +119,7 @@ public class Start implements IcreateProponent {
             Partner partnerExists = this.partnerRepository.
                     findPersonaPartner(partner.getName(), partner.getEmail(),partner.getTelephone(),null);
             if(partnerExists != null){
-                partnersNormalized.add(this.updatePartner(partnerExists));
+                partnersNormalized.add(this.updatePartner(partnerExists, partnerExists));
             }
             if(partnerExists == null){
                 String token = UUID.randomUUID().toString().toUpperCase(Locale.ROOT);
@@ -199,10 +199,10 @@ public class Start implements IcreateProponent {
     public void normalizedEntityContainsPerson() {
 
         List<Partner> partners = this.partnerRepository.findAll();
-        partners.parallelStream().forEach(this::updatePartner);
+        partners.parallelStream().forEach(p-> this.updatePartner(p, null));
 
         List<User> users = this.userRepository.findAll();
-        users.parallelStream().forEach(this::updatedUser);
+        users.parallelStream().forEach(u-> this.updatedUser(u, null));
 
         List<Finder> finders = this.finderRespository.findAll();
         finders.parallelStream().forEach(this::updateFinder);
@@ -213,43 +213,51 @@ public class Start implements IcreateProponent {
 
 
     @Override
-    public Partner updatePartner(Partner partner) {
-        Partner partnerDatabase = this.partnerRepository.findbyTaxId(partner.getCpfCnpj());
+    public Partner updatePartner(Partner partner, Partner partnerDatabse) {
 
-        if(partnerDatabase != null){
-
-            partnerDatabase.getPersona().setName(
-                    partner.getName() != null ? partner.getName().toUpperCase() : null);
-
-            if(partner.getPersona().getPersonaType().equals(PersonaType.LEGAL_PERSON)){
-                partnerDatabase.getPersona().getCompanyData().setFantasyName(partner.getName().toUpperCase());
-                partnerDatabase.getPersona().getCompanyData().setCorporateName(partner.getName().toUpperCase());
+            Partner partberSaved = null;
+            if(partnerDatabse == null){
+                partberSaved = this.partnerRepository.findbyTaxId(partner.getCpfCnpj());
+            }
+            if(partnerDatabse != null){
+               partberSaved = partnerDatabse;
             }
 
-            if(this.existsEntity.verifyAccount(partner.getPersona().getBankAccounts(), partner.getPersona().getBankAccounts())
-                    .equals(Boolean.FALSE)){
-                partnerDatabase.getPersona().getBankAccounts().addAll(partner.getPersona().getBankAccounts());
+            if(partberSaved != null){
+
+                partberSaved.getPersona().setName(
+                        partner.getName() != null ? partner.getName().toUpperCase() : null);
+
+                if(partner.getPersona().getPersonaType().equals(PersonaType.LEGAL_PERSON)){
+                    partberSaved.getPersona().getCompanyData().setFantasyName(partner.getName().toUpperCase());
+                    partberSaved.getPersona().getCompanyData().setCorporateName(partner.getName().toUpperCase());
+                }
+
+                if(this.existsEntity.verifyAccount(partner.getPersona().getBankAccounts(), partner.getPersona().getBankAccounts())
+                        .equals(Boolean.FALSE)){
+                    partberSaved.getPersona().getBankAccounts().addAll(partner.getPersona().getBankAccounts());
+                }
+                if(this.existsEntity.verifyAddress(partner.getPersona().getAddresses(), partner.getPersona().getAddresses())
+                        .equals(Boolean.FALSE)){
+                    partberSaved.getPersona().getAddresses().addAll(partner.getPersona().getAddresses());
+                }
+                if(this.existsEntity.verifyEmail(partner.getPersona().getContacts(), partner.getPersona().getContacts())
+                        .equals(Boolean.FALSE)){
+                    partberSaved.getPersona().getContacts().addAll(partner.getPersona().getContacts());
+                }
+                if(this.existsEntity.verifyPhone(partner.getPersona().getPhones(),partner.getPersona().getPhones())
+                        .equals(Boolean.FALSE)){
+                    partberSaved.getPersona().getPhones().addAll(partner.getPersona().getPhones());
+                }
+                return this.partnerRepository.save(partberSaved);
             }
-            if(this.existsEntity.verifyAddress(partner.getPersona().getAddresses(), partner.getPersona().getAddresses())
-                    .equals(Boolean.FALSE)){
-                partnerDatabase.getPersona().getAddresses().addAll(partner.getPersona().getAddresses());
+            if(partberSaved == null){
+                Persona createdPartner = this.createdPersona(
+                        null,null, partner, null, null, null, null);
+                partner.setPersona(createdPartner);
+                return this.partnerRepository.save(partner);
             }
-            if(this.existsEntity.verifyEmail(partner.getPersona().getContacts(), partner.getPersona().getContacts())
-                    .equals(Boolean.FALSE)){
-                partnerDatabase.getPersona().getContacts().addAll(partner.getPersona().getContacts());
-            }
-            if(this.existsEntity.verifyPhone(partner.getPersona().getPhones(),partner.getPersona().getPhones())
-                    .equals(Boolean.FALSE)){
-                partnerDatabase.getPersona().getPhones().addAll(partner.getPersona().getPhones());
-            }
-            return this.partnerRepository.save(partnerDatabase);
-        }
-        if(partnerDatabase == null){
-            Persona createdPartner = this.createdPersona(
-                    null,null, partner, null, null, null, null);
-            partner.setPersona(createdPartner);
-            return this.partnerRepository.save(partner);
-        }
+
        return null;
     }
 
@@ -283,7 +291,7 @@ public class Start implements IcreateProponent {
                     .equals(Boolean.FALSE)){
                 leadDatabase.getPersona().getPhones().addAll(lead.getPersona().getPhones());
             }
-            return this.leadRepository.save(leadDatabase);;
+            return this.leadRepository.save(leadDatabase);
         }
         if(leadDatabase == null){
             Persona createdLead = this.createdPersona(
@@ -369,34 +377,41 @@ public class Start implements IcreateProponent {
     }
 
     @Override
-    public User updatedUser(User user) {
-        User userDatabase = this.userRepository.findByUserTaxId(user.getCpf());
+    public User updatedUser(User user,User userDatabse) {
 
-        if(userDatabase != null){
+            User userSaved = null;
+            if(userDatabse == null){
+                 userSaved = this.userRepository.findByUserTaxId(user.getCpf());
+            }
+            if(userDatabse != null){
+                userSaved = userDatabse;
+            }
 
-            userDatabase.getPersona().setName(
-                    userDatabase.getName() != null ? user.getName().toUpperCase() : null);
+            if(userSaved != null){
 
-            if(userDatabase.getPersona().getPersonaType().equals(PersonaType.LEGAL_PERSON)){
-                userDatabase.getPersona().getCompanyData().setFantasyName(user.getName().toUpperCase());
-                userDatabase.getPersona().getCompanyData().setCorporateName(user.getName().toUpperCase());
+                userSaved.getPersona().setName(
+                        userSaved.getName() != null ? user.getName().toUpperCase() : null);
+
+                if(userSaved.getPersona().getPersonaType().equals(PersonaType.LEGAL_PERSON)){
+                    userSaved.getPersona().getCompanyData().setFantasyName(user.getName().toUpperCase());
+                    userSaved.getPersona().getCompanyData().setCorporateName(user.getName().toUpperCase());
+                }
+                if(this.existsEntity.verifyEmail(userSaved.getPersona().getContacts(), user.getPersona().getContacts())
+                        .equals(Boolean.FALSE)){
+                    userSaved.getPersona().getContacts().addAll(user.getPersona().getContacts());
+                }
+                if(this.existsEntity.verifyPhone(userSaved.getPersona().getPhones(),user.getPersona().getPhones())
+                        .equals(Boolean.FALSE)){
+                    userSaved.getPersona().getPhones().addAll(user.getPersona().getPhones());
+                }
+                return this.userRepository.save(userSaved);
             }
-            if(this.existsEntity.verifyEmail(userDatabase.getPersona().getContacts(), user.getPersona().getContacts())
-                    .equals(Boolean.FALSE)){
-                userDatabase.getPersona().getContacts().addAll(user.getPersona().getContacts());
+            if(userSaved == null){
+                Persona createdUser = this.createdPersona(
+                        null,null, null, null, null, user, null);
+                user.setPersona(createdUser);
+                return this.userRepository.save(user);
             }
-            if(this.existsEntity.verifyPhone(userDatabase.getPersona().getPhones(),user.getPersona().getPhones())
-                    .equals(Boolean.FALSE)){
-                userDatabase.getPersona().getPhones().addAll(user.getPersona().getPhones());
-            }
-            return this.userRepository.save(userDatabase);
-        }
-        if(userDatabase == null){
-            Persona createdUser = this.createdPersona(
-                    null,null, null, null, null, user, null);
-            user.setPersona(createdUser);
-            return this.userRepository.save(user);
-        }
        return null;
     }
 
