@@ -10,6 +10,8 @@ import com.migration.domain.persona.Persona;
 public interface IcreateProponent {
 
 
+    void satartApplication();
+
     PersonaType isTaxId(String taxId);
 
     void goThroughProposal();
@@ -46,7 +48,6 @@ public interface IcreateProponent {
 
     void normalizedPersona();
 
-    void updateUserByPartnerAndByInvestor();
 
     void normaizedProponents();
 

@@ -69,99 +69,115 @@ public class Start implements IcreateProponent {
 
     private Persona personaTransient;
 
+
+    @Override
+    public void satartApplication() {
+        this.goThroughProposal();
+        this.normalizedEntityCpfAndCnpjIsNull();
+        this.normalizedPersona();
+        this.normalizedEntityContainsPerson();
+        this.goThroughSimulation();
+        this.createdCompanionByPersona();
+        this.normaizedProponents();
+    }
+
     @Override
     public void goThroughProposal() {
-//        List<Proposal> proposals = this.proposalRepository.findAll();
-//        List<Persona> personasDatabase = this.personaRepository.findAll();
-//        List<LeadProposal> leadProposals = this.leadProposalRepository.findAll();
-//
-//        List<ProposalProponent> proponents = new ArrayList<>();
-//        List<Persona> personas = new ArrayList<>();
-//        List<ProposalProponent> mainProponents = new ArrayList<>();
-//
-//        personasDatabase.forEach(persona -> {
-//            proponents.add(this.createdProponent(persona));
-//        });
-//
-//        leadProposals.forEach(leadProposal -> {
-//            Persona personaCreated = this.createdPersona(
-//                    null, leadProposal,
-//                    null, null, null, null, null);
-//            personaCreated.setLeadProposal(leadProposal);
-//            personaCreated.setMonthlyIncome(leadProposal.getFamilyIncome()
-//                    != null ? leadProposal.getFamilyIncome() : null);
-//            personas.add(personaCreated);
-//        });
-//
-//        personas.forEach(persona -> {
-//            mainProponents.add(this.createdProponent(persona));
-//        });
-//
-//        this.personaRepository.saveAll(personas);
-//        this.proposalProponentRepository.saveAll(proponents);
-//        this.proposalProponentRepository.saveAll(mainProponents);
-//
-//        LOGGER.log(Level.INFO, "TOTAL DE PROPOSAL NO BANCO {0}", proposals.size());
-//        LOGGER.log(Level.INFO, "TOTAL DE PROPONENTS {0}", proponents.size());
-//        LOGGER.log(Level.INFO, "TOTAL DE LEADS PROPOSAL NO BANCO {0}", leadProposals.size());
-//        LOGGER.log(Level.INFO, "TOTAL DE PERSONA CRIADA PARA PROPONENT PRINCIPAL {0}", personas.size());
-//        LOGGER.log(Level.INFO, "TOTAL DE PROPONENTS PRINCIPAIS {0}", mainProponents.size());
-//        System.out.println();
+        List<Proposal> proposals = this.proposalRepository.findAll();
+        List<Persona> personasDatabase = this.personaRepository.findAll();
+        List<LeadProposal> leadProposals = this.leadProposalRepository.findAll();
 
-//        this.normalizedEntityCpfAndCnpjIsNull();
-        this.normalizedPersona();
-//        this.goThroughSimulation();
-//        this.normalizedEntityContainsPerson();
-//        this.updateUserByPartnerAndByInvestor();
-//        this.createdCompanionByPersona();
-//        this.normaizedProponents();
+        List<ProposalProponent> proponents = new ArrayList<>();
+        List<Persona> personas = new ArrayList<>();
+        List<ProposalProponent> mainProponents = new ArrayList<>();
+
+        personasDatabase.forEach(persona -> {
+            proponents.add(this.createdProponent(persona));
+        });
+
+        leadProposals.forEach(leadProposal -> {
+            Persona personaCreated = this.createdPersona(
+                    null, leadProposal,
+                    null, null, null, null, null);
+            personaCreated.setLeadProposal(leadProposal);
+            personas.add(personaCreated);
+        });
+
+        personas.forEach(persona -> {
+            ProposalProponent proponent = this.createdProponent(persona);
+            mainProponents.add(proponent);
+        });
+
+        this.personaRepository.saveAll(personas);
+        this.proposalProponentRepository.saveAll(proponents);
+        this.proposalProponentRepository.saveAll(mainProponents);
+
+        LOGGER.log(Level.INFO, "TOTAL DE PROPOSAL NO BANCO {0}", proposals.size());
+        LOGGER.log(Level.INFO, "TOTAL DE PROPONENTS {0}", proponents.size());
+        LOGGER.log(Level.INFO, "TOTAL DE LEADS PROPOSAL NO BANCO {0}", leadProposals.size());
+        LOGGER.log(Level.INFO, "TOTAL DE PERSONA CRIADA PARA PROPONENT PRINCIPAL {0}", personas.size());
+        LOGGER.log(Level.INFO, "TOTAL DE PROPONENTS PRINCIPAIS {0}", mainProponents.size());
+        System.out.println();
     }
 
     @Transactional
     @Override
     public void normalizedEntityCpfAndCnpjIsNull() {
 
-        List<Partner> partners = this.partnerRepository.findByPartnerCpfIsNull();
-        List<Partner> partnersNormalized = new ArrayList<>();
-
-        partners.forEach(partner -> {
-            Persona personaExists = this.personaRepository.
-                    findPersonaUser(partner.getName(), partner.getEmail(),partner.getTelephone(),null);
-            if(personaExists != null){
-                partnersNormalized.add(this.updatePartner(partner, personaExists));
-            }
-            if(personaExists == null){
-                String token = UUID.randomUUID().toString().toUpperCase(Locale.ROOT);
-                partner.setCpfCnpj(token.substring(0,8));
-                partnersNormalized.add(this.updatePartner(partner, null));
-            }
+        List<User> usersPartner = this.userRepository.findByRoleRole("ADMIN_PARTNER");
+        List<User> usersPartnerNormalized = new ArrayList<>();
+        usersPartner.forEach(user -> {
+            user.setCpf(user.getPartner().getCpfCnpj());
+            usersPartnerNormalized.add(user);
         });
 
-        List<User> users = this.userRepository.findByUserCpfAndCnpjNull();
-        List<User> usersNomalized = new ArrayList<>();
-        users.forEach(user -> {
-            Persona personaExists = this.personaRepository.
-                    findPersonaUser(user.getName(), user.getEmail(),user.getTelephone(),null);
-            if(personaExists != null){
-                usersNomalized.add(this.updatedUser(user, personaExists));
-            }
-            if(personaExists == null){
-                String token = UUID.randomUUID().toString().toUpperCase(Locale.ROOT);
-                user.setCpf(token.substring(0,8));
-                usersNomalized.add(this.updatedUser(user, null));
-            }
+        List<User> usersInvestor = this.userRepository.findByRoleRole("INVESTOR");
+        List<User> usersInvestorNormalized = new ArrayList<>();
+        usersInvestor.forEach(user -> {
+            user.setCpf(user.getInvestor().getCnpj());
+            usersInvestorNormalized.add(user);
         });
 
-        this.userRepository.saveAll(usersNomalized);
-        this.partnerRepository.saveAll(partnersNormalized);
+        List<User> usersNull = this.userRepository.findByUserCpfNull();
+        List<User> usersNullNormalized = new ArrayList<>();
+        usersNull.forEach(user -> {
+            String token = UUID.randomUUID().toString().toUpperCase(Locale.ROOT);
+            user.setCpf(token.substring(0,8));
+            usersNullNormalized.add(user);
+        });
 
-        LOGGER.log(Level.INFO, "TOTAL DE USUARIOS NO BANCO {0}", users.size());
-        LOGGER.log(Level.INFO, "TOTAL DE USUARIOS SEM CPF NORMALIZADOS {0}", usersNomalized.size());
+        List<User> usersIsEmpty = this.userRepository.findByUserIsEmpity();
+        List<User> usersIsEmptyNormalized = new ArrayList<>();
+        usersIsEmpty.forEach(user -> {
+            String token = UUID.randomUUID().toString().toUpperCase(Locale.ROOT);
+            user.setCpf(token.substring(0,8));
+            usersIsEmptyNormalized.add(user);
+        });
 
-        LOGGER.log(Level.INFO, "TOTAL DE PARCEIROS NO BANCO {0}", partners.size());
-        LOGGER.log(Level.INFO, "TOTAL DE PARCEIROS SEM CPF NORMALIZADOS {0}", partnersNormalized.size());
-        System.out.println();
+
+        List<Partner> partnerNull = this.partnerRepository.findByPartnerTaxIdIsNull();
+        List<Partner> partnerNullNormalized = new ArrayList<>();
+
+        partnerNull.forEach(partner -> {
+            String token = UUID.randomUUID().toString().toUpperCase(Locale.ROOT);
+            partner.setCpfCnpj(token.substring(0,8));
+            partnerNullNormalized.add(partner);
+        });
+
+        this.userRepository.saveAll(usersPartnerNormalized);
+        this.userRepository.saveAll(usersInvestorNormalized);
+        this.userRepository.saveAll(usersNullNormalized);
+        this.userRepository.saveAll(usersIsEmptyNormalized);
+        this.partnerRepository.saveAll(partnerNullNormalized);
+
+        LOGGER.log(Level.INFO, "TOTAL DE USUARIOS NORMALIZADOS NO BANCO {0}", usersPartner.size());
+        LOGGER.log(Level.INFO, "TOTAL DE USUARIOS DO PARCEIRO NORMALIZADOS {0}", usersPartnerNormalized.size());
+
+        LOGGER.log(Level.INFO, "TOTAL DE USUARIOS DO INVESTIDOR NO BANCO {0}", usersInvestor.size());
+        LOGGER.log(Level.INFO, "TOTAL DE USUARIOS  INVESTIDOR  NORMALIZADOS {0}", usersInvestorNormalized.size());
+
     }
+
 
     @Override
     public PersonaType isTaxId(String taxId) {
@@ -171,52 +187,24 @@ public class Start implements IcreateProponent {
     }
 
     @Override
-    public void goThroughSimulation() {
-        List<Simulation> simulations = this.simulatonRepository.findAll();
-        List<Simulation> normalizedSimulation = new ArrayList<>();
-        simulations.forEach(simulation -> {
-            Persona personaExists = this.personaRepository.
-                    findAllByTaxId(simulation.getLead().getCpfCnpj());
+    public void     normalizedEntityContainsPerson() {
 
+
+        List<User> users = this.userRepository.findAll();
+        List<User> usersNormalized = new ArrayList<>();
+        users.forEach(u->{
+            Persona personaExists = this.personaRepository.
+                    findAllByTaxId(u.getCpf());
             if(personaExists != null){
                 Persona createdPersona = this.createdPersona(
-                        simulation.getLead(),null, null, null, null, null, null);
-                simulation.getLead().setPersona(createdPersona);
-                simulation.setPersona(this.updateLead(simulation.getLead(), personaExists).getPersona());
-                normalizedSimulation.add(simulation);
+                       null,null, null, null, null, u, null);
+                u.setPersona(createdPersona);
+                usersNormalized.add(this.updatedUser(u, personaExists));
             }else{
                 Persona createdPersona = this.createdPersona(
-                        simulation.getLead(),null, null, null, null, null, null);
-                simulation.getLead().setPersona(createdPersona);
-                simulation.setPersona(this.updateLead(simulation.getLead(), null).getPersona());
-                normalizedSimulation.add(simulation);
-            }
-        });
-        this.simulatonRepository.saveAll(normalizedSimulation);
-
-        LOGGER.log(Level.INFO, "TOTAL DE SIMULATION NO BANCO {0}", simulations.size());
-        LOGGER.log(Level.INFO, "TOTAL DE SIMULATION NORMALIZED {0}", normalizedSimulation.size());
-    }
-
-    @Override
-    public void normalizedEntityContainsPerson() {
-
-        List<Partner> partners = this.partnerRepository.findAll();
-        List<Partner> partnerNormalized = new ArrayList<>();
-        partners.forEach(p-> {
-            Persona personaExists = this.personaRepository.
-                    findAllByTaxId(p.getCpfCnpj());
-
-            if(personaExists != null){
-                Persona createdPersona = this.createdPersona(
-                        null,null, p, null, null, null, null);
-                p.setPersona(createdPersona);
-                partnerNormalized.add(this.updatePartner(p, personaExists));
-            }else{
-                Persona createdPersona = this.createdPersona(
-                        null,null, p, null, null, null, null);
-                p.setPersona(createdPersona);
-                partnerNormalized.add(this.updatePartner(p, null));
+                        null,null, null, null, null, u, null);
+                u.setPersona(createdPersona);
+                usersNormalized.add(u);
             }
         });
 
@@ -234,9 +222,29 @@ public class Start implements IcreateProponent {
                 Persona createdPersona = this.createdPersona(
                         l,null, null, null, null, null, null);
                 l.setPersona(createdPersona);
-                leadsNormalized.add(this.updateLead(l, null));
+                leadsNormalized.add(l);
             }
         });
+
+        List<Partner> partners = this.partnerRepository.findAll();
+        List<Partner> partnerNormalized = new ArrayList<>();
+        partners.forEach(p-> {
+            Persona personaExists = this.personaRepository.
+                    findAllByTaxId(p.getCpfCnpj());
+
+            if(personaExists != null){
+                Persona createdPersona = this.createdPersona(
+                        null,null, p, null, null, null, null);
+                p.setPersona(createdPersona);
+                partnerNormalized.add(this.updatePartner(p, personaExists));
+            }else{
+                Persona createdPersona = this.createdPersona(
+                        null,null, p, null, null, null, null);
+                p.setPersona(createdPersona);
+                partnerNormalized.add(p);
+            }
+        });
+
 
         List<Finder> finders = this.finderRespository.findAll();
         List<Finder> findersNormalized = new ArrayList<>();
@@ -253,7 +261,7 @@ public class Start implements IcreateProponent {
                 Persona createdPersona = this.createdPersona(
                         null,null, null, finder, null, null, null);
                 finder.setPersona(createdPersona);
-                findersNormalized.add(this.updateFinder(finder, null));
+                findersNormalized.add(finder);
             }
         });
 
@@ -272,14 +280,16 @@ public class Start implements IcreateProponent {
                 Persona createdPersona = this.createdPersona(
                         null,null, null, null, i, null, null);
                 i.setPersona(createdPersona);
-                investorNormalized.add(this.updateInvestor(i, null));
+                investorNormalized.add(i);
             }
         });
 
+        this.userRepository.saveAll(usersNormalized);
         this.partnerRepository.saveAll(partnerNormalized);
         this.finderRespository.saveAll(findersNormalized);
         this.leadRepository.saveAll(leadsNormalized);
         this.investorRepository.saveAll(investorNormalized);
+
 
         LOGGER.log(Level.INFO, "TOTAL DE PARCEIROS NO BANCO {0}", partners.size());
         LOGGER.log(Level.INFO, "TOTAL DE PARCEIROS NORMALIZED {0}", partnerNormalized.size());
@@ -292,6 +302,35 @@ public class Start implements IcreateProponent {
         System.out.println();
         LOGGER.log(Level.INFO, "TOTAL DE INVESTOR NO BANCO {0}", investors.size());
         LOGGER.log(Level.INFO, "TOTAL DE INVESTOR NORMALIZED {0}", investorNormalized.size());
+        System.out.println();
+        LOGGER.log(Level.INFO, "TOTAL DE USERS NO BANCO {0}", users.size());
+        LOGGER.log(Level.INFO, "TOTAL DE USERS NORMALIZED {0}", usersNormalized.size());
+
+    }
+
+
+    @Override
+    public void goThroughSimulation() {
+        List<Simulation> simulations = this.simulatonRepository.findAll();
+        List<Simulation> normalizedSimulation = new ArrayList<>();
+        simulations.forEach(simulation -> {
+            Persona personaExists = this.personaRepository.
+                    findAllByTaxId(simulation.getLead().getCpfCnpj());
+
+            if(personaExists != null){
+                simulation.setPersona(personaExists);
+                normalizedSimulation.add(simulation);
+            }else{
+                Persona createdPersona = this.createdPersona(
+                        simulation.getLead(),null, null, null, null, null, null);
+                simulation.setPersona(createdPersona);
+                normalizedSimulation.add(simulation);
+            }
+        });
+        this.simulatonRepository.saveAll(normalizedSimulation);
+
+        LOGGER.log(Level.INFO, "TOTAL DE SIMULATION NO BANCO {0}", simulations.size());
+        LOGGER.log(Level.INFO, "TOTAL DE SIMULATION NORMALIZED {0}", normalizedSimulation.size());
     }
 
 
@@ -489,61 +528,7 @@ public class Start implements IcreateProponent {
         LOGGER.log(Level.SEVERE, "TOTAL DE PERSONAS REPETIDAS {0}", (personas.size() - distinctPersonas.size()));
     }
 
-    @Override
-    public void updateUserByPartnerAndByInvestor() {
 
-        List<User> usersPartner = this.userRepository.findByUserPartner();
-        List<User> usersPartnerNormalized = new ArrayList<>();
-
-        usersPartner.forEach(user -> {
-            Persona personaExists = this.personaRepository.
-                    findAllByTaxId(user.getPartner().getCpfCnpj());
-            user.setCpf(user.getPartner().getCpfCnpj());
-            if(personaExists != null){
-                Persona newPersona = this.createdPersona(
-                        null,null, null, null, null, user, null);
-                user.setPersona(newPersona);
-                user.setCpf(null);
-                usersPartnerNormalized.add(this.updatedUser(user, personaExists));
-            }else{
-                Persona newPersona = this.createdPersona(
-                        null,null, null, null, null, user, null);
-                user.setPersona(newPersona);
-                user.setCpf(null);
-                usersPartnerNormalized.add(this.updatedUser(user, null));
-            }
-        });
-
-        List<User> usersInvestor = this.userRepository.findByUserInvestor();
-        List<User> usersInvestorNormalized = new ArrayList<>();
-        usersInvestor.forEach(user -> {
-            Persona personaExists = this.personaRepository.
-                    findAllByTaxId(user.getInvestor().getCnpj());
-            user.setCpf(user.getInvestor().getCnpj());
-            if(personaExists != null){
-                    Persona newPersona = this.createdPersona(
-                            null,null, null, null, null, user, null);
-                user.setPersona(newPersona);
-                user.setCpf(null);
-                usersInvestorNormalized.add(this.updatedUser(user, personaExists));
-            }else{
-                    Persona newPersona = this.createdPersona(
-                                null,null, null, null, null, user, null);
-                user.setPersona(newPersona);
-                user.setCpf(null);
-                usersInvestorNormalized.add(this.updatedUser(user, null));
-                }
-        });
-
-        this.userRepository.saveAll(usersPartnerNormalized);
-        this.userRepository.saveAll(usersInvestorNormalized);
-
-        LOGGER.log(Level.INFO, "TOTAL DE USUARIOS NORMALIZADOS NO BANCO {0}", usersPartner.size());
-        LOGGER.log(Level.INFO, "TOTAL DE USUARIOS DO PARCEIRO NORMALIZADOS {0}", usersInvestorNormalized.size());
-
-        LOGGER.log(Level.INFO, "TOTAL DE USUARIOS DO INVESTIDOR NO BANCO {0}", usersInvestor.size());
-        LOGGER.log(Level.INFO, "TOTAL DE USUARIOS  INVESTIDOR  NORMALIZADOS {0}", usersInvestorNormalized.size());
-    }
 
     @Override
     public void normaizedProponents() {
@@ -615,7 +600,7 @@ public class Start implements IcreateProponent {
         });
         System.out.println();
         this.personaRepository.saveAll(personasNormalized);
-
+        LOGGER.log(Level.INFO, "TOTAL DE COMPANIONS CRIADOS PARA PERSONAS NO BANCO {0}", personasNormalized.size());
     }
 
     public TypeRegimeCompanion createType(Persona persona){
@@ -683,6 +668,7 @@ public class Start implements IcreateProponent {
         newPersona.setOpeningDate(personaTransient.getOpeningDate() != null ? personaTransient.getOpeningDate() : null);
         newPersona.setEmail(personaTransient.getEmail() != null ? personaTransient.getEmail() : null);
         newPersona.setProposal(personaTransient.getProposal() != null ? personaTransient.getProposal() : null);
+        newPersona.setMonthlyIncome(personaTransient.getMonthlyIncome() != null ? personaTransient.getMonthlyIncome(): BigDecimal.ZERO);
 
         if (newPersona.getPersonaType().equals(PersonaType.NATURAL_PERSON))
             newPersona.setName(personaTransient.getName().toUpperCase());
@@ -816,13 +802,11 @@ public class Start implements IcreateProponent {
         personaTransient.setProponentType(ProponentType.PRINCIPAL);
         personaTransient.setAddress(leadProposal.getAddress());
         personaTransient.setLeadProposal(leadProposal);
-        personaTransient.setMonthlyIncome(leadProposal.getFamilyIncome() != null ? leadProposal.getFamilyIncome() : null);
         personaTransient.setFinancialInstitutionCode(leadProposal.getFinancialInstitutionCode()
                 != null ? leadProposal.getFinancialInstitutionCode() : null);
         personaTransient.setAccountBranch( leadProposal.getAccountBranch() != null ? leadProposal.getAccountBranch() : null);
         personaTransient.setAccountNumber(leadProposal.getAccountNumber() != null ? leadProposal.getAccountNumber() : null);
         personaTransient.setAccountDigit(leadProposal.getAccountDigit() != null ? leadProposal.getAccountDigit() : null);
-
     }
 
     @Override
@@ -928,5 +912,4 @@ public class Start implements IcreateProponent {
         personaTransient.setAccountNumber(persona.getAccountNumber() != null ? persona.getAccountNumber() : null);
         personaTransient.setAccountDigit(persona.getAccountDigit() != null ? persona.getAccountDigit() : null);
     }
-
 }

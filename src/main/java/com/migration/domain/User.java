@@ -1,12 +1,11 @@
 package com.migration.domain;
 
 import com.migration.domain.persona.Persona;
+import com.migration.domain.persona.Role;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-
-import javax.management.relation.Role;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -35,6 +34,11 @@ public class User {
     private Boolean blocked = false;
     private LocalDateTime createdAt;
 
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(name = "credi_user_role",
+            joinColumns = {@JoinColumn(name = "user_id")},
+            inverseJoinColumns = {@JoinColumn(name = "role_id")})
+    private List<Role> roles;
 
     @OneToOne
     @JoinColumn(name = "partner_id")

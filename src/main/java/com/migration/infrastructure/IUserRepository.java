@@ -2,6 +2,7 @@ package com.migration.infrastructure;
 
 import com.migration.domain.User;
 import com.migration.domain.persona.Persona;
+import com.migration.domain.persona.Role;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -21,11 +22,21 @@ public interface IUserRepository extends JpaRepository<User, Integer> {
     @Query("FROM User u WHERE u.persona.taxId =:taxId")
     User findByUserTaxId(String taxId);
 
-    @Query("FROM User u WHERE u.partner is not null AND u.persona is null")
-    List<User> findByUserPartner();
+    @Query(value =
+            "SELECT * FROM credi_user u " +
+                    "INNER JOIN credi_user_role ur ON " +
+                    "ur.user_id = u.id INNER JOIN credi_role r ON " +
+                    "r.id = ur.role_id " +
+                    "WHERE r.role = :role ", nativeQuery = true)
+    List<User> findByRoleRole(@Param("role") String role);
 
-    @Query("FROM User u WHERE u.investor is not null AND u.persona is null ")
-    List<User> findByUserInvestor();
+    @Query("FROM User u WHERE u.cpf is null")
+    List<User> findByUserCpfNull();
+
+    @Query("FROM User u WHERE u.cpf = '' ")
+    List<User> findByUserIsEmpity();
+
+
 
 
 
