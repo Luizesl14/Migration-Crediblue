@@ -48,7 +48,7 @@ public class Partner {
 //    @JoinColumn(name = "contact_id")
 //    private List<Contact> contacts = new ArrayList<>();
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinColumn(name = "persona_id")
     private Persona persona;
 

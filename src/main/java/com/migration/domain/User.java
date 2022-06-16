@@ -21,7 +21,7 @@ public class User {
     @Column(name = "id", nullable = false)
     private Integer id;
 
-    @OneToOne(cascade = CascadeType.MERGE)
+    @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "persona_id")
     private Persona persona;
 

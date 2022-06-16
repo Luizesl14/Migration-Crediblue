@@ -41,7 +41,7 @@ public class Finder {
     @Column(name = "account_digit")
     private String accountDigit;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = {CascadeType.MERGE, CascadeType.PERSIST})
     @JoinColumn(name = "persona_id")
     private Persona persona;
 

@@ -15,6 +15,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Date;
 
 @Setter
 @Getter
@@ -64,6 +65,12 @@ public class LeadProposal {
 
     @Column(name = "total_expenses")
     private BigDecimal totalExpenses;
+
+    @Transient
+    @Enumerated(EnumType.STRING)
+    @Column(name = "corporate_type")
+    private CompanyType corporateType;
+
 
     @JsonIgnore
     @UpdateTimestamp
@@ -119,5 +126,5 @@ public class LeadProposal {
     private Boolean sameAddressWarrantyHome;
 
     @Column(name = "company_founding_date")
-    private LocalDate companyFoundingDate;
+    private Date companyFoundingDate;
 }

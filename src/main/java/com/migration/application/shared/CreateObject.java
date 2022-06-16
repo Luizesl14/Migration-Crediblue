@@ -125,7 +125,7 @@ public class CreateObject {
             company.setCnae(personaParam.getCnaeCode());
 
             if (personaParam.getCompanyFoundingDate() != null)
-                company.setFoundationDate(this.convert.convertToLocalDate(personaParam.getCompanyFoundingDate()));
+                company.setFoundationDate(personaParam.getCompanyFoundingDate());
 
             persona.setCompanyData(company);
         }

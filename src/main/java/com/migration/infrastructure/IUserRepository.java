@@ -15,11 +15,17 @@ public interface IUserRepository extends JpaRepository<User, Integer> {
     @Query("FROM User u WHERE u.cpf is null")
     List<User> findByUserTaxIdIsNull();
 
-    @Query("FROM User u WHERE u.cpf is null")
+    @Query("FROM User u WHERE u.partner is null  AND  u.investor is null")
     List<User> findByUserCpfAndCnpjNull();
 
     @Query("FROM User u WHERE u.persona.taxId =:taxId")
     User findByUserTaxId(String taxId);
+
+    @Query("FROM User u WHERE u.partner is not null AND u.persona is null")
+    List<User> findByUserPartner();
+
+    @Query("FROM User u WHERE u.investor is not null AND u.persona is null ")
+    List<User> findByUserInvestor();
 
 
 

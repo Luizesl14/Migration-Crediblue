@@ -27,7 +27,7 @@ public interface IPartnerRepository extends JpaRepository<Partner, Integer> {
     @Query(value = "FROM Partner p WHERE (:#{#name} IS NULL OR :#{#name} = '' OR p.name =:#{#name}) " +
             "AND (:#{#email} IS NULL OR :#{#email} = '' OR p.email =:#{#email}) " +
             "AND (:#{#telephone} IS NULL OR :#{#telephone} = '' OR p.telephone =:#{#telephone})" +
-            " AND (:#{#cpf} IS NULL OR :#{#cpf} = '' OR p.cpf =:#{#cpf}) ")
+            " AND (:#{#cpf} IS NULL OR :#{#cpf} = '' OR p.cpfCnpj =:#{#cpf}) ")
     Partner findPersonaPartner(
             @Param("name") String name,
             @Param("email") String email,

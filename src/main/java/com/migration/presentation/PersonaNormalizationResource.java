@@ -15,6 +15,6 @@ public class PersonaNormalizationResource {
 
     @GetMapping
     public void normalization(){
-        this.personaNormalizationService.start();
+        this.personaNormalizationService.findAll();
     }
 }

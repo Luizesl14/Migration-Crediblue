@@ -12,9 +12,9 @@ import java.util.List;
 public interface IPersonaRepository extends JpaRepository<Persona, Integer> {
 
     @Query(value = "SELECT DISTINCT p FROM Persona p WHERE p.taxId = :taxId ")
-    List<Persona> findAllByTaxId(String taxId);
+    Persona findAllByTaxId(String taxId);
 
-    @Query(value = "FROM Persona p WHERE p.taxId IS NOT NULL ")
+    @Query(value = "FROM Persona p WHERE p.taxId IS NOT NULL AND p.maritalStatus is not null ")
     List<Persona> findByAllPersonasNormalized();
 
     Persona findByCpfCnpj(String taxId);
@@ -31,14 +31,16 @@ public interface IPersonaRepository extends JpaRepository<Persona, Integer> {
     Persona findByPersonaId(@Param("id") Integer id);
 
 
-
-    @Query(value = "FROM Persona p WHERE p.name =:#{#name} AND p.email = :#{#email} " +
-            "AND p.telephone = :#{#telephone} AND (:#{#cpfCnpj} IS NULL OR :#{#cpfCnpj} = '' OR p.cpfCnpj =:#{#cpfCnpj}) ")
+    @Query(value = "FROM Persona p WHERE (:#{#name} IS NULL OR :#{#name} = '' OR p.name =:#{#name}) " +
+            "AND (:#{#email} IS NULL OR :#{#email} = '' OR p.email =:#{#email}) " +
+            "AND (:#{#telephone} IS NULL OR :#{#telephone} = '' OR p.telephone =:#{#telephone})" +
+            " AND (:#{#cpf} IS NULL OR :#{#cpf} = '' OR p.cpfCnpj =:#{#cpf}) ")
     Persona findPersonaUser(
             @Param("name") String name,
             @Param("email") String email,
             @Param("telephone") String telephone,
-            @Param("cpfCnpj") String cpfCnpj);
+            @Param("cpf") String cpf);
+
 
 
     @Query(value = "SELECT  p FROM Persona p WHERE p.leadProposal is not null ")

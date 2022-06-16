@@ -73,6 +73,10 @@ public class Persona {
     @Column(name = "citizenship")
     private String citizenship;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "corporate_type")
+    private CompanyType corporateType;
+
     @Column(name = "birthdate")
     private LocalDate birthDate;
 
