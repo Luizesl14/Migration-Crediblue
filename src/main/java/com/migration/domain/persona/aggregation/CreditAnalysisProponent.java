@@ -24,16 +24,14 @@ public class CreditAnalysisProponent  {
     private Integer id;
 
     @JsonIgnore
-    @OneToOne
-    @JoinColumn(name = "credit_analysis_id", insertable = false, updatable = false)
+    @OneToOne(cascade = CascadeType.ALL)
     private CreditAnalysis creditAnalysis;
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "analysis_comparative_id")
     private CreditAnalysisComparative analysisComparative;
 
-    @OneToOne
-    @JoinColumn(name = "proponent_id")
+    @OneToOne(cascade = CascadeType.ALL)
     private ProposalProponent proponent;
 
     @Column(name = "total_commitment")   // Compromisso Total
