@@ -7,10 +7,9 @@ import com.migration.application.shared.ExistsEntity;
 import com.migration.domain.*;
 import com.migration.domain.enums.*;
 import com.migration.domain.persona.Companion;
+import com.migration.domain.persona.CreditAnalysis;
 import com.migration.domain.persona.Persona;
-import com.migration.domain.persona.aggregation.Company;
-import com.migration.domain.persona.aggregation.PersonaCompanion;
-import com.migration.domain.persona.aggregation.Phone;
+import com.migration.domain.persona.aggregation.*;
 import com.migration.infrastructure.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -63,7 +62,28 @@ public class Start implements IcreateProponent {
     private ISimulatonRepository simulatonRepository;
 
     @Autowired
+    private IPersonaDocumentRepository personaDocumentRepository;
+
+    @Autowired
+    private ILeadProposalDocumentRepository leadProposalDocumentRepository;
+
+    @Autowired
+    private  ICreditAnalysisDocumentRepository creditAnalysisDocumentRepository;
+
+    @Autowired
+    private ICreditAnalysisRepository creditAnalysisRepository;
+
+    @Autowired
     private ExistsEntity existsEntity;
+
+    @Autowired
+    private  IBalanceSheetRepository balanceSheetRepository;
+
+    @Autowired
+    private  IincomeStatementRepository iincomeStatementRepository;
+
+    @Autowired
+    private ICreditAnalysisProponentRepository creditAnalysisProponentRepository;
 
     private final static Logger LOGGER = Logger.getLogger(Start.class.getName());
 
@@ -108,9 +128,11 @@ public class Start implements IcreateProponent {
             mainProponents.add(proponent);
         });
 
-        this.personaRepository.saveAll(personas);
         this.proposalProponentRepository.saveAll(proponents);
+        this.goThroughPersonaDocument();
+        this.personaRepository.saveAll(personas);
         this.proposalProponentRepository.saveAll(mainProponents);
+        this.goThroughLeadDocument();
 
         LOGGER.log(Level.INFO, "TOTAL DE PROPOSAL NO BANCO {0}", proposals.size());
         LOGGER.log(Level.INFO, "TOTAL DE PROPONENTS {0}", proponents.size());
@@ -180,15 +202,7 @@ public class Start implements IcreateProponent {
 
 
     @Override
-    public PersonaType isTaxId(String taxId) {
-        if(taxId.length() <= 11)
-            return PersonaType.NATURAL_PERSON;
-        return PersonaType.LEGAL_PERSON;
-    }
-
-    @Override
     public void     normalizedEntityContainsPerson() {
-
 
         List<User> users = this.userRepository.findAll();
         List<User> usersNormalized = new ArrayList<>();
@@ -603,6 +617,134 @@ public class Start implements IcreateProponent {
         LOGGER.log(Level.INFO, "TOTAL DE COMPANIONS CRIADOS PARA PERSONAS NO BANCO {0}", personasNormalized.size());
     }
 
+    @Override
+    public void goThroughPersonaDocument() {
+        List<PersonaDocument> personaDocuments = this.personaDocumentRepository.findAll();
+        List<PersonaDocument> personaDocumentsNormalized = new ArrayList<>();
+
+        personaDocuments.forEach(personaDocument -> {
+            if(personaDocument.getPersona() != null && personaDocument.getPersona().getProposal() != null) {
+
+                ProposalProponent proposalProponent =
+                        this.proposalProponentRepository.findAllDByProposalByPersona(
+                                personaDocument.getPersona().getId(),
+                                personaDocument.getPersona().getProposal().getId());
+
+                if (proposalProponent != null) {
+                    personaDocument.setProponent(proposalProponent);
+                    personaDocumentsNormalized.add(personaDocument);
+                }
+            }
+        });
+        this.personaDocumentRepository.saveAll(personaDocumentsNormalized);
+        LOGGER.log(Level.INFO, "TOTAL DE DOCUMENTOS PERSONA PERSONAS NO BANCO {0}", personaDocuments.size());
+        LOGGER.log(Level.INFO, "TOTAL DE DOCUMENTOS PERSONA PERSONAS NORMALIZADAS {0}", personaDocuments.size());
+    }
+
+    @Override
+    public void goThroughLeadDocument() {
+        List<LeadProposalDocument> documents = this.leadProposalDocumentRepository.findAll();
+        List<LeadProposalDocument> documentsNormalized = new ArrayList<>();
+        documents.forEach(document -> {
+            if(document.getLeadProposal()  != null && document.getLeadProposal().getProposal() != null){
+
+                ProposalProponent proposalProponent  =
+                        this.proposalProponentRepository.findAllByProposalByLeadProposal(
+                                document.getLeadProposal().getId(),
+                                document.getLeadProposal().getProposal().getId());
+
+                if(proposalProponent != null) {
+                    document.setProponent(proposalProponent);
+                    documentsNormalized.add(document);
+                }
+            }
+        });
+
+        List<LeadProposalDocument> leadProposalDocuments = this.leadProposalDocumentRepository.saveAll(documentsNormalized);
+        List<PersonaDocument> migrationDocuments = new ArrayList<>();
+
+        leadProposalDocuments.forEach(document -> {
+            PersonaDocument  personaDocument = new PersonaDocument();
+            personaDocument.setProponent(document.getProponent());
+            personaDocument.setDocument(document.getDocument());
+            migrationDocuments.add(personaDocument);
+        });
+
+        this.personaDocumentRepository.saveAll(migrationDocuments);
+        LOGGER.log(Level.INFO, "TOTAL DE DOCUMENTOS LEAD PROPOSAL NO BANCO {0}", documents.size());
+        LOGGER.log(Level.INFO, "TOTAL DE DOCUMENTOS LEAD PROPOSA NORMALIZADAS {0}", documentsNormalized.size());
+    }
+
+    @Override
+    public void goThroughCreditAnalysisDocument() {
+        List<CreditAnalysisDocuement> creditAnalysisDocuements = this.creditAnalysisDocumentRepository.findAll();
+        List<CreditAnalysisDocuement> creditAnalysisDocuementsNormalized = new ArrayList<>();
+
+        creditAnalysisDocuements.forEach(docuement -> {
+            if(docuement.getCreditAnalysisId().getProposal() != null) {
+
+                ProposalProponent proposalProponent =
+                        this.proposalProponentRepository.findAllByProposalByLeadProposal(
+                                docuement.getCreditAnalysisId().getProposal().getLeadProposal().getId(),
+                                docuement.getCreditAnalysisId().getProposal().getId());
+
+                if (proposalProponent != null) {
+                    docuement.setProponent(proposalProponent);
+                    creditAnalysisDocuementsNormalized.add(docuement);
+                }
+            }
+        });
+        this.creditAnalysisDocumentRepository.saveAll(creditAnalysisDocuementsNormalized);
+        LOGGER.log(Level.INFO, "TOTAL DE DOCUMENTOS PERSONA PERSONAS NO BANCO {0}", creditAnalysisDocuements.size());
+        LOGGER.log(Level.INFO, "TOTAL DE DOCUMENTOS PERSONA PERSONAS NORMALIZADAS {0}", creditAnalysisDocuementsNormalized.size());
+
+    }
+
+    @Override
+    public void goThroughAnalysisBalanceAndIncome() {
+        List<CreditAnalysis>  creditsAnalyses = this.creditAnalysisRepository.findAll();
+        List<BalanceSheet> balanceSheetList = new ArrayList<>();
+        List<IncomeStatement> incomeStatements = new ArrayList<>();
+        creditsAnalyses.forEach(creditAnalysis -> {
+
+            CreditAnalysisProponent creditAnalysisProponent = new CreditAnalysisProponent();
+            creditAnalysisProponent.setCreditAnalysis(creditAnalysis);
+            creditAnalysisProponent.setAnalysisComparative(new CreditAnalysisComparative());
+
+            ProposalProponent proponent =
+                    this.proposalProponentRepository
+                            .findAllByProposalByLeadProposalMain(creditAnalysis.getProposal().getLeadProposal().getId(),
+                                    creditAnalysis.getProposal().getId(), ProponentType.PRINCIPAL);
+
+            CreditAnalysisProponent creditAnalysisProponentSaved =
+                    this.creditAnalysisProponentRepository.save(creditAnalysisProponent);
+
+            if(proponent != null)
+                creditAnalysisProponentSaved.setProponent(proponent);
+
+            if(!creditAnalysis.getBalanceSheets().isEmpty()) {
+                creditAnalysis.getBalanceSheets().forEach(balanceSheet -> {
+                    BalanceSheet balanceSheet02;
+                    balanceSheet02 = balanceSheet;
+                    balanceSheet02.setCreditAnalysisComparative(creditAnalysisProponentSaved.getAnalysisComparative());
+                    balanceSheetList.add(balanceSheet02);
+                });
+            }
+            if(!creditAnalysis.getIncomeStatements().isEmpty()){
+                creditAnalysis.getIncomeStatements().forEach(incomeStatement -> {
+                    IncomeStatement incomeStatement2;
+                    incomeStatement2 = incomeStatement;
+                    incomeStatement2.setCreditAnalysisComparative(creditAnalysisProponentSaved.getAnalysisComparative());
+                    incomeStatements.add(incomeStatement2);
+                });
+            }
+        });
+
+        this.iincomeStatementRepository.saveAll(incomeStatements);
+        this.balanceSheetRepository.saveAll(balanceSheetList);
+
+    }
+
     public TypeRegimeCompanion createType(Persona persona){
         if(persona.getPropertySystem() != null){
             if (persona.getPropertySystem().name().equals(TypeRegimeCompanion.PARTIAL_COMMUNION.name())) {
@@ -619,6 +761,14 @@ public class Start implements IcreateProponent {
             }
         }
         return null;
+    }
+
+
+    @Override
+    public PersonaType isTaxId(String taxId) {
+        if(taxId.length() <= 11)
+            return PersonaType.NATURAL_PERSON;
+        return PersonaType.LEGAL_PERSON;
     }
 
 

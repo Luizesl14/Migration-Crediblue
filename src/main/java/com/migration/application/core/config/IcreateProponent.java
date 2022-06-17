@@ -9,28 +9,13 @@ import com.migration.domain.persona.Persona;
 
 public interface IcreateProponent {
 
-
     void satartApplication();
-
-    PersonaType isTaxId(String taxId);
 
     void goThroughProposal();
 
+    ProposalProponent createdProponent(Persona persona);
+
     void goThroughSimulation();
-
-    void checkedLead(Lead lead);
-
-    void checkedLeadProposal(LeadProposal leadProposal);
-
-    void checkedPartner(Partner partner);
-
-    void checkedFinder(Finder finder);
-
-    void checkedInvestor(Investor investor);
-
-    void checkedUser(User user);
-
-    void checkedPersona(Persona persona);
 
     void normalizedEntityCpfAndCnpjIsNull();
 
@@ -48,18 +33,38 @@ public interface IcreateProponent {
 
     void normalizedPersona();
 
-
     void normaizedProponents();
 
     void createdCompanionByPersona();
 
-    Persona createdPersona(Lead lead, LeadProposal leadProposal, Partner partner,
-                           Finder finder, Investor investor, User user, Persona persona);
+    void goThroughPersonaDocument();
+
+    void goThroughLeadDocument();
+
+    void goThroughCreditAnalysisDocument();
+
+    void goThroughAnalysisBalanceAndIncome();
 
     TypeRegimeCompanion regimeType(PropertySystem system);
 
+    PersonaType isTaxId(String taxId);
 
-    ProposalProponent createdProponent(Persona persona);
+    Persona createdPersona(Lead lead, LeadProposal leadProposal, Partner partner,
+                           Finder finder, Investor investor, User user, Persona persona);
+
+    void checkedLead(Lead lead);
+
+    void checkedLeadProposal(LeadProposal leadProposal);
+
+    void checkedPartner(Partner partner);
+
+    void checkedFinder(Finder finder);
+
+    void checkedInvestor(Investor investor);
+
+    void checkedUser(User user);
+
+    void checkedPersona(Persona persona);
 
 
 }

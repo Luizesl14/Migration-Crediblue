@@ -1,8 +1,6 @@
 package com.migration.application.core;
 
-import com.migration.domain.Proposal;
 import com.migration.domain.ProposalProponent;
-import com.migration.domain.persona.Persona;
 import com.migration.domain.persona.aggregation.PersonaDocument;
 import com.migration.infrastructure.IPersonaDocumentRepository;
 import com.migration.infrastructure.IPersonaRepository;
