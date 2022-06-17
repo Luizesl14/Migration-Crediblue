@@ -27,7 +27,7 @@ public class CreditAnalysisDocuement {
     private Document document;
 
     @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "main_proponent_id")
+    @JoinColumn(name = "proponent_id")
     private ProposalProponent proponent;
 
 

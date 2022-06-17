@@ -28,7 +28,7 @@ public class PersonaPhone {
     private Phone phone;
 
     @JsonIgnore
-    @OneToOne
+    @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinColumn(name = "persona_id")
     private Persona persona;
 

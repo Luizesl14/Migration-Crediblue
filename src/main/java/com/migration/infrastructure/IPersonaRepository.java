@@ -11,7 +11,7 @@ import java.util.List;
 @Repository
 public interface IPersonaRepository extends JpaRepository<Persona, Integer> {
 
-    @Query(value = "SELECT DISTINCT p FROM Persona p WHERE p.taxId = :taxId ")
+    @Query(value = "SELECT  p FROM Persona p WHERE p.taxId = :taxId")
     Persona findAllByTaxId(String taxId);
 
     @Query(value = "FROM Persona p WHERE p.taxId IS NOT NULL AND p.maritalStatus is not null ")

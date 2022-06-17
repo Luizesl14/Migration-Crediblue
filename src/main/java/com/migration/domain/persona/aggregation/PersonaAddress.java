@@ -21,7 +21,7 @@ public class PersonaAddress {
     @Column(name = "id", nullable = false)
     private Integer id;
 
-    @OneToOne
+    @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinColumn(name = "persona_id")
     private Persona persona;
 

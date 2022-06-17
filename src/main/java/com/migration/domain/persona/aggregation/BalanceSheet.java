@@ -27,9 +27,8 @@ public class BalanceSheet {
     @Column(name = "id", nullable = false)
     private Integer id;
 
-    @JsonIgnore
-    @OneToOne
-    @JoinColumn(name = "credit_analysis_comparative_id", insertable = false, updatable = false)
+
+    @OneToOne(cascade = CascadeType.ALL)
     private CreditAnalysisComparative creditAnalysisComparative;
 
     @Column(name = "name")

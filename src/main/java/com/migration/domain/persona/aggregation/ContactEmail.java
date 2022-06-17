@@ -25,8 +25,8 @@ public class ContactEmail {
     private String email;
 
     @JsonIgnore
-    @ManyToOne
-    @JoinColumn(name = "persona_id", updatable = false, insertable = false)
+    @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @JoinColumn(name = "persona_id")
     private Persona persona;
 
     @Enumerated(EnumType.STRING)

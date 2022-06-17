@@ -11,6 +11,8 @@ import com.migration.domain.persona.CreditAnalysis;
 import com.migration.domain.persona.Persona;
 import com.migration.domain.persona.aggregation.*;
 import com.migration.infrastructure.*;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.text.WordUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -85,6 +87,9 @@ public class Start implements IcreateProponent {
     @Autowired
     private ICreditAnalysisProponentRepository creditAnalysisProponentRepository;
 
+    @Autowired
+    private ICreditAnalysisComparativeRepository creditAnalysisComparativeRepository;
+
     private final static Logger LOGGER = Logger.getLogger(Start.class.getName());
 
     private Persona personaTransient;
@@ -92,13 +97,15 @@ public class Start implements IcreateProponent {
 
     @Override
     public void satartApplication() {
-        this.goThroughProposal();
+//        this.goThroughProposal();
+//        this.goThroughCreditAnalysisDocument();
         this.normalizedEntityCpfAndCnpjIsNull();
         this.normalizedPersona();
-        this.normalizedEntityContainsPerson();
-        this.goThroughSimulation();
-        this.createdCompanionByPersona();
         this.normaizedProponents();
+//        this.normalizedEntityContainsPerson();
+//        this.goThroughSimulation();
+//        this.createdCompanionByPersona();
+//        this.goThroughAnalysisBalanceAndIncome();
     }
 
     @Override
@@ -129,10 +136,10 @@ public class Start implements IcreateProponent {
         });
 
         this.proposalProponentRepository.saveAll(proponents);
-        this.goThroughPersonaDocument();
+//        this.goThroughPersonaDocument();
         this.personaRepository.saveAll(personas);
         this.proposalProponentRepository.saveAll(mainProponents);
-        this.goThroughLeadDocument();
+//        this.goThroughLeadDocument();
 
         LOGGER.log(Level.INFO, "TOTAL DE PROPOSAL NO BANCO {0}", proposals.size());
         LOGGER.log(Level.INFO, "TOTAL DE PROPONENTS {0}", proponents.size());
@@ -363,6 +370,7 @@ public class Start implements IcreateProponent {
                 if(partner.getPersona().getBankAccounts() != null){
                     if(this.existsEntity.verifyAccount(partner.getPersona().getBankAccounts(), partner.getPersona().getBankAccounts())
                             .equals(Boolean.FALSE)){
+                        partner.getPersona().getBankAccounts().forEach(p-> p.setPersona(personaDatabse));
                         personaDatabse.getBankAccounts().addAll(partner.getPersona().getBankAccounts());
                     }
                 }
@@ -370,6 +378,7 @@ public class Start implements IcreateProponent {
                 if(partner.getPersona().getAddresses() != null){
                     if(this.existsEntity.verifyAddress(partner.getPersona().getAddresses(), partner.getPersona().getAddresses())
                             .equals(Boolean.FALSE)){
+                        partner.getPersona().getAddresses().forEach(p-> p.setPersona(personaDatabse));
                         personaDatabse.getAddresses().addAll(partner.getPersona().getAddresses());
                     }
                 }
@@ -377,6 +386,7 @@ public class Start implements IcreateProponent {
                 if(partner.getPersona().getContacts() != null){
                     if(this.existsEntity.verifyEmail(partner.getPersona().getContacts(), partner.getPersona().getContacts())
                             .equals(Boolean.FALSE)){
+                        partner.getPersona().getContacts().forEach(p-> p.setPersona(personaDatabse));
                         personaDatabse.getContacts().addAll(partner.getPersona().getContacts());
                     }
                 }
@@ -384,6 +394,7 @@ public class Start implements IcreateProponent {
                 if(partner.getPersona().getPhones() != null){
                     if(this.existsEntity.verifyPhone(partner.getPersona().getPhones(),partner.getPersona().getPhones())
                             .equals(Boolean.FALSE)){
+                        partner.getPersona().getPhones().forEach(p-> p.setPersona(personaDatabse));
                         personaDatabse.getPhones().addAll(partner.getPersona().getPhones());
                     }
                 }
@@ -409,18 +420,22 @@ public class Start implements IcreateProponent {
 
             if(this.existsEntity.verifyAccount(personaDatabse.getBankAccounts(), lead.getPersona().getBankAccounts())
                     .equals(Boolean.FALSE)){
+                lead.getPersona().getBankAccounts().forEach(p-> p.setPersona(personaDatabse));
                 personaDatabse.getBankAccounts().addAll(lead.getPersona().getBankAccounts());
             }
             if(this.existsEntity.verifyAddress(personaDatabse.getAddresses(), lead.getPersona().getAddresses())
                     .equals(Boolean.FALSE)){
+                lead.getPersona().getAddresses().forEach(p-> p.setPersona(personaDatabse));
                 personaDatabse.getAddresses().addAll(lead.getPersona().getAddresses());
             }
             if(this.existsEntity.verifyEmail(personaDatabse.getContacts(), lead.getPersona().getContacts())
                     .equals(Boolean.FALSE)){
+                lead.getPersona().getContacts().forEach(p-> p.setPersona(personaDatabse));
                 personaDatabse.getContacts().addAll(lead.getPersona().getContacts());
             }
             if(this.existsEntity.verifyPhone(personaDatabse.getPhones(),lead.getPersona().getPhones())
                     .equals(Boolean.FALSE)){
+                lead.getPersona().getPhones().forEach(p-> p.setPersona(personaDatabse));
                 personaDatabse.getPhones().addAll(lead.getPersona().getPhones());
             }
             lead.setPersona(personaDatabse);
@@ -444,18 +459,22 @@ public class Start implements IcreateProponent {
 
             if(this.existsEntity.verifyAccount(personaDatabse.getBankAccounts(), finder.getPersona().getBankAccounts())
                     .equals(Boolean.FALSE)){
+                finder.getPersona().getBankAccounts().forEach(p-> p.setPersona(personaDatabse));
                 personaDatabse.getBankAccounts().addAll(finder.getPersona().getBankAccounts());
             }
             if(this.existsEntity.verifyAddress(personaDatabse.getAddresses(), finder.getPersona().getAddresses())
                     .equals(Boolean.FALSE)){
+                finder.getPersona().getAddresses().forEach(p-> p.setPersona(personaDatabse));
                 personaDatabse.getAddresses().addAll(finder.getPersona().getAddresses());
             }
             if(this.existsEntity.verifyEmail(personaDatabse.getContacts(), finder.getPersona().getContacts())
                     .equals(Boolean.FALSE)){
+                finder.getPersona().getContacts().forEach(p-> p.setPersona(personaDatabse));
                 personaDatabse.getContacts().addAll(finder.getPersona().getContacts());
             }
             if(this.existsEntity.verifyPhone(personaDatabse.getPhones(),finder.getPersona().getPhones())
                     .equals(Boolean.FALSE)){
+                finder.getPersona().getPhones().forEach(p-> p.setPersona(personaDatabse));
                 personaDatabse.getPhones().addAll(finder.getPersona().getPhones());
             }
             finder.setPersona(personaDatabse);
@@ -478,10 +497,12 @@ public class Start implements IcreateProponent {
             }
             if(this.existsEntity.verifyEmail(personaDatabse.getContacts(), investor.getPersona().getContacts())
                     .equals(Boolean.FALSE)){
+                investor.getPersona().getContacts().forEach(p-> p.setPersona(personaDatabse));
                 personaDatabse.getContacts().addAll(investor.getPersona().getContacts());
             }
             if(this.existsEntity.verifyPhone(personaDatabse.getPhones(),investor.getPersona().getPhones())
                     .equals(Boolean.FALSE)){
+                investor.getPersona().getPhones().forEach(p-> p.setPersona(personaDatabse));
                 personaDatabse.getPhones().addAll(investor.getPersona().getPhones());
             }
             investor.setPersona(personaDatabse);
@@ -503,10 +524,12 @@ public class Start implements IcreateProponent {
                 }
                 if(this.existsEntity.verifyEmail(personaDatabse.getContacts(), user.getPersona().getContacts())
                         .equals(Boolean.FALSE)){
+                    user.getPersona().getContacts().forEach(p-> p.setPersona(personaDatabse));
                     personaDatabse.getContacts().addAll(user.getPersona().getContacts());
                 }
                 if(this.existsEntity.verifyPhone(personaDatabse.getPhones(),user.getPersona().getPhones())
                         .equals(Boolean.FALSE)){
+                    user.getPersona().getPhones().forEach(p-> p.setPersona(personaDatabse));
                     personaDatabse.getPhones().addAll(user.getPersona().getPhones());
                 }
                 user.setPersona(personaDatabse);
@@ -550,7 +573,7 @@ public class Start implements IcreateProponent {
         List<ProposalProponent> proposalProponentList = new ArrayList<>();
 
         proposalProponents.forEach(proponent->{
-            Persona personaSave = this.personaRepository.findByTaxId(proponent.getPersona().getCpfCnpj());
+            Persona personaSave = this.personaRepository.findAllByTaxId(proponent.getPersona().getCpfCnpj());
             if(personaSave != null){
                 proponent.setPersona(personaSave);
                 proposalProponentList.add(proponent);
@@ -709,15 +732,46 @@ public class Start implements IcreateProponent {
 
             CreditAnalysisProponent creditAnalysisProponent = new CreditAnalysisProponent();
             creditAnalysisProponent.setCreditAnalysis(creditAnalysis);
-            creditAnalysisProponent.setAnalysisComparative(new CreditAnalysisComparative());
+
+            CreditAnalysisComparative creditAnalysisComparativeSaved =
+                    this.creditAnalysisComparativeRepository.save(new CreditAnalysisComparative());
+
+            creditAnalysisProponent.setAnalysisComparative(creditAnalysisComparativeSaved);
+
+            CreditAnalysisProponent creditAnalysisProponentSaved =
+                    this.creditAnalysisProponentRepository.save(creditAnalysisProponent);
+
+            creditAnalysisProponentSaved.setIncome(
+                    creditAnalysis.getIncome() != null ? creditAnalysis.getIncome(): BigDecimal.ZERO);
+
+            creditAnalysisProponentSaved.setFinancialCommitment(
+                    creditAnalysis.getFinancialCommitment() != null ? creditAnalysis.getFinancialCommitment() : BigDecimal.ZERO);
+
+            creditAnalysisProponentSaved.setSerasaRiskScore(
+                    creditAnalysis.getSerasaRiskScore() != null ? creditAnalysis.getSerasaRiskScore() : null);
+
+            creditAnalysisProponentSaved.setScrScore(
+                    creditAnalysis.getScrScore() != null ? creditAnalysis.getScrScore() : null);
+
+            creditAnalysisProponentSaved.setDueDiligence(
+                    creditAnalysis.getDueDiligence() != null ? creditAnalysis.getDueDiligence() : null);
+
+            creditAnalysisProponentSaved.setTotalIncome(
+                    creditAnalysis.getTotalIncome() != null ? creditAnalysis.getTotalIncome() : null);
+
+            creditAnalysisProponentSaved.setTotalFinancialCommitment(
+                    creditAnalysis.getTotalFinancialCommitment() != null ? creditAnalysis.getTotalFinancialCommitment() : null);
+
+            creditAnalysisProponentSaved.setTotalCommitment(
+                    creditAnalysis.getTotalCommitment() != null ? creditAnalysis.getTotalCommitment() : null);
+
+            creditAnalysisProponentSaved.setMmaCommitmentFinancialScr(
+                    creditAnalysis.getFinancialCommitment() != null ? creditAnalysis.getFinancialCommitment() : BigDecimal.ZERO);
 
             ProposalProponent proponent =
                     this.proposalProponentRepository
                             .findAllByProposalByLeadProposalMain(creditAnalysis.getProposal().getLeadProposal().getId(),
                                     creditAnalysis.getProposal().getId(), ProponentType.PRINCIPAL);
-
-            CreditAnalysisProponent creditAnalysisProponentSaved =
-                    this.creditAnalysisProponentRepository.save(creditAnalysisProponent);
 
             if(proponent != null)
                 creditAnalysisProponentSaved.setProponent(proponent);
@@ -726,7 +780,7 @@ public class Start implements IcreateProponent {
                 creditAnalysis.getBalanceSheets().forEach(balanceSheet -> {
                     BalanceSheet balanceSheet02;
                     balanceSheet02 = balanceSheet;
-                    balanceSheet02.setCreditAnalysisComparative(creditAnalysisProponentSaved.getAnalysisComparative());
+                    balanceSheet02.setCreditAnalysisComparative(creditAnalysisComparativeSaved);
                     balanceSheetList.add(balanceSheet02);
                 });
             }
@@ -734,14 +788,18 @@ public class Start implements IcreateProponent {
                 creditAnalysis.getIncomeStatements().forEach(incomeStatement -> {
                     IncomeStatement incomeStatement2;
                     incomeStatement2 = incomeStatement;
-                    incomeStatement2.setCreditAnalysisComparative(creditAnalysisProponentSaved.getAnalysisComparative());
+                    incomeStatement2.setCreditAnalysisComparative(creditAnalysisComparativeSaved);
                     incomeStatements.add(incomeStatement2);
                 });
             }
+
         });
 
         this.iincomeStatementRepository.saveAll(incomeStatements);
         this.balanceSheetRepository.saveAll(balanceSheetList);
+
+        LOGGER.log(Level.INFO, "TOTAL DE BALANCESHEETLIST NORMALIZADAS {0}", balanceSheetList.size());
+        LOGGER.log(Level.INFO, "TOTAL DE INCOMESTATEMENTS NORMALIZADAS {0}", incomeStatements.size());
 
     }
 
@@ -821,13 +879,13 @@ public class Start implements IcreateProponent {
         newPersona.setMonthlyIncome(personaTransient.getMonthlyIncome() != null ? personaTransient.getMonthlyIncome(): BigDecimal.ZERO);
 
         if (newPersona.getPersonaType().equals(PersonaType.NATURAL_PERSON))
-            newPersona.setName(personaTransient.getName().toUpperCase());
+            newPersona.setName(WordUtils.capitalize(personaTransient.getName()));
 
         if(newPersona.getPersonaType().equals(PersonaType.LEGAL_PERSON)){
             newPersona.setName(personaTransient.getName().toUpperCase());
             Company company = new Company();
-            company.setFantasyName(personaTransient.getName().toUpperCase());
-            company.setCorporateName(personaTransient.getName().toUpperCase());
+            company.setFantasyName(WordUtils.capitalize(personaTransient.getName()));
+            company.setCorporateName(WordUtils.capitalize(personaTransient.getName()));
             company.setType(personaTransient.getCorporateType() != null ? personaTransient.getCorporateType() : null);
             if(personaTransient.getCompanyData() != null){
                 company.setFoundationDate(personaTransient.getCompanyData().getFoundationDate()
