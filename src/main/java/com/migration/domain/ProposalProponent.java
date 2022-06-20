@@ -2,8 +2,12 @@ package com.migration.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.migration.domain.enums.MaritalStatus;
 import com.migration.domain.enums.ProponentType;
+import com.migration.domain.enums.TypeRegimeCompanion;
+import com.migration.domain.persona.Companion;
 import com.migration.domain.persona.Persona;
+import com.migration.domain.persona.PersonaMigration;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -27,7 +31,7 @@ public class ProposalProponent{
     @OneToOne(cascade = CascadeType.ALL)
     private Proposal proposal;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.REFRESH})
     @JoinColumn(name = "persona_id")
     private Persona persona;
 
@@ -49,6 +53,51 @@ public class ProposalProponent{
 
     @Column(name = "created_at")
     private Date createdAt = new Date();
+
+    @Column(name = "external_analysis")
+    private String externalAnalysis;
+
+    @Column(name = "income_tax_analysis")
+    private String incomeTaxAnalysis;
+
+    @Column(name = "digital_media_analysis")
+    private String digitalMediaAnalysis;
+
+    @Column(name = "protest_analysis")
+    private String protestAnalysis;
+
+    @Column(name = "process_analysis")
+    private String processAnalysis;
+
+    @Column(name = "scr_analysis")
+    private String scrAnalysis;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "marital_status")
+    private MaritalStatus maritalStatus;
+
+    @OneToOne
+    @JoinColumn(name = "companion_id")
+    private Companion companion;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "regime")
+    private TypeRegimeCompanion typeRegimeCompanion;
+
+    @OneToOne
+    @JoinColumn(name = "persona_migration_id")
+    private PersonaMigration personaMigration;
+
+    @OneToOne
+    @JoinColumn(name = "lead_proposal")
+    private LeadProposal leadProposal;
+
+    @OneToOne
+    @JoinColumn(name = "old_persona")
+    private Persona oldPersona;
+
+    @Column(name = "spouse_name")
+    private String spouseName;
 
     @Override
     public boolean equals(Object o) {

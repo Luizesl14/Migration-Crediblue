@@ -1,6 +1,7 @@
 package com.migration.domain.persona;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.migration.domain.LeadProposal;
 import com.migration.domain.Proposal;
 import com.migration.domain.enums.*;
 import com.migration.domain.persona.aggregation.*;
@@ -16,6 +17,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 
 @Getter
@@ -30,41 +32,88 @@ public class PersonaMigration {
     @Column(name = "id", nullable = false)
     private Integer id;
 
-    private String rg;
-    @Column(name = "orgao_emissor")
-    private String orgaoEmissor;
+    private String name;
 
     @Column(name = "cpf_cnpj")
     private String cpfCnpj;
-    private String name;
+
+    @Column(name = "tax_id")
+    private String taxId;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "marital_status")
-    private MaritalStatus maritalStatus;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "property_system")
-    private PropertySystem propertySystem;
+    @Column(name = "persona_type")
+    private PersonaType personaType;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "proponent_type")
     private ProponentType proponentType;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "gender_type")
+    private GenderType genderType;
+
+    @Column(name = "spouse_name")
+    private String spouseName;
+
+    @Column(name = "rg")
+    private String rg;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    private Companion companion;
+
+    @Column(name = "orgao_emissor")
+    private String orgaoEmissor;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "marital_status")
+    private MaritalStatus maritalStatus;
+
+    @Column(name = "nationality")
+    private String nationality;
+
+    @Column(name = "citizenship")
+    private String citizenship;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "corporate_type")
+    private CompanyType corporateType;
+
+    @Column(name = "birthdate")
+    private LocalDate birthDate;
+
+    @Column(name = "mother_name")
+    private String motherName;
+
+    @Enumerated(EnumType.STRING)
     @Column(name = "source_income")
     private LeadSourceIncome sourceIncome;
 
-    private String nationality;
-    private String citizenship;
+    @Column(name = "compose_income")
+    private Boolean composeIncome;
+
+    @Column(name = "scr")
+    private Boolean isConsultedScr;
+
+    @Column(name = "occupation")
     private String occupation;
+
+    @Column(name = "pep")
+    private Boolean pep;
+
+    @Column(name = "created_at")
+    private Date createdAt;
+
+    @Column(name = "updated_at")
+    private Date updatedAt;
+
+    @Column(name = "deleted_at")
+    private Date deletedAt;
+
 
     @Column(name = "monthly_income")
     private BigDecimal monthlyIncome;
     private String telephone;
     private String email;
-
-    @Column(name = "birthdate")
-    private LocalDate birthDate;
 
     @Column(name = "opening_date")
     private LocalDate openingDate;
@@ -72,18 +121,16 @@ public class PersonaMigration {
     @Column(name = "persona_partners")
     private String personaPartners;
 
+    @JsonIgnore
     @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE})
     @JoinColumn(name = "address_id")
     private Address address;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "companion_id")
-    private Companion companion;
 
-    @JsonIgnore
-    @CreationTimestamp
-    @Column(name = "created_at")
-    private LocalDateTime createdAt;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "property_system")
+    private PropertySystem propertySystem;
+
 
     @Column(name = "financial_institution_code")
     private String financialInstitutionCode;
@@ -97,13 +144,11 @@ public class PersonaMigration {
     @Column(name = "account_digit")
     private String accountDigit;
 
-    private double participationPercentage;
+    private Double participationPercentage;
 
-    private boolean legalRepresentative;
+    private Boolean legalRepresentative;
 
-    @Column(name = "mother_name")
-    private String motherName;
-
+    @JsonIgnore
     @ManyToOne(cascade = CascadeType.MERGE)
     @JoinColumn(name = "proposal_id")
     private Proposal proposal;
@@ -125,4 +170,35 @@ public class PersonaMigration {
 
     @Column(name = "scr_analysis")
     private String scrAnalysis;
+
+    @OneToOne(cascade = CascadeType.PERSIST)
+    @JoinColumn(name = "lead_proposal_id")
+    private LeadProposal leadProposal;
+
+    @JsonIgnore
+    @OneToOne
+    @JoinColumn(name = "persona_id")
+    private Persona persona;
+
+    @Column(name = "cnae_code")
+    private String cnaeCode;
+
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "regime_companion")
+    private TypeRegimeCompanion typeRegimeCompanion;
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        PersonaMigration that = (PersonaMigration) o;
+        return Objects.equals(cpfCnpj, that.cpfCnpj);
+    }
+
+    @Override
+    public int hashCode() {
+        return 0;
+    }
 }

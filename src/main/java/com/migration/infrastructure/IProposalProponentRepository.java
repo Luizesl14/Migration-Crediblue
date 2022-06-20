@@ -13,8 +13,23 @@ import java.util.List;
 public interface IProposalProponentRepository extends JpaRepository<ProposalProponent, Integer> {
 
 
-    @Query("FROM ProposalProponent pp WHERE pp.persona.taxId = :taxId")
-    List<ProposalProponent> findAllPersonaByTaxId(String taxId);
+    @Query("FROM ProposalProponent pp WHERE pp.persona.taxId is not null ")
+    List<ProposalProponent> findAllPersonaByLeadPrincipal();
+
+    @Query("FROM ProposalProponent pp WHERE pp.companion is not null ")
+    List<ProposalProponent> findByCompanionId();
+
+    @Query("FROM ProposalProponent pp WHERE pp.persona.leadProposal is null ")
+    List<ProposalProponent> findAllPersonaBySecundario();
+
+    @Query("FROM ProposalProponent pp WHERE pp.leadProposal is not null ")
+    List<ProposalProponent> findAllPersonaByMain();
+
+    @Query("FROM ProposalProponent pp WHERE pp.proposal is null and pp.leadProposal is not null ")
+    List<ProposalProponent> findAllProposalNull();
+
+    @Query("FROM ProposalProponent pp WHERE pp.type is null and pp.leadProposal is not null ")
+    List<ProposalProponent> findAlltypeNull();
 
     @Query("FROM ProposalProponent pp WHERE pp.persona.id = :personaId AND pp.proposal.id = :proposalId ")
     ProposalProponent findAllDByProposalByPersona(Integer personaId, Integer proposalId);
@@ -22,8 +37,8 @@ public interface IProposalProponentRepository extends JpaRepository<ProposalProp
     @Query("FROM ProposalProponent pp WHERE pp.persona.leadProposal.id =:leadId AND pp.proposal.id = :proposalId ")
     ProposalProponent findAllByProposalByLeadProposal(Integer leadId, Integer proposalId );
 
-    @Query("FROM ProposalProponent pp WHERE pp.persona.leadProposal.id =:leadId AND pp.proposal.id = :proposalId  AND pp.type =:type")
-    ProposalProponent findAllByProposalByLeadProposalMain(Integer leadId, Integer proposalId , ProponentType type);
+    @Query("FROM ProposalProponent pp WHERE pp.leadProposal.id =:leadId ")
+    ProposalProponent findAllByProposalByLeadProposalMain(Integer leadId);
 
     @Query("SELECT pp FROM ProposalProponent pp WHERE pp.persona.cpfCnpj =:cpfCnpj " +
             "AND pp.proposal.id = :proposalId  AND pp.type = :proponentType")

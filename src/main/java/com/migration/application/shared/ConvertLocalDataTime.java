@@ -21,6 +21,11 @@ public class ConvertLocalDataTime {
     public Date covertLocalDataTimeToDate(LocalDateTime localDateTime){
         return Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
     }
+    public LocalDate convertToLocalDateViaMilisecond(Date dateToConvert) {
+        return Instant.ofEpochMilli(dateToConvert.getTime())
+                .atZone(ZoneId.systemDefault())
+                .toLocalDate();
+    }
 
 
     public Date convertToLocalDate(LocalDate localDate){

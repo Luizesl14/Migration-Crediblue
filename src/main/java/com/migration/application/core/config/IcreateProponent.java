@@ -11,15 +11,21 @@ public interface IcreateProponent {
 
     void satartApplication();
 
-    void goThroughProposal();
+    void goThroughProponent();
+
+    void saveLeadProposalByPerosnaMigration();
+
+    void goThroughProponentPrincipal();
+
+    void migrationPersonasNewEntity();
+
+     void normaliedProponentPrincipal();
 
     ProposalProponent createdProponent(Persona persona);
 
     void goThroughSimulation();
 
     void normalizedEntityCpfAndCnpjIsNull();
-
-    void normalizedEntityContainsPerson();
 
     Partner updatePartner(Partner partner, Persona personaDatabse);
 
@@ -33,9 +39,13 @@ public interface IcreateProponent {
 
     void normalizedPersona();
 
-    void normaizedProponents();
-
     void createdCompanionByPersona();
+
+    void goToUser();
+    void goToLead();
+    void goToFinder();
+    void goToInvestor();
+    void goToPartner();
 
     void goThroughPersonaDocument();
 
@@ -44,6 +54,7 @@ public interface IcreateProponent {
     void goThroughCreditAnalysisDocument();
 
     void goThroughAnalysisBalanceAndIncome();
+
 
     TypeRegimeCompanion regimeType(PropertySystem system);
 

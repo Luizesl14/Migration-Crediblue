@@ -32,6 +32,6 @@ public class PersonaComposeIncome {
 
     @JsonIgnore
     @ManyToOne
-    @JoinColumn(name = "persona_id")
+    @JoinColumn(name = "persona_id", insertable = false, updatable = false)
     private Persona persona;
 }

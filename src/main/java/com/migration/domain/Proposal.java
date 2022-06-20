@@ -1,6 +1,7 @@
 package com.migration.domain;
 
 
+import com.migration.domain.persona.CreditAnalysis;
 import com.migration.domain.persona.Persona;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -23,13 +24,14 @@ public class Proposal {
     @JoinColumn(name = "simulation_id")
     private Simulation simulation;
 
+
     @OneToOne
     @JoinColumn(name = "partner_id")
     private Partner partner;
 
     @OneToMany
     @JoinColumn(name = "investor_id")
-    private List<Persona> investors;
+    private List<Investor> investors;
 
     @OneToMany
     @JoinColumn(name = "user_id")

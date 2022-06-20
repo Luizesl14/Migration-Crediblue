@@ -66,11 +66,6 @@ public class PersonaNormalizationService {
     @Autowired
     private PartnerService partnerService;
 
-    @Autowired
-    private Start start;
-
-
-
 
     public void findAll() {
 
@@ -88,7 +83,6 @@ public class PersonaNormalizationService {
 //        this.finderService.findAll();
 //        this.investorService.findAll();
 //        this.userService.findAll();
-        this.start.goThroughProposal();
 
     }
 
@@ -129,7 +123,7 @@ public class PersonaNormalizationService {
 
 
     public Boolean updatePersonas() {
-        List<Persona> oldPersonas = this.personaRepository.findAll();
+        List<Persona> oldPersonas = this.personaRepository.findPropeonenSegundariosNormalized();
         List<Persona> notRepeatedPersonas = oldPersonas.stream().distinct().collect(Collectors.toList());
         System.out.println(" ## QUANTIDADE DE PERSONAS NORMALIZADOS ##: " + notRepeatedPersonas.size());
 

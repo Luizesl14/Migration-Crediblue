@@ -22,7 +22,7 @@ public class PersonaAddress {
     private Integer id;
 
     @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    @JoinColumn(name = "persona_id")
+    @JoinColumn(name = "persona_id", insertable = false, updatable = false)
     private Persona persona;
 
     @OneToOne

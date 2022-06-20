@@ -29,7 +29,7 @@ public class PersonaPhone {
 
     @JsonIgnore
     @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    @JoinColumn(name = "persona_id")
+    @JoinColumn(name = "persona_id", insertable = false, updatable = false)
     private Persona persona;
 
     @Enumerated(EnumType.STRING)

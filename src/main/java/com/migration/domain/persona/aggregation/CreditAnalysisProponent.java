@@ -70,6 +70,21 @@ public class CreditAnalysisProponent  {
     @Column(name = "created_at")
     private Date createdAt;
 
+    @Column(name = "external_analysis")
+    private String externalAnalysis;
+
+    @Column(name = "income_tax_analysis")
+    private String incomeTaxAnalysis;
+
+    @Column(name = "digital_media_analysis")
+    private String digitalMediaAnalysis;
+
+    @Column(name = "protest_analysis")
+    private String protestAnalysis;
+
+    @Column(name = "process_analysis")
+    private String processAnalysis;
+
     @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE}, targetEntity = Document.class)
     @JoinTable(name = "credi_persona_document",
             joinColumns = {@JoinColumn(name = "persona_id", nullable = false)},

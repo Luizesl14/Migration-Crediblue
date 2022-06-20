@@ -94,17 +94,17 @@ public class Persona {
 
 
     @OneToMany(cascade = CascadeType.ALL)
-    @JoinColumn(name = "persona_id")
+    @JoinColumn(name = "persona_id", nullable = false)
     private List<PersonaAddress> addresses = new ArrayList<>();
 
 
     @OneToMany(cascade = CascadeType.ALL)
-    @JoinColumn(name = "persona_id")
+    @JoinColumn(name = "persona_id", nullable = false)
     private List<PersonaPhone> phones = new ArrayList<>();
 
 
     @OneToMany(cascade = CascadeType.ALL)
-    @JoinColumn(name = "persona_id")
+    @JoinColumn(name = "persona_id", nullable = false)
     private List<PersonaAccounts> bankAccounts = new ArrayList<>();
 
 
@@ -114,16 +114,19 @@ public class Persona {
 
 
     @OneToMany(cascade = CascadeType.ALL)
-    @JoinColumn(name = "persona_id")
+    @JoinColumn(name = "persona_id", nullable = false)
     private List<PersonaComposeIncome> composeIncomes = new ArrayList<>();
 
 
     @Column(name = "compose_income")
     private Boolean composeIncome;
 
+    @Column(name = "scr")
+    private Boolean isConsultedScr;
+
 
     @OneToMany(cascade = CascadeType.ALL)
-    @JoinColumn(name = "persona_id")
+    @JoinColumn(name = "persona_id", nullable = false)
     private List<ContactEmail> contacts = new ArrayList<>();
 
 
@@ -203,6 +206,7 @@ public class Persona {
 
     @Column(name = "scr_analysis")
     private String scrAnalysis;
+
 
     @JsonIgnore
     @OneToOne
