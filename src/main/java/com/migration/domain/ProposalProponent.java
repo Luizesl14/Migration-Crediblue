@@ -54,23 +54,6 @@ public class ProposalProponent{
     @Column(name = "created_at")
     private Date createdAt = new Date();
 
-    @Column(name = "external_analysis")
-    private String externalAnalysis;
-
-    @Column(name = "income_tax_analysis")
-    private String incomeTaxAnalysis;
-
-    @Column(name = "digital_media_analysis")
-    private String digitalMediaAnalysis;
-
-    @Column(name = "protest_analysis")
-    private String protestAnalysis;
-
-    @Column(name = "process_analysis")
-    private String processAnalysis;
-
-    @Column(name = "scr_analysis")
-    private String scrAnalysis;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "marital_status")

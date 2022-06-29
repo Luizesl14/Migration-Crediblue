@@ -15,6 +15,12 @@ public interface IPartnerRepository extends JpaRepository<Partner, Integer> {
     @Query("FROM Partner p WHERE p.id = :id")
     Partner findByPartnerId(Integer id);
 
+    @Query("FROM Partner p WHERE p.address is not null ")
+    List<Partner> findByPartnerAddress();
+
+    @Query("FROM Partner p WHERE p.financialInstitutionCode is not null ")
+    List<Partner> findByPartnerAccount();
+
     @Query("FROM Partner p WHERE p.persona.taxId = :taxId")
     Partner findbyTaxId(String taxId);
 

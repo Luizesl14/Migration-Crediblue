@@ -16,6 +16,9 @@ public interface IProposalProponentRepository extends JpaRepository<ProposalProp
     @Query("FROM ProposalProponent pp WHERE pp.persona.taxId is not null ")
     List<ProposalProponent> findAllPersonaByLeadPrincipal();
 
+    @Query("FROM ProposalProponent pp WHERE pp.leadProposal is not null ORDER BY pp.leadProposal.id")
+    List<ProposalProponent> findAllLeadPrincipal();
+
     @Query("FROM ProposalProponent pp WHERE pp.companion is not null ")
     List<ProposalProponent> findByCompanionId();
 

@@ -10,8 +10,8 @@ import java.util.List;
 @Repository
 public interface ILeadRepository extends JpaRepository<Lead, Integer> {
 
-    @Query("FROM Lead l WHERE  l.persona.taxId is null")
-    List<Lead> findLeadTaxIdNull();
+    @Query("FROM Lead l WHERE  l.email is null")
+    List<Lead> findLeadEmailIsNull();
 
     @Query("FROM Lead l WHERE  l.persona.taxId =:taxId")
     Lead findLeadTaxId(String taxId);

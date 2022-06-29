@@ -21,26 +21,19 @@ public class PersonaAddress {
     @Column(name = "id", nullable = false)
     private Integer id;
 
-    @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    @JoinColumn(name = "persona_id", insertable = false, updatable = false)
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "persona_id")
     private Persona persona;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "address_id")
     private Address data;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "type")
     private AddressType type;
 
     private Boolean principal;
+
     private Date createdAt;
-
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        PersonaAddress that = (PersonaAddress) o;
-        return Objects.equals(persona, that.persona) && Objects.equals(data, that.data);
-    }
 }

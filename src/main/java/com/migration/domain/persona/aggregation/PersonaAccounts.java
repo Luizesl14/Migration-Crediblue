@@ -24,8 +24,8 @@ public class PersonaAccounts {
     private Integer id;
 
     @JsonIgnore
-    @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    @JoinColumn(name = "persona_id", insertable = false, updatable = false)
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "persona_id")
     private Persona persona;
 
     @JsonInclude(JsonInclude.Include.NON_EMPTY)

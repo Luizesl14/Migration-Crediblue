@@ -20,10 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.UUID;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -102,7 +99,19 @@ public class Start implements IcreateProponent {
     private IPersonaMigrationRepository personaMigrationRepository;
 
     @Autowired
+    private IPersonaAddressRepository personaAddressRepository;
+
+    @Autowired
+    private IContactEmailRepository contactEmailRepository;
+
+    @Autowired
     private GenericObjectMapper mapper;
+
+    @Autowired
+    private IPersonaAccountRepository personaAccountRepository;
+
+    @Autowired
+    private CreateObject created;
 
     private final static Logger LOGGER = Logger.getLogger(Start.class.getName());
 
@@ -141,11 +150,6 @@ public class Start implements IcreateProponent {
 
         personasDatabase.forEach(persona -> {
             ProposalProponent proponent = this.createdProponent(persona);
-            proponent.setExternalAnalysis(persona.getExternalAnalysis() != null ? persona.getExternalAnalysis() : null);
-            proponent.setIncomeTaxAnalysis(persona.getIncomeTaxAnalysis() != null ? persona.getIncomeTaxAnalysis() : null);
-            proponent.setDigitalMediaAnalysis(persona.getDigitalMediaAnalysis() != null ? persona.getDigitalMediaAnalysis() : null);
-            proponent.setProtestAnalysis(persona.getProtestAnalysis() != null ? persona.getProtestAnalysis() : null);
-            proponent.setProcessAnalysis(persona.getProcessAnalysis() != null ? persona.getProcessAnalysis() : null);
             proponent.setOldPersona(persona);
             proponent.setCompanion(persona.getCompanion() != null ? persona.getCompanion() : null);
             proponents.add(proponent);
@@ -231,23 +235,170 @@ public class Start implements IcreateProponent {
     }
 
     public void adjust(){
-//        List<ProposalProponent> proposalProponents = this.proposalProponentRepository.findAllProposalNull();
-//        List<ProposalProponent> mainProponents = new ArrayList<>();
-//        proposalProponents.forEach(proponent -> {
-//            proponent.setProposal(proponent.getLeadProposal().getProposal());
-//            mainProponents.add(proponent);
-//        });
-//        this.proposalProponentRepository.saveAll(mainProponents);
-//        LOGGER.log(Level.INFO, "TOTAL DE PROPONENTS PRINCIPAIS {0}", mainProponents.size());
 
-        List<ProposalProponent> proposalProponents = this.proposalProponentRepository.findAlltypeNull();
-        List<ProposalProponent> mainProponents = new ArrayList<>();
+//        List<Finder> finderList = this. finderRespository.findNameNameIsNull();
+//        List<Finder> personFinders = new ArrayList<>();
+//
+//        finderList.forEach(finder -> {
+//                if (finder.getFinancialInstitutionCode() != null) {
+//                    PersonaAccounts personaAccounts = new PersonaAccounts();
+//                    BankAccount account = new BankAccount();
+//                    account.setFinancialInstitutionCode(finder.getFinancialInstitutionCode());
+//                    account.setAccountBranch(finder.getAccountBranch());
+//                    account.setAccountNumber(finder.getAccountNumber());
+//                    account.setAccountDigit(finder.getAccountDigit());
+//                    personaAccounts.setAccount(account);
+//                    personaAccounts.setCreatedAt(this.convert.covertLocalDataTimeToDate(finder.getCreatedAt()));
+//                    personaAccounts.setPrincipal(Boolean.TRUE);
+//                    personaAccounts.setPersona(finder.getPersona());
+//                    personaAccounts.setType(BankAccountType.CC_PF);
+//                    finder.getPersona().getBankAccounts().add(personaAccounts);
+//                }
+//            finder.setName(finder.getPersona().getName());
+//
+//            personFinders.add(finder);
+//            System.out.println("ID > : " + finder.getId() + " finder-name: " + finder.getPersona().getName());
+//        });
+//
+//        this.finderRespository.saveAll(personFinders);
+
+
+
+        List<ProposalProponent> proposalProponents = this.proposalProponentRepository.findAllLeadPrincipal();
+        List<Persona> personas = new ArrayList<>();
+
         proposalProponents.forEach(proponent -> {
-            proponent.setType(ProponentType.PRINCIPAL);
-            mainProponents.add(proponent);
+            if(proponent.getPersona().getMonthlyIncome() == null && proponent.getLeadProposal().getFamilyIncome() != null)
+            proponent.getPersona().setMonthlyIncome(proponent.getLeadProposal().getFamilyIncome());
+
+            if(proponent.getPersona().getMaritalStatus() == null && proponent.getLeadProposal().getMaritalStatus() != null)
+            proponent.getPersona().setMaritalStatus(proponent.getLeadProposal().getMaritalStatus());
+
+            if(proponent.getPersona().getBirthDate() == null && proponent.getLeadProposal().getBirthDate() != null)
+            proponent.getPersona().setBirthDate(proponent.getLeadProposal().getBirthDate());
+
+            if(proponent.getPersona().getRg() == null && proponent.getLeadProposal().getRg() != null)
+            proponent.getPersona().setRg(proponent.getLeadProposal().getRg());
+
+            if(proponent.getPersona().getOrgaoEmissor() == null && proponent.getLeadProposal().getOrgaoEmissor() != null)
+            proponent.getPersona().setOrgaoEmissor(proponent.getLeadProposal().getOrgaoEmissor());
+
+            if(proponent.getPersona().getNationality() ==  null && proponent.getLeadProposal().getNationality() != null )
+            proponent.getPersona().setNationality( proponent.getLeadProposal().getNationality());
+
+            if(proponent.getPersona().getMotherName() ==  null && proponent.getLeadProposal().getMother() != null )
+            proponent.getPersona().setMotherName( proponent.getLeadProposal().getMother());
+
+            if(proponent.getPersona().getCitizenship() ==  null && proponent.getLeadProposal().getCitizenship() != null )
+            proponent.getPersona().setCitizenship(proponent.getLeadProposal().getCitizenship());
+            proponent.getPersona().setPep(
+                    proponent.getLeadProposal().getPep().equals(Boolean.TRUE) ? Boolean.TRUE : Boolean.FALSE);
+
+            if(proponent.getPersona().getOccupation() ==  null
+                    && proponent.getLeadProposal().getOccupation() != null )
+            proponent.getPersona().setOccupation(proponent.getLeadProposal().getOccupation());
+
+            if(proponent.getPersona().getCompanyData() != null){
+                if(proponent.getPersona().getCompanyData().getFoundationDate() ==  null
+                        && proponent.getLeadProposal().getCompanyFoundingDate() != null ){
+                    proponent.getPersona().getCompanyData().setFoundationDate( proponent.getLeadProposal().getCompanyFoundingDate());
+                }
+                if(proponent.getPersona().getCompanyData().getCnae() ==  null
+                        && proponent.getLeadProposal().getCnaeCode() != null ){
+                    proponent.getPersona().getCompanyData().setCnae( proponent.getLeadProposal().getCnaeCode());
+                }
+                if(proponent.getPersona().getCompanyData().getType() ==  null
+                        && proponent.getLeadProposal().getCompanyType()!= null ){
+                    proponent.getPersona().getCompanyData().setType( proponent.getLeadProposal().getCompanyType());
+                }
+
+            }
+
+            if(proponent.getLeadProposal().getEmail()!= null){
+                if(proponent.getPersona().getContacts() != null && !proponent.getPersona().getContacts().isEmpty()){
+                    proponent.getPersona().getContacts().forEach(contactEmail -> {
+                        if(contactEmail.getEmail() == null)
+                            contactEmail.setEmail(proponent.getLeadProposal().getEmail());
+
+                        if(!contactEmail.getEmail().equals(proponent.getLeadProposal().getEmail())){
+                            contactEmail.setEmail(proponent.getLeadProposal().getEmail());
+                            contactEmail.setPersona(proponent.getPersona());
+                            contactEmail.setType(EmailType.PERSONAL);
+                            contactEmail.setCreatedAt(this.convert.covertLocalDataTimeToDate(proponent.getLeadProposal().getCreatedAt()));
+                            contactEmail.setPrincipal(Boolean.TRUE);
+                        }
+                    });
+                }else{
+                  ContactEmail contactEmail = new ContactEmail();
+                  contactEmail.setEmail(proponent.getLeadProposal().getEmail());
+                  contactEmail.setPersona(proponent.getPersona());
+                  contactEmail.setType(EmailType.PERSONAL);
+                  contactEmail.setCreatedAt(this.convert.covertLocalDataTimeToDate(proponent.getLeadProposal().getCreatedAt()));
+                  contactEmail.setPrincipal(Boolean.TRUE);
+                }
+
+            }
+
+            if(proponent.getLeadProposal().getAddress() != null){
+                if(proponent.getPersona().getAddresses() != null && !proponent.getPersona().getAddresses().isEmpty()){
+                    proponent.getPersona().getAddresses().forEach(personaAddress -> {
+                        personaAddress.setData(proponent.getLeadProposal().getAddress());
+                        personaAddress.setPersona(proponent.getPersona());
+                        personaAddress.setPrincipal(Boolean.TRUE);
+                        personaAddress.setType(AddressType.RESIDENTIAL);
+                    });
+                }else{
+                    PersonaAddress personaAddress =  new PersonaAddress();
+                    personaAddress.setData(proponent.getLeadProposal().getAddress());
+                    personaAddress.setPersona(proponent.getPersona());
+                    personaAddress.setCreatedAt(this.convert.covertLocalDataTimeToDate(proponent.getLeadProposal().getCreatedAt()));
+                    personaAddress.setType(AddressType.RESIDENTIAL);
+                    proponent.getPersona().getAddresses().add(personaAddress);
+                }
+
+            }
+
+            if (proponent.getLeadProposal().getFinancialInstitutionCode() != null) {
+                if(proponent.getPersona().getBankAccounts() != null && !proponent.getPersona().getBankAccounts().isEmpty()){
+                    proponent.getPersona().getBankAccounts().forEach(accounts -> {
+                        accounts.getAccount().setFinancialInstitutionCode(proponent.getLeadProposal().getFinancialInstitutionCode());
+                        accounts.getAccount().setAccountNumber(proponent.getLeadProposal().getAccountBranch() != null ? proponent.getLeadProposal().getAccountBranch() : null);
+                        accounts.getAccount().setAccountBranch(proponent.getLeadProposal().getAccountBranch() != null ? proponent.getLeadProposal().getAccountBranch() : null);
+                        accounts.getAccount().setAccountNumber(proponent.getLeadProposal().getAccountDigit() != null ? proponent.getLeadProposal().getAccountDigit(): null);
+                        accounts.setPrincipal(Boolean.TRUE);
+                    });
+                }else{
+                    PersonaAccounts personaAccounts = new PersonaAccounts();
+                    BankAccount account = new BankAccount();
+                    account.setFinancialInstitutionCode(proponent.getLeadProposal().getFinancialInstitutionCode());
+                    account.setAccountBranch(proponent.getLeadProposal().getAccountBranch() != null ? proponent.getLeadProposal().getAccountBranch() : null);
+                    account.setAccountNumber(proponent.getLeadProposal().getAccountNumber() != null ? proponent.getLeadProposal().getAccountNumber(): null);
+                    account.setAccountDigit(proponent.getLeadProposal().getAccountDigit() != null ? proponent.getLeadProposal().getAccountDigit(): null);
+                    personaAccounts.setAccount(account);
+
+                    if(proponent.getLeadProposal().getCreatedAt() != null)
+                        personaAccounts.setCreatedAt(this.convert.covertLocalDataTimeToDate(proponent.getLeadProposal().getCreatedAt()));
+
+                    personaAccounts.setPrincipal(Boolean.TRUE);
+                    personaAccounts.setPersona(proponent.getPersona());
+                    if(proponent.getPersona().getPersonaType() == null){
+                        proponent.getPersona().setPersonaType(
+                                proponent.getPersona().getTaxId()
+                                        .length() == 11 ? PersonaType.NATURAL_PERSON: PersonaType.LEGAL_PERSON);
+                    }
+                    if(proponent.getPersona().getPersonaType().equals(PersonaType.NATURAL_PERSON))
+                        personaAccounts.setType(BankAccountType.CC_PF);
+                    if(proponent.getPersona().getPersonaType().equals(PersonaType.LEGAL_PERSON))
+                        personaAccounts.setType(BankAccountType.CC_PJ);
+                    proponent.getPersona().getBankAccounts().add(personaAccounts);
+                }
+            }
+            proponent.getPersona().setLeadProposal(proponent.getLeadProposal());
+            personas.add(proponent.getPersona());
         });
-        this.proposalProponentRepository.saveAll(mainProponents);
-        LOGGER.log(Level.INFO, "TOTAL DE PROPONENTS PRINCIPAIS {0}", mainProponents.size());
+
+            this.personaRepository.saveAll(personas);
+
     }
 
     @Override

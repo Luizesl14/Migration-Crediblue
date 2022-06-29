@@ -1,5 +1,6 @@
 package com.migration.infrastructure;
 
+import com.migration.domain.persona.Persona;
 import com.migration.domain.persona.aggregation.PersonaAccounts;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -17,4 +18,8 @@ public interface IPersonaAccountRepository extends JpaRepository<PersonaAccounts
     @Query("FROM PersonaAccounts pba WHERE pba.account.financialInstitutionCode = :code " +
             "AND pba.account.accountBranch = :ag AND  pba.account.accountNumber = :cc AND pba.persona.id =:id")
     List<PersonaAccounts> existsAccount(String code, String ag, String cc, Integer id);
+
+
+    @Query("FROM PersonaAccounts pba WHERE pba.persona.id = :personaId")
+   PersonaAccounts exist(Integer personaId);
 }

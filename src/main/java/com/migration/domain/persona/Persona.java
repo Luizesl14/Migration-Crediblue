@@ -94,17 +94,17 @@ public class Persona {
 
 
     @OneToMany(cascade = CascadeType.ALL)
-    @JoinColumn(name = "persona_id", nullable = false)
+    @JoinColumn(name = "persona_id")
     private List<PersonaAddress> addresses = new ArrayList<>();
 
 
-    @OneToMany(cascade = CascadeType.ALL)
-    @JoinColumn(name = "persona_id", nullable = false)
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "persona_id")
     private List<PersonaPhone> phones = new ArrayList<>();
 
 
     @OneToMany(cascade = CascadeType.ALL)
-    @JoinColumn(name = "persona_id", nullable = false)
+    @JoinColumn(name = "persona_id")
     private List<PersonaAccounts> bankAccounts = new ArrayList<>();
 
 
@@ -114,7 +114,7 @@ public class Persona {
 
 
     @OneToMany(cascade = CascadeType.ALL)
-    @JoinColumn(name = "persona_id", nullable = false)
+    @JoinColumn(name = "persona_id")
     private List<PersonaComposeIncome> composeIncomes = new ArrayList<>();
 
 
@@ -126,8 +126,8 @@ public class Persona {
 
 
     @OneToMany(cascade = CascadeType.ALL)
-    @JoinColumn(name = "persona_id", nullable = false)
-    private List<ContactEmail> contacts = new ArrayList<>();
+    @JoinColumn(name = "persona_id")
+    private List<ContactEmail> contacts;
 
 
     @Column(name = "occupation")

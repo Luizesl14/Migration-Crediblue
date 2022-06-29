@@ -13,4 +13,9 @@ public interface IPersonaAddressRepository extends JpaRepository<PersonaAddress,
     @Query("FROM PersonaAddress pa WHERE pa.data.cep = :cep " +
             "AND pa.data.street = :street AND pa.data.number = :number AND pa.persona.id = :id")
     List<PersonaAddress> existeAddress(String cep, String street, String number, Integer id);
+
+    @Query("FROM PersonaAddress pa where  pa.data is null")
+    List<PersonaAddress> findAllByAddressIdIsNull();
+
+
 }

@@ -12,4 +12,7 @@ import java.util.List;
 public interface IContactEmailRepository extends JpaRepository<ContactEmail, Integer> {
     @Query("SELECT ce FROM ContactEmail ce WHERE ce.email = :email AND ce.persona.id = :id")
     List<ContactEmail> findContactEmailsByEmail(@Param("email") String email, @Param("id") Integer id);
+
+    @Query("SELECT ce FROM ContactEmail ce WHERE ce.email = :email AND ce.persona.id = :id")
+    ContactEmail findContactEmail(@Param("email") String email, @Param("id") Integer id);
 }
