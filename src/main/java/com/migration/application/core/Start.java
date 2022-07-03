@@ -99,6 +99,7 @@ public class Start implements IcreateProponent {
         this.goThroughSimulation();
         this.createdCompanionByPersona();
         this.normaizedProponents();
+        this.goThroughAnalysisBalanceAndIncome();
     }
 
     @Override
